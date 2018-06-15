@@ -1,0 +1,12 @@
+{
+    "name": "hunt-net",
+    "description": "A network library.",
+    "copyright": "Copyright (C) 2015-2018 Shanghai Putao Technology Co., Ltd",
+    "authors": [
+        "HuntLabs.cn"
+    ],
+    "license": "Apache-2.0",
+    "dependencies":{
+		"kiss" : "~>0.4.2"
+	}
+}
