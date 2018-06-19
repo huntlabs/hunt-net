@@ -10,20 +10,23 @@
  */
 
  import hunt.net;
- import kiss.logger;
 
 void main() 
 {   
+    import std.stdio;
+
+    alias logInfo = writeln;
+    alias logDebug= writeln;
     
     auto server = Net.createNetServer();
     server.listen(3003).connectHandler((NetSocket sock){
         size_t count = 0;
         logInfo("server accept a conn");
         sock.handler(
-            ( in ubyte[] data){
-                logInfo("server recved " , cast(string)data , " " , ++count);
+            ( in ubyte[] data){      
+                count = ++count;
+                logInfo("server recved "  , count , " " , data.length);      
                 sock.write(data);
-                logInfo("server send " , cast(string)data , " " , count);
             }
         );
     });
@@ -31,15 +34,17 @@ void main()
     auto client = Net.createNetClient();
     client.connect(3003 , "127.0.0.1" , (bool suc , NetSocket sock)
     {
-        size_t count = 0;
+        size_t count = 1;
         logDebug("client connect a conn " , suc , " " , sock.toHash());
         sock.write("hello world");
         sock.handler((in ubyte[] data){
             import core.thread;
-            logDebug("Client recv " , cast(string)data , " " , ++count);
+            count = ++count;
+            logDebug("Client begin send "  , count);
             Thread.sleep(dur!"seconds"(1));
             sock.write(data);
-            logDebug("Client send " , cast(string)data , " " , count);
+            logDebug("Client send "  , count);
+            
         });
     });   
     import std.stdio;

@@ -11,17 +11,13 @@ class NetServer
 {
     int actualPort()
     {
-        return 0;
+        import std.conv;
+        return to!int(_listener.localAddress.toPortString());
     }
 
     void close()
     {
         _listener.close();
-    }
-
-    ConnectHandler connectHandler()
-    {
-        return _connectHandler;
     }
 
     NetServer connectHandler(ConnectHandler handler)
