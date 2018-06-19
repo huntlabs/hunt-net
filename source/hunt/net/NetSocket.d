@@ -3,8 +3,11 @@ module hunt.net.NetSocket;
 import kiss.net.TcpStream;
 import std.socket;
 
-alias CompletionSockHanlder = void delegate(bool suc , NetSocket sock);
-alias ConnectHandler = void delegate(NetSocket sock);
+import hunt.net.Result;
+
+alias ConnectHandler = void delegate(Result!NetSocket);
+
+alias Handler = void delegate(NetSocket sock);
 alias VoidHandler = void delegate();
 alias DataHandler = void delegate( in ubyte[] data );
 

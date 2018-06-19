@@ -1,11 +1,11 @@
 module hunt.net.NetServer;
 
-
+import hunt.net.Result;
 import hunt.net.NetSocket;
 import kiss.net;
 import kiss.event.EventLoop;
 
-alias CompletionServerHandler = void delegate(bool suc , NetServer server);
+alias ListenHandler = void delegate(Result!NetServer);
 
 class NetServer
 {
@@ -20,22 +20,23 @@ class NetServer
         _listener.close();
     }
 
-    NetServer connectHandler(ConnectHandler handler)
+    NetServer connectHandler(Handler handler)
     {
-        _connectHandler = handler;
+        _handler = handler;
         _listener.onConnectionAccepted(
             (TcpListener sender, TcpStream stream){
                 NetSocket sock = new NetSocket(stream);
-                handler(sock);
+                _handler(sock);
             }
         );
         return this;
     }
 
     NetServer listen(int port = 0 , string host = "0.0.0.0" ,
-    CompletionServerHandler handler = null)
+    ListenHandler handler = null)
     {
         bool suc = true;
+        Result!NetServer result = null;
         try{
             _listener = new TcpListener(_loop);
             _listener.bind(host , cast(ushort)port);
@@ -44,12 +45,17 @@ class NetServer
         }
         catch(Throwable e)
         {
-            suc = false;
+            result = new Result!NetServer(e);
         }
-        if(handler !is null)
+        
+        if(result !is null)
         {
-            handler(suc , this);
+            result = new Result!NetServer(this);
         }
+
+        if(handler !is null)
+            handler(result);
+
         return this;
     }
 
@@ -62,5 +68,5 @@ package:
 private:
         EventLoop       _loop;
         TcpListener     _listener;
-        ConnectHandler  _connectHandler;
+        Handler         _handler;
 }

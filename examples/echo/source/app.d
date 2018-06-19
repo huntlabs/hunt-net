@@ -20,34 +20,36 @@ void main()
     
     auto server = Net.createNetServer();
     server.listen(3003).connectHandler((NetSocket sock){
-        size_t count = 0;
-        logInfo("server accept a conn");
+        logInfo("server have accepted a connection...");
         sock.handler(
             ( in ubyte[] data){      
-                count = ++count;
-                logInfo("server recved "  , count , " " , data.length);      
+                logInfo("server recved data from client");      
                 sock.write(data);
             }
         );
     });
 
     auto client = Net.createNetClient();
-    client.connect(3003 , "127.0.0.1" , (bool suc , NetSocket sock)
+    client.connect(3003 , "127.0.0.1" , (Result!NetSocket result)
     {
-        size_t count = 1;
-        logDebug("client connect a conn " , suc , " " , sock.toHash());
+      
+        if(result.failed())
+        {
+            logDebug(result.cause().toString());
+            return;
+        }
+        auto sock = result.result();
+        logDebug("client have connected to server...");
+        logDebug("client send data to server");
         sock.write("hello world");
         sock.handler((in ubyte[] data){
             import core.thread;
-            count = ++count;
-            logDebug("Client begin send "  , count);
             Thread.sleep(dur!"seconds"(1));
+            logDebug("client send data to server");
             sock.write(data);
-            logDebug("Client send "  , count);
             
         });
     });   
-    import std.stdio;
     getchar();
 
 }
