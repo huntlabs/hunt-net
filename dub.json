@@ -7,6 +7,8 @@
     ],
     "license": "Apache-2.0",
     "dependencies":{
-		"kiss" : "~>0.4.2"
+		"kiss" : {
+            "path": "../kiss"
+        }
 	}
 }

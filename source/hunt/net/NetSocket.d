@@ -1,5 +1,7 @@
 module hunt.net.NetSocket;
 
+// import hunt.net.AsynchronousTcpSession;
+
 import kiss.net.TcpStream;
 import std.socket;
 
@@ -12,7 +14,7 @@ alias VoidHandler = void delegate();
 alias DataHandler = void delegate( in ubyte[] data );
 
 ///
-class NetSocket
+class NetSocket 
 {
     ///
     this(TcpStream tcp)
@@ -59,7 +61,7 @@ class NetSocket
     }
 
      
-    private {
+    protected {
         TcpStream _tcp;
     }
 

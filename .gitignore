@@ -1,0 +1,13 @@
+.dub
+docs.json
+__dummy.html
+docs/
+hunt-http-test-*
+*.exe
+*.o
+*.a
+*.obj
+*.lst
+dub.selections.json
+.vscode/
+examples/echo/hunt-net-echo
