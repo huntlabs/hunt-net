@@ -13,9 +13,9 @@ interface NetEvent {
 
     void notifySessionOpened(Session session);
 
-    void notifyMessageReceived(Session session, Object message);
-
     void notifySessionClosed(Session session);
+
+    void notifyMessageReceived(Session session, Object message);
 
     void notifyExceptionCaught(Session session, Exception t);
 }
@@ -31,28 +31,18 @@ class DefaultNetEvent : NetEvent {
     }
 
     override
-    void notifySessionClosed(Session session) {
+    void notifySessionOpened(Session session) {
         try {
-            config.getHandler().sessionClosed(session);
+            config.getHandler().sessionOpened(session);
         } catch (Exception t) {
             notifyExceptionCaught(session, t);
         }
     }
 
     override
-    void notifyExceptionCaught(Session session, Exception t) {
+    void notifySessionClosed(Session session) {
         try {
-            config.getHandler().exceptionCaught(session, t);
-        } catch (Exception t0) {
-            error("handler exception", t0);
-        }
-
-    }
-
-    override
-    void notifySessionOpened(Session session) {
-        try {
-            config.getHandler().sessionOpened(session);
+            config.getHandler().sessionClosed(session);
         } catch (Exception t) {
             notifyExceptionCaught(session, t);
         }
@@ -68,4 +58,13 @@ class DefaultNetEvent : NetEvent {
         }
     }
 
+    override
+    void notifyExceptionCaught(Session session, Exception t) {
+        try {
+            config.getHandler().exceptionCaught(session, t);
+        } catch (Exception t0) {
+            error("handler exception", t0);
+        }
+
+    }
 }

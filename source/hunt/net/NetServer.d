@@ -17,6 +17,7 @@ class NetServer : Server
 {
     private string _host = "0.0.0.0";
     private int _port = 8080;
+    private int _sessionId;
     private Config _config;
     private NetEvent netEvent;
     private AsynchronousTcpSession tcpSession;
@@ -56,8 +57,9 @@ class NetServer : Server
             _listener.bind(_host , cast(ushort)_port);
             _listener.listen(1024);
             
-            _listener.onConnectionAccepted( (TcpListener sender, TcpStream stream){
-                    AsynchronousTcpSession session = new AsynchronousTcpSession(_config, netEvent, stream); // NetSocket(stream);
+            _listener.onConnectionAccepted( (TcpListener sender, TcpStream stream) {
+                    _sessionId++;
+                    AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId, _config, netEvent, stream); // NetSocket(stream);
                     netEvent.notifySessionOpened(session);
                     _handler(session);
                 }
@@ -66,9 +68,10 @@ class NetServer : Server
             _listener.start();
             _isStarted = true;
         }
-        catch(Throwable e)
+        catch(Exception e)
         {
             result = new Result!NetServer(e);
+             _config.getHandler().failedOpeningSession(0, e);
         }
         
         if(result !is null)

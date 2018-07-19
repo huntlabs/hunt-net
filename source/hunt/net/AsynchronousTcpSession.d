@@ -16,12 +16,14 @@ import std.socket;
 
 class AsynchronousTcpSession : NetSocket, Session
 {
+    protected int sessionId;
     protected Config _config;
     protected NetEvent _netEvent;
     protected Object attachment;
     protected bool _isOpen = false;
 
-    this(Config config, NetEvent netEvent, TcpStream tcp) {
+    this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
+        this.sessionId = sessionId;
         this._config = config;
         this._netEvent = netEvent;
         super(tcp);
@@ -126,7 +128,7 @@ class AsynchronousTcpSession : NetSocket, Session
         }
     }
 
-    int getSessionId(){ implementationMissing(false); return 0; }
+    int getSessionId(){ return sessionId; }
 
     long getOpenTime(){ implementationMissing(false); return 0; }
 
