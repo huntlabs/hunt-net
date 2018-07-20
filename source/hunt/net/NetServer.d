@@ -61,7 +61,8 @@ class NetServer : Server
                     _sessionId++;
                     AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId, _config, netEvent, stream); // NetSocket(stream);
                     netEvent.notifySessionOpened(session);
-                    _handler(session);
+                    if(_handler !is  null)
+                        _handler(session);
                 }
             );
 

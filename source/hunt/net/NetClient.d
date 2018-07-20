@@ -39,6 +39,8 @@ class NetClient : Client
                 {
                     AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId, _config, netEvent, client); 
                     netEvent.notifySessionOpened(session);
+                    if(_handler !is null)
+                        _handler(session);
                     result = new Result!NetSocket(session);
                     _isStarted = true;
                 }
@@ -53,6 +55,14 @@ class NetClient : Client
 
             }
         ).connect(host , cast(ushort)port);
+
+        return this;
+    }
+
+
+    NetClient connectHandler(Handler handler)
+    {
+        _handler = handler;
 
         return this;
     }
@@ -130,5 +140,6 @@ private:
     ///
     EventLoop _loop;
     NetSocket _sock;
+    Handler         _handler;
 }
 

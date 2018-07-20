@@ -9,6 +9,7 @@ import hunt.container;
 import hunt.util.exception;
 import hunt.util.functional;
 
+import kiss.logger;
 import kiss.net.TcpStream;
 
 import std.socket;
@@ -21,6 +22,9 @@ class AsynchronousTcpSession : NetSocket, Session
     protected NetEvent _netEvent;
     protected Object attachment;
     protected bool _isOpen = false;
+    protected bool _isShutdownOutput = false;
+    protected bool _isShutdownInput = false;
+    protected bool _isWaitingForClose = false;
 
     this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
         this.sessionId = sessionId;
@@ -50,20 +54,13 @@ class AsynchronousTcpSession : NetSocket, Session
     }
 
     override
-    bool isOpen() {
-        return _isOpen;
-    }
-
-    override
     void write(ByteBuffer buffer, Callback callback) {
-        // outboundData.offer(buffer);
-        buffer.flip();
+        version(HuntDebugMode)
+        tracef("writting buffer: %s", buffer.toString());
 
         byte[] data = buffer.array;
         int start = buffer.position();
         int end = buffer.limit();
-        // int start = buffer.arrayOffset() + buffer.position();
-        // int end = start + buffer.remaining();
 
         super.write(cast(ubyte[])data[start .. end]);
         callback.succeeded();
@@ -71,24 +68,17 @@ class AsynchronousTcpSession : NetSocket, Session
 
     override
     void write(ByteBuffer[] buffers, Callback callback) {
-        foreach (ByteBuffer buffer ; buffers) {           
-
-            // byte[] data = buffer.array;
-            // int start = buffer.arrayOffset() + buffer.position();
-            // int end = start + buffer.remaining();
-
-            buffer.flip();
+        foreach (ByteBuffer buffer ; buffers) { 
+            version(HuntDebugMode)
+            tracef("writting buffer: %s", buffer.toString());
 
             byte[] data = buffer.array;
             int start = buffer.position();
             int end = buffer.limit();
 
             super.write(cast(ubyte[])data[start .. end]);
-
-            buffer.flip();
         }
         callback.succeeded();
-
     }
 
     override
@@ -97,17 +87,6 @@ class AsynchronousTcpSession : NetSocket, Session
     }
 
     alias write = NetSocket.write;
-
-    // override
-    // void write(OutputEntry!(?) entry) {
-    //     if (entry instanceof ByteBufferOutputEntry) {
-    //         ByteBufferOutputEntry outputEntry = (ByteBufferOutputEntry) entry;
-    //         write(outputEntry.getData(), outputEntry.getCallback());
-    //     } else {
-    //         ByteBufferArrayOutputEntry outputEntry = (ByteBufferArrayOutputEntry) entry;
-    //         write(outputEntry.getData(), outputEntry.getCallback());
-    //     }
-    // }
 
     override
     void closeNow() {
@@ -152,17 +131,57 @@ class AsynchronousTcpSession : NetSocket, Session
         super.close(); 
     }
 
-    void shutdownOutput(){ implementationMissing(false); }
 
-    void shutdownInput(){ implementationMissing(false); }
+    private void shutdownSocketChannel() {
+        shutdownOutput();
+        shutdownInput();
+    }
+
+    void shutdownOutput(){ 
+        if (_isShutdownOutput) {
+            tracef("The session %d is already shutdown output", sessionId);
+        } else {
+            _isShutdownOutput = true;
+            try {
+                _tcp.shutdownOutput();
+                tracef("The session %d is shutdown output", sessionId);
+            } catch (ClosedChannelException e) {
+                warningf("Shutdown output exception. The session %d is closed", sessionId);
+            } catch (IOException e) {
+                errorf("The session %d shutdown output I/O exception. %s", sessionId, e.message);
+            }
+        }
+    }
+
+    void shutdownInput(){ 
+        if (_isShutdownInput) {
+            tracef("The session %d is already shutdown input", sessionId);
+        } else {
+            _isShutdownInput = true;
+            try {
+                _tcp.shutdownInput();
+                tracef("The session %d is shutdown input", sessionId);
+            } catch (ClosedChannelException e) {
+                warningf("Shutdown input exception. The session %d is closed", sessionId);
+            } catch (IOException e) {
+                errorf("The session %d shutdown input I/O exception. %s", sessionId, e.message);
+            }
+        }
+     }
+
+
+    override
+    bool isOpen() {
+        return _isOpen;
+    }
 
     bool isClosed(){ return !_isOpen; }
 
-    bool isShutdownOutput(){ implementationMissing(false); return false; }
+    bool isShutdownOutput(){ return _isShutdownOutput; }
 
-    bool isShutdownInput(){ implementationMissing(false); return false; }
+    bool isShutdownInput(){ return _isShutdownInput; }
 
-    bool isWaitingForClose(){ implementationMissing(false); return false; }
+    bool isWaitingForClose(){ return _isWaitingForClose; }
 
     Address getLocalAddress(){ return localAddress(); }
 

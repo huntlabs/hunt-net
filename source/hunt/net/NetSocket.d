@@ -1,11 +1,10 @@
 module hunt.net.NetSocket;
 
-// import hunt.net.AsynchronousTcpSession;
-
+import kiss.logger;
 import kiss.net.TcpStream;
-import std.socket;
 
 import hunt.net.Result;
+import std.socket;
 
 alias ConnectHandler = void delegate(Result!NetSocket);
 
@@ -51,6 +50,8 @@ class NetSocket
     ////
     NetSocket   write(in ubyte[] data)
     {
+        // version(HuntDebugMode)
+        tracef("writting data %d bytes", data.length);
          _tcp.write(data);
          return this;
     }
