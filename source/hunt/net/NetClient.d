@@ -114,7 +114,8 @@ class NetClient : Client
                 return;
 
             // destroy();
-            _sock.close();
+            if(_sock !is null)
+                _sock.close();
 
             _isStarted = false;
         }

@@ -21,7 +21,6 @@ class AsynchronousTcpSession : NetSocket, Session
     protected Config _config;
     protected NetEvent _netEvent;
     protected Object attachment;
-    protected bool _isOpen = false;
     protected bool _isShutdownOutput = false;
     protected bool _isShutdownInput = false;
     protected bool _isWaitingForClose = false;
@@ -30,6 +29,7 @@ class AsynchronousTcpSession : NetSocket, Session
         this.sessionId = sessionId;
         this._config = config;
         this._netEvent = netEvent;
+        
         super(tcp);
     }
 
@@ -90,7 +90,7 @@ class AsynchronousTcpSession : NetSocket, Session
 
     override
     void closeNow() {
-        _isOpen = false;
+        close();
     }
 
 
@@ -127,7 +127,6 @@ class AsynchronousTcpSession : NetSocket, Session
 
     override
     void close(){ 
-        _isOpen = false;
         super.close(); 
     }
 
@@ -172,10 +171,10 @@ class AsynchronousTcpSession : NetSocket, Session
 
     override
     bool isOpen() {
-        return _isOpen;
+        return _tcp.isConnected();
     }
 
-    bool isClosed(){ return !_isOpen; }
+    bool isClosed(){ return _tcp.isClosed(); }
 
     bool isShutdownOutput(){ return _isShutdownOutput; }
 
