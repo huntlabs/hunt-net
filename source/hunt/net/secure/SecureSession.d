@@ -1,12 +1,14 @@
-module hunt.net.SecureSession;
+module hunt.net.secure.SecureSession;
 
 import hunt.container.ByteBuffer;
 import hunt.util.functional;
 
+import hunt.net.secure.ApplicationProtocolSelector;
+
 /**
  * 
  */
-public interface SecureSession { // : Closeable, ApplicationProtocolSelector 
+public interface SecureSession : ApplicationProtocolSelector { // : Closeable,  
 
     bool isOpen();
 
@@ -22,3 +24,6 @@ public interface SecureSession { // : Closeable, ApplicationProtocolSelector
 
     bool isClientMode();
 }
+
+
+alias SecureSessionHandshakeListener = void delegate(SecureSession secureSession);

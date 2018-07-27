@@ -1,15 +1,9 @@
-module hunt.net.SecureSessionFactory;
+module hunt.net.secure.SecureSessionFactory;
 
 import hunt.container.List;
 
-import hunt.net.SecureSession;
-import hunt.net.Session;
-
-// interface SecureSessionHandshakeListener {
-
-//     void complete(SecureSession secureSession);
-
-// }
+import hunt.net.secure.SecureSession;
+import hunt.net.secure.Session;
 
 alias SecureSessionHandshakeListener = void delegate(SecureSession secureSession);
 

@@ -6,7 +6,7 @@ abstract class EncoderChain : Encoder {
 	
 	protected EncoderChain next;
 	
-	this() {}
+	this() { }
 
 	this(EncoderChain next) {
 		this.next = next;
