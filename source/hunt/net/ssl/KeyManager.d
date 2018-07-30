@@ -33,5 +33,5 @@ public interface KeyManager {
  * @see TrustManagerFactory
  * @since 1.4
  */
-public interface TrustManager {
+interface TrustManager {
 }
