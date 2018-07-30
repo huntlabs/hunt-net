@@ -90,11 +90,11 @@ abstract class SecureUtils {
     // public static X509TrustManager createX509TrustManagerNoCheck() {
     //     return new class X509TrustManager {
     //         override
-    //         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+    //         public void checkClientTrusted(X509Certificate[] chain, string authType) throws CertificateException {
     //         }
 
     //         override
-    //         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+    //         public void checkServerTrusted(X509Certificate[] chain, string authType) throws CertificateException {
     //         }
 
     //         override

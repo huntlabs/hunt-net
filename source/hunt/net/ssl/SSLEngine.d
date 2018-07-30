@@ -1,6 +1,11 @@
 module hunt.net.ssl.SSLEngine;
 
 import hunt.net.ssl.SSLEngineResult;
+import hunt.net.ssl.SSLSession;
+
+import hunt.container.ByteBuffer;
+
+import hunt.util.exception;
 
 /**
  * A class which enables secure communications using protocols such as
@@ -439,7 +444,7 @@ abstract class SSLEngine {
      */
     SSLEngineResult wrap(ByteBuffer src,
             ByteBuffer dst) {
-        return wrap(new ByteBuffer [] { src }, 0, 1, dst);
+        return wrap([src], 0, 1, dst);
     }
 
     /**
@@ -479,7 +484,7 @@ abstract class SSLEngine {
         if (srcs == null) {
             throw new IllegalArgumentException("src == null");
         }
-        return wrap(srcs, 0, srcs.length, dst);
+        return wrap(srcs, 0, cast(int)srcs.length, dst);
     }
 
 
@@ -594,7 +599,7 @@ abstract class SSLEngine {
      */
     SSLEngineResult unwrap(ByteBuffer src,
             ByteBuffer dst) {
-        return unwrap(src, new ByteBuffer [] { dst }, 0, 1);
+        return unwrap(src, [dst], 0, 1);
     }
 
     /**
@@ -631,10 +636,10 @@ abstract class SSLEngine {
      */
     SSLEngineResult unwrap(ByteBuffer src,
             ByteBuffer [] dsts) {
-        if (dsts == null) {
-            throw new IllegalArgumentException("dsts == null");
+        if (dsts is null) {
+            throw new IllegalArgumentException("dsts is null");
         }
-        return unwrap(src, dsts, 0, dsts.length);
+        return unwrap(src, dsts, 0, cast(int)dsts.length);
     }
 
     /**
@@ -977,7 +982,7 @@ abstract class SSLEngine {
      * @since 1.7
      */
     SSLSession getHandshakeSession() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("");
     }
 
 

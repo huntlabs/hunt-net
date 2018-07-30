@@ -3,9 +3,8 @@ module hunt.net.secure.SecureSessionFactory;
 import hunt.container.List;
 
 import hunt.net.secure.SecureSession;
-import hunt.net.secure.Session;
+import hunt.net.Session;
 
-alias SecureSessionHandshakeListener = void delegate(SecureSession secureSession);
 
 /**
  * 
@@ -19,8 +18,8 @@ interface SecureSessionFactory {
                          string peerHost, int peerPort,
                          SecureSessionHandshakeListener secureSessionHandshakeListener);
 
-    void setSupportedProtocols(List!string supportedProtocols);
+    void setSupportedProtocols(string[] supportedProtocols);
 
-    List!string getSupportedProtocols();
+    string[] getSupportedProtocols();
 
 }

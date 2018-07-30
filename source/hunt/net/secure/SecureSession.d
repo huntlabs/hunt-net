@@ -3,12 +3,12 @@ module hunt.net.secure.SecureSession;
 import hunt.container.ByteBuffer;
 import hunt.util.functional;
 
-import hunt.net.secure.ApplicationProtocolSelector;
+import hunt.net.secure.ProtocolSelector;
 
 /**
  * 
  */
-public interface SecureSession : ApplicationProtocolSelector { // : Closeable,  
+public interface SecureSession : ProtocolSelector { // : Closeable,  
 
     bool isOpen();
 

@@ -1,11 +1,19 @@
 module hunt.net.secure.conscrypt.Conscrypt;
 
+import hunt.net.secure.conscrypt.AbstractConscryptEngine;
+import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
+
+import hunt.net.ssl.NativeConstants;
+import hunt.net.ssl.SSLEngine;
+import hunt.net.ssl.SSLSocket;
+
 import hunt.net.exception;
+import hunt.util.exception;
 
 /**
  * Core API for creating and configuring all Conscrypt types.
  */
-@SuppressWarnings("unused")
+
 final class Conscrypt {
     private this() {}
 
@@ -282,10 +290,10 @@ final class Conscrypt {
      * @param socket the socket
      * @param selector the ALPN protocol selector
      */
-    static void setApplicationProtocolSelector(SSLSocket socket,
-        ApplicationProtocolSelector selector) {
-        toConscrypt(socket).setApplicationProtocolSelector(selector);
-    }
+    // static void setApplicationProtocolSelector(SSLSocket socket,
+    //     ApplicationProtocolSelector selector) {
+    //     toConscrypt(socket).setApplicationProtocolSelector(selector);
+    // }
 
     // /**
     //  * Sets the application-layer protocols (ALPN) in prioritization order.

@@ -2,6 +2,14 @@ module hunt.net.secure.conscrypt.ConscryptALPNSelector;
 
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
+import hunt.net.secure.conscrypt.Conscrypt;
+
+import hunt.net.ssl.SSLEngine;
+import hunt.net.ssl.SSLSocket;
+
+import hunt.util.string;
+import kiss.logger;
+
 
 class ConscryptALPNSelector : ProtocolSelector {
 
@@ -11,12 +19,12 @@ class ConscryptALPNSelector : ProtocolSelector {
     private SSLEngine sslEngine;
 
     this(SSLEngine sslEngine, string[] supportedProtocolList) {
-        if (CollectionUtils.isEmpty(supportedProtocolList)) {
+        if (supportedProtocolList is null) {
             this.supportedProtocolList = ["h2", "http/1.1"];
         } else {
             this.supportedProtocolList = supportedProtocolList;
         }
-        supportedProtocols = this.supportedProtocolList.toArray(StringUtils.EMPTY_STRING_ARRAY);
+        supportedProtocols = this.supportedProtocolList;
         this.sslEngine = sslEngine;
         if (sslEngine.getUseClientMode()) {
             Conscrypt.setApplicationProtocols(sslEngine, supportedProtocols);
@@ -39,7 +47,7 @@ class ConscryptALPNSelector : ProtocolSelector {
 
         string select(string[] clientProtocols) {
             if (clientProtocols is null)
-            return null;
+                return null;
 
             foreach (string p ; supportedProtocols) {
                 if (clientProtocols.contains(p)) {
@@ -47,6 +55,8 @@ class ConscryptALPNSelector : ProtocolSelector {
                     return p;
                 }
             }
+
+            return null;
         }
     }
 

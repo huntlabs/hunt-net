@@ -74,7 +74,7 @@ class SSLEngineResult {
          * <code>SSLEngine</code>, or the operation
          * could not be completed because it was already closed.
          */
-        CLOSED;
+        CLOSED
     }
 
     /**
@@ -126,14 +126,14 @@ class SSLEngineResult {
          * The <code>SSLEngine</code> needs to receive data from the
          * remote side before handshaking can continue.
          */
-        NEED_UNWRAP;
+        NEED_UNWRAP
     }
 
 
     private Status status;
     private HandshakeStatus handshakeStatus;
-    private int bytesConsumed;
-    private int bytesProduced;
+    private int _bytesConsumed;
+    private int _bytesProduced;
 
     /**
      * Initializes a new instance of this class.
@@ -158,15 +158,14 @@ class SSLEngineResult {
     this(Status status, HandshakeStatus handshakeStatus,
             int bytesConsumed, int bytesProduced) {
 
-        if ((status == null) || (handshakeStatus == null) ||
-                (bytesConsumed < 0) || (bytesProduced < 0)) {
+        if ((bytesConsumed < 0) || (bytesProduced < 0)) {
             throw new IllegalArgumentException("Invalid Parameter(s)");
         }
 
         this.status = status;
         this.handshakeStatus = handshakeStatus;
-        this.bytesConsumed = bytesConsumed;
-        this.bytesProduced = bytesProduced;
+        this._bytesConsumed = bytesConsumed;
+        this._bytesProduced = bytesProduced;
     }
 
     /**
@@ -194,7 +193,7 @@ class SSLEngineResult {
      * @return  the number of bytes consumed.
      */
     int bytesConsumed() {
-        return bytesConsumed;
+        return _bytesConsumed;
     }
 
     /**
@@ -203,7 +202,7 @@ class SSLEngineResult {
      * @return  the number of bytes produced
      */
     int bytesProduced() {
-        return bytesProduced;
+        return _bytesProduced;
     }
 
     /**
@@ -213,7 +212,7 @@ class SSLEngineResult {
     string toString() {
         return ("Status = " ~ status.to!string() ~
             " HandshakeStatus = " ~ handshakeStatus.to!string() ~
-            "\nbytesConsumed = " ~ bytesConsumed.to!string() ~
-            " bytesProduced = " ~ bytesProduced.to!string());
+            "\nbytesConsumed = " ~ _bytesConsumed.to!string() ~
+            " bytesProduced = " ~ _bytesProduced.to!string());
     }
 }

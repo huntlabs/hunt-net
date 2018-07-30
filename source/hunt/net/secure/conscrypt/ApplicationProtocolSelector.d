@@ -1,5 +1,7 @@
 module hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 
+import hunt.net.ssl.SSLSocket;
+
 import hunt.net.ssl;
 
 /**

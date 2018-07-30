@@ -1,4 +1,6 @@
-module hunt.net.ssl;
+module hunt.net.ssl.X509TrustManager;
+
+import hunt.net.ssl.KeyManager;
 
 /**
  * Instance of this interface manage which X509 certificates
@@ -28,7 +30,7 @@ public interface X509TrustManager : TrustManager {
      * @throws CertificateException if the certificate chain is not trusted
      *         by this TrustManager.
      */
-    // public void checkClientTrusted(X509Certificate[] chain, String authType);
+    // public void checkClientTrusted(X509Certificate[] chain, string authType);
 
     /**
      * Given the partial or complete certificate chain provided by the
@@ -37,7 +39,7 @@ public interface X509TrustManager : TrustManager {
      * authentication based on the authentication type.
      * <p>
      * The authentication type is the key exchange algorithm portion
-     * of the cipher suites represented as a String, such as "RSA",
+     * of the cipher suites represented as a string, such as "RSA",
      * "DHE_DSS". Note: for some exportable cipher suites, the key
      * exchange algorithm is determined at run time during the
      * handshake. For instance, for TLS_RSA_EXPORT_WITH_RC4_40_MD5,
@@ -53,7 +55,7 @@ public interface X509TrustManager : TrustManager {
      * @throws CertificateException if the certificate chain is not trusted
      *         by this TrustManager.
      */
-    // public void checkServerTrusted(X509Certificate[] chain, String authType);
+    // public void checkServerTrusted(X509Certificate[] chain, string authType);
 
     /**
      * Return an array of certificate authority certificates

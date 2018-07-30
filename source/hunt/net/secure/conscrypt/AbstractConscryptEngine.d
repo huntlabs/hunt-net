@@ -1,13 +1,18 @@
 module hunt.net.secure.conscrypt.AbstractConscryptEngine;
 
+import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
+import hunt.net.secure.conscrypt.common;
 import hunt.net.ssl;
 
+import hunt.security.key;
+
+import hunt.container.ByteBuffer;
 
 /**
  * Abstract base class for all Conscrypt {@link SSLEngine} classes.
  */
 abstract class AbstractConscryptEngine : SSLEngine {
-    abstract void setBufferAllocator(BufferAllocator bufferAllocator);
+//     abstract void setBufferAllocator(BufferAllocator bufferAllocator);
 
     /**
      * Returns the maximum overhead, in bytes, of sealing a record with SSL.

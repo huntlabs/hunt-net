@@ -1,15 +1,21 @@
 module hunt.net.secure.conscrypt.ConscryptSecureSessionFactory;
 
+import hunt.net.secure.SSLContextFactory;
 import hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
+import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptSSLSession;
 
+import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.SecureUtils;
+import hunt.net.secure.SecureSession;
 
-import hunt.net.SecureSession;
+import hunt.net.secure.SecureSessionFactory;
+import hunt.net.Session;
 import hunt.net.ssl;
 
 import hunt.io.ByteArrayInputStream;
 import hunt.util.exception;
+import hunt.util.TypeUtils;
 
 import kiss.logger;
 
@@ -54,7 +60,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
-        Tuple!(SSLEngine, ApplicationProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
+        Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
@@ -63,7 +69,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
-        Tuple!(SSLEngine, ApplicationProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode, peerHost, peerPort);
+        Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode, peerHost, peerPort);
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
@@ -109,4 +115,6 @@ public class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLC
             return null;
         }
     }
+
+    alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
 }
