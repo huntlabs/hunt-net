@@ -5,6 +5,7 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSessionContext;
 import hunt.net.ssl.SSLSocket;
 import hunt.net.ssl.SSLParameters;
+import hunt.net.ssl.SSLSocketFactory;
 
 import hunt.util.exception;
 
@@ -41,7 +42,7 @@ abstract class SSLContextSpi {
      *         has not been called
      * @see javax.net.ssl.SSLContext#getSocketFactory()
      */
-    // abstract SSLSocketFactory engineGetSocketFactory();
+    abstract SSLSocketFactory engineGetSocketFactory();
 
     /**
      * Returns a <code>ServerSocketFactory</code> object for

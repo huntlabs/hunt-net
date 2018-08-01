@@ -2,6 +2,8 @@ module hunt.net.ssl.X509TrustManager;
 
 import hunt.net.ssl.KeyManager;
 
+import hunt.security.cert.X509Certificate;
+
 /**
  * Instance of this interface manage which X509 certificates
  * may be used to authenticate the remote side of a secure
@@ -11,7 +13,7 @@ import hunt.net.ssl.KeyManager;
  *
  * @since 1.4
  */
-public interface X509TrustManager : TrustManager {
+interface X509TrustManager : TrustManager {
     /**
      * Given the partial or complete certificate chain provided by the
      * peer, build a certificate path to a trusted root and return if
@@ -30,7 +32,7 @@ public interface X509TrustManager : TrustManager {
      * @throws CertificateException if the certificate chain is not trusted
      *         by this TrustManager.
      */
-    // public void checkClientTrusted(X509Certificate[] chain, string authType);
+    void checkClientTrusted(X509Certificate[] chain, string authType);
 
     /**
      * Given the partial or complete certificate chain provided by the
@@ -55,7 +57,7 @@ public interface X509TrustManager : TrustManager {
      * @throws CertificateException if the certificate chain is not trusted
      *         by this TrustManager.
      */
-    // public void checkServerTrusted(X509Certificate[] chain, string authType);
+    void checkServerTrusted(X509Certificate[] chain, string authType);
 
     /**
      * Return an array of certificate authority certificates
@@ -64,5 +66,5 @@ public interface X509TrustManager : TrustManager {
      * @return a non-null (possibly empty) array of acceptable
      *          CA issuer certificates.
      */
-    // public X509Certificate[] getAcceptedIssuers();
+    X509Certificate[] getAcceptedIssuers();
 }

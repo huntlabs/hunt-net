@@ -1,6 +1,7 @@
 module hunt.net.ssl.SSLSessionContext;
 
 import hunt.net.ssl.SSLSession;
+import hunt.container;
 
 
 /**
@@ -47,7 +48,7 @@ interface SSLSessionContext {
      *
      * @return an enumeration of all the Session id's
      */
-    // Enumeration<byte[]> getIds();
+    Enumeration!(byte[]) getIds();
 
     /**
      * Sets the timeout limit for <code>SSLSession</code> objects grouped

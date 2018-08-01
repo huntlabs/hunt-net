@@ -95,11 +95,9 @@ public class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFact
     override
     public SSLContext getSSLContext() {
         try {
-            // return getSSLContextWithManager(null, new TrustManager[]{SecureUtils.createX509TrustManagerNoCheck()}, null);
-            implementationMissing(false);
-            return null;
+            return getSSLContextWithManager(null, [SecureUtils.createX509TrustManagerNoCheck()]);
         } catch (Exception e) {
-            errorf("get SSL context error", e);
+            errorf("get SSL context error: %s", e.msg);
             return null;
         }
     }

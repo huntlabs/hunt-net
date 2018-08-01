@@ -9,7 +9,7 @@ import hunt.util.exception;
 import std.socket;
 
 /**
- * This class extends <code>Socket</code>s and provides secure
+ * This class : <code>Socket</code>s and provides secure
  * socket using protocols such as the "Secure
  * Sockets Layer" (SSL) or IETF "Transport Layer Security" (TLS) protocols.
  * <P>

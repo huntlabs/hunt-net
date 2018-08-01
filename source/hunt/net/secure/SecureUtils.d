@@ -1,5 +1,8 @@
 module hunt.net.secure.SecureUtils;
 
+import hunt.net.ssl.X509TrustManager;
+import hunt.security.cert.X509Certificate;
+
 abstract class SecureUtils {
 
     enum byte[] DEFAULT_CREDENTIAL = [-2, -19, -2, -19, 0, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13, 102, 105, 114, 
@@ -87,20 +90,17 @@ abstract class SecureUtils {
     -16, 20, -117, 2, 98, -40, 29, -79, -35, -53, 74, -84, -101, -69, 86, -36, 15, 2, 91, -111, -9, -38, -5, 11, -66, 11, 117, 
     -83, 50, -91, -34, -55, -59, 57, 86, -39, 14, 80, 21, -102, 56, 45, -79, 3, -54, 12, -118, -13, 1, -55 ];
 
-    // public static X509TrustManager createX509TrustManagerNoCheck() {
-    //     return new class X509TrustManager {
-    //         override
-    //         public void checkClientTrusted(X509Certificate[] chain, string authType) throws CertificateException {
-    //         }
+    static X509TrustManager createX509TrustManagerNoCheck() {
+        return new class X509TrustManager {
+            override void checkClientTrusted(X509Certificate[] chain, string authType) {
+            }
 
-    //         override
-    //         public void checkServerTrusted(X509Certificate[] chain, string authType) throws CertificateException {
-    //         }
+            override void checkServerTrusted(X509Certificate[] chain, string authType){
+            }
 
-    //         override
-    //         public X509Certificate[] getAcceptedIssuers() {
-    //             return null;
-    //         }
-    //     };
-    // }
+            override X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+        };
+    }
 }

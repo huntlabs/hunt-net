@@ -2,6 +2,10 @@ module hunt.net.ssl.SSLSession;
 
 import hunt.net.ssl.SSLSessionContext;
 
+import hunt.security.cert.Certificate;
+import hunt.security.cert.X509Certificate;
+import hunt.security.Principal;
+
 /**
  * In SSL, sessions are used to describe an ongoing relationship between
  * two entities.  Each SSL connection involves one session at a time, but
@@ -202,7 +206,7 @@ interface SSLSession {
      *          been verified
      * @see #getPeerPrincipal()
      */
-//     java.security.cert.Certificate [] getPeerCertificates();
+    Certificate[] getPeerCertificates();
 
     /**
      * Returns the certificate(s) that were sent to the peer during
@@ -224,7 +228,7 @@ interface SSLSession {
      *
      * @see #getLocalPrincipal()
      */
-//     java.security.cert.Certificate [] getLocalCertificates();
+    Certificate [] getLocalCertificates();
 
     /**
      * Returns the identity of the peer which was identified as part
@@ -247,7 +251,7 @@ interface SSLSession {
      *          has not been verified
      * @see #getPeerPrincipal()
      */
-//     javax.security.cert.X509Certificate [] getPeerCertificateChain();
+    X509Certificate [] getPeerCertificateChain();
 
     /**
      * Returns the identity of the peer which was established as part of
@@ -265,7 +269,7 @@ interface SSLSession {
      *
      * @since 1.5
      */
-//     Principal getPeerPrincipal();
+    Principal getPeerPrincipal();
 
     /**
      * Returns the principal that was sent to the peer during handshaking.
@@ -280,7 +284,7 @@ interface SSLSession {
      *
      * @since 1.5
      */
-//     Principal getLocalPrincipal();
+    Principal getLocalPrincipal();
 
     /**
      * Returns the name of the SSL cipher suite which is used for all
