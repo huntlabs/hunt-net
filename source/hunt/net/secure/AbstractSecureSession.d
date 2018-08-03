@@ -46,7 +46,9 @@ abstract class AbstractSecureSession : SecureSession {
         this.applicationProtocolSelector = applicationProtocolSelector;
         this.handshakeListener = handshakeListener;
 
-        receivedAppBuf = newBuffer(sslEngine.getSession().getApplicationBufferSize());
+        SSLSession ses = sslEngine.getSession();
+receivedAppBuf = newBuffer(ses.getApplicationBufferSize());
+        // receivedAppBuf = newBuffer(sslEngine.getSession().getApplicationBufferSize());
         initialHSComplete = false;
 
         // start tls

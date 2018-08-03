@@ -63,7 +63,7 @@ class DefaultNetEvent : NetEvent {
         try {
             config.getHandler().exceptionCaught(session, t);
         } catch (Exception t0) {
-            error("handler exception", t0);
+            error("handler exception: ", t0);
         }
 
     }

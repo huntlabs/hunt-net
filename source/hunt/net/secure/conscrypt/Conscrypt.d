@@ -379,7 +379,9 @@ final class Conscrypt {
      * Indicates whether the given {@link SSLEngine} was created by this distribution of Conscrypt.
      */
     static bool isConscrypt(SSLEngine engine) {
-        return typeid(engine) == typeid(AbstractConscryptEngine);
+        AbstractConscryptEngine e = cast(AbstractConscryptEngine)engine;
+        return e !is null;
+        // return typeid(engine) == typeid(AbstractConscryptEngine);
     }
 
     private static AbstractConscryptEngine toConscrypt(SSLEngine engine) {

@@ -254,7 +254,7 @@ final class NativeCrypto {
         SSL* ssl = deimos.openssl.ssl.SSL_new(ssl_ctx);
         if (ssl is null) {
             warning("Unable to create SSL structure");
-            tracef("ssl_ctx=%s NativeCrypto_SSL_new => null", ssl_ctx);
+            tracef("ssl_ctx=%s SSL_new => null", ssl_ctx);
             return 0;
         }
 
@@ -265,13 +265,13 @@ final class NativeCrypto {
         // if (appData is null) {
         //     warning("Unable to create application data");
         //     deimos.openssl.ssl.ERR_clear_error();
-        //     tracef("ssl_ctx=%s NativeCrypto_SSL_new appData => 0", ssl_ctx);
+        //     tracef("ssl_ctx=%s SSL_new appData => 0", ssl_ctx);
         //     return 0;
         // }
         // deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
         // deimos.openssl.ssl.SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, cert_verify_callback);
 
-        // tracef("ssl_ctx=%s NativeCrypto_SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
+        // tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
         implementationMissing(false);
         return cast(long)ssl;        
     }
@@ -311,13 +311,13 @@ return null;
         // size_t ret = deimos.openssl.ssl.SSL_get_tls_channel_id(ssl, bytes.ptr, 64);
         // if (ret == 0) {
         //     // Channel ID either not set or did not verify
-        //     tracef("NativeCrypto_SSL_get_tls_channel_id(%s) => not available", ssl);
+        //     tracef("SSL_get_tls_channel_id(%s) => not available", ssl);
         //     return null;
         // } else if (ret != 64) {
         //     CONSCRYPT_LOG_ERROR("%s", ERR_error_string(ERR_peek_error(), null));
         //     conscrypt::jniutil::throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
         //                                                     "Error getting Channel ID");
-        //     tracef("ssl=%s NativeCrypto_SSL_get_tls_channel_id => error, returned %zd", ssl, ret);
+        //     tracef("ssl=%s SSL_get_tls_channel_id => error, returned %zd", ssl, ret);
         //     return null;
         // }
 
@@ -441,7 +441,7 @@ return null;
         // SSL_get0_signed_cert_timestamp_list(ssl, &data, &data_len);
 
         // if (data_len == 0) {
-        //     tracef("NativeCrypto_SSL_get_signed_cert_timestamp_list(%s) => null", ssl);
+        //     tracef("SSL_get_signed_cert_timestamp_list(%s) => null", ssl);
         //     return null;
         // }
 
@@ -474,7 +474,7 @@ return null;
             return;
         }
 
-implementationMissing();
+        implementationMissing(false);
         // deimos.openssl.ssl.SSL_enable_ocsp_stapling(ssl);        
     }
 
@@ -491,18 +491,18 @@ implementationMissing();
         // SSL_get0_ocsp_response(ssl, &data, &data_len);
 
         // if (data_len == 0) {
-        //     JNI_TRACE("NativeCrypto_SSL_get_ocsp_response(%s) => null", ssl);
+        //     JNI_TRACE("SSL_get_ocsp_response(%s) => null", ssl);
         //     return null;
         // }
 
         // ScopedLocalRef<jbyteArray> byteArray(env, env.NewByteArray(static_cast<jsize>(data_len)));
         // if (byteArray.get() is null) {
-        //     JNI_TRACE("NativeCrypto_SSL_get_ocsp_response(%s) => creating byte array failed", ssl);
+        //     JNI_TRACE("SSL_get_ocsp_response(%s) => creating byte array failed", ssl);
         //     return null;
         // }
 
         // env.SetByteArrayRegion(byteArray.get(), 0, static_cast<jsize>(data_len), (const jbyte*)data);
-        // JNI_TRACE("NativeCrypto_SSL_get_ocsp_response(%s) => %s [size=%zd]", ssl, byteArray.get(),
+        // JNI_TRACE("SSL_get_ocsp_response(%s) => %s [size=%zd]", ssl, byteArray.get(),
         //         data_len);
 
         // return byteArray.release();        
@@ -517,15 +517,15 @@ implementationMissing();
 
         // ScopedByteArrayRO responseBytes(env, response);
         // if (responseBytes.get() is null) {
-        //     JNI_TRACE("ssl=%s NativeCrypto_SSL_set_ocsp_response => response == null", ssl);
+        //     JNI_TRACE("ssl=%s SSL_set_ocsp_response => response == null", ssl);
         //     return;
         // }
 
         // if (!SSL_set_ocsp_response(ssl, reinterpret_cast<const uint8_t*>(responseBytes.get()),
         //                         responseBytes.size())) {
-        //     JNI_TRACE("ssl=%s NativeCrypto_SSL_set_ocsp_response => fail", ssl);
+        //     JNI_TRACE("ssl=%s SSL_set_ocsp_response => fail", ssl);
         // } else {
-        //     JNI_TRACE("ssl=%s NativeCrypto_SSL_set_ocsp_response => ok", ssl);
+        //     JNI_TRACE("ssl=%s SSL_set_ocsp_response => ok", ssl);
         // }      
     }
 
@@ -646,7 +646,7 @@ return null;
         //                             opensslName.get());
         // }
 
-        // tracef("NativeCrypto_get_cipher_names(%s) => success (%zd entries)", selector.c_str(),
+        // tracef("get_cipher_names(%s) => success (%zd entries)", selector.c_str(),
         //         2 * size);
         // return cipherNamesArray.release();        
     }
@@ -748,7 +748,7 @@ return null;
         //         ScopedByteArrayRO protosBytes(env, protocols);
         //         if (protosBytes.get() is null) {
         //             JNI_TRACE(
-        //                     "ssl=%s NativeCrypto_setApplicationProtocols protocols=%s => "
+        //                     "ssl=%s setApplicationProtocols protocols=%s => "
         //                     "protosBytes == null",
         //                     ssl, protocols);
         //             return;
@@ -759,7 +759,7 @@ return null;
         //         if (ret != 0) {
         //             conscrypt::jniutil::throwSSLExceptionStr(env,
         //                                                     "Unable to set ALPN protocols for client");
-        //             JNI_TRACE("ssl=%s NativeCrypto_setApplicationProtocols => exception", ssl);
+        //             JNI_TRACE("ssl=%s setApplicationProtocols => exception", ssl);
         //             return;
         //         }
         //     } else {
@@ -767,7 +767,7 @@ return null;
         //         if (!appData.setApplicationProtocols(env, protocols)) {
         //             conscrypt::jniutil::throwSSLExceptionStr(env,
         //                                                     "Unable to set ALPN protocols for server");
-        //             JNI_TRACE("ssl=%s NativeCrypto_setApplicationProtocols => exception", ssl);
+        //             JNI_TRACE("ssl=%s setApplicationProtocols => exception", ssl);
         //             return;
         //         }
         //         SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), alpn_select_callback, null);
@@ -868,7 +868,7 @@ return null;
         // // if (env.ExceptionCheck()) {
         // //     // cert_verify_callback threw exception
         // //     ERR_clear_error();
-        // //     JNI_TRACE("ssl=%s NativeCrypto_ENGINE_SSL_do_handshake => exception", ssl);
+        // //     JNI_TRACE("ssl=%s ENGINE_SSL_do_handshake => exception", ssl);
         // //     return 0;
         // // }
 
@@ -877,7 +877,7 @@ return null;
 
         // if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
         //     // Non-exceptional case.
-        //     warningf("ssl=%s NativeCrypto_ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
+        //     warningf("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
         //     return code;
         // }
 
@@ -937,7 +937,7 @@ return null;
         if (ssl is null) {
             return -1;
         }
-        // JNI_TRACE("ssl=%s NativeCrypto_ENGINE_SSL_write_direct address=%s length=%d shc=%s", ssl,
+        // JNI_TRACE("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s", ssl,
         //         sourcePtr, len, shc);
 implementationMissing();
 return -1;
@@ -962,7 +962,7 @@ return -1;
 
         // int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        // tracef("ssl=%s NativeCrypto_ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+        // tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
         //         ssl, sourcePtr, len, shc, result);
         // return result;
     }
@@ -1086,7 +1086,7 @@ return 0;
         if (ssl is null) {
             return;
         }
-        tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown", ssl);
+        tracef("ssl=%s ENGINE_SSL_shutdown", ssl);
 
         if (shc is null) {
             warning("sslHandshakeCallbacks == null");
@@ -1098,14 +1098,14 @@ return 0;
         //     if (!appData.setCallbackState(env, shc, null)) {
         //         conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to set appdata callback");
         //         ERR_clear_error();
-        //         tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown => exception", ssl);
+        //         tracef("ssl=%s ENGINE_SSL_shutdown => exception", ssl);
         //         return;
         //     }
         //     int ret = SSL_shutdown(ssl);
         //     appData.clearCallbackState();
         //     // callbacks can happen if server requests renegotiation
         //     if (env.ExceptionCheck()) {
-        //         tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown => exception", ssl);
+        //         tracef("ssl=%s ENGINE_SSL_shutdown => exception", ssl);
         //         return;
         //     }
         //     switch (ret) {
@@ -1119,13 +1119,13 @@ return 0;
         //             * as we close the underlying socket, which we actually
         //             * do, because that's where we are just coming from.
         //             */
-        //             tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown => 0", ssl);
+        //             tracef("ssl=%s ENGINE_SSL_shutdown => 0", ssl);
         //             break;
         //         case 1:
         //             /*
         //             * Shutdown was successful. We can safely return. Hooray!
         //             */
-        //             tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown => 1", ssl);
+        //             tracef("ssl=%s ENGINE_SSL_shutdown => 1", ssl);
         //             break;
         //         default:
         //             /*
@@ -1134,7 +1134,7 @@ return 0;
         //             * exception.
         //             */
         //             int sslError = SSL_get_error(ssl, ret);
-        //             tracef("ssl=%s NativeCrypto_ENGINE_SSL_shutdown => sslError=%d", ssl, sslError);
+        //             tracef("ssl=%s ENGINE_SSL_shutdown => sslError=%d", ssl, sslError);
         //             conscrypt::jniutil::throwSSLExceptionWithSslErrors(env, ssl, sslError,
         //                                                             "SSL shutdown failed");
         //             break;
@@ -1897,11 +1897,11 @@ implementationMissing();
         // * list to make sure it's zero length.
         // */
         // if (length == 0) {
-        //     tracef("ssl=%s NativeCrypto_SSL_set_cipher_lists cipherSuites=empty", ssl);
+        //     tracef("ssl=%s SSL_set_cipher_lists cipherSuites=empty", ssl);
         //     SSL_set_cipher_list(ssl, "");
         //     ERR_clear_error();
         //     if (sk_SSL_CIPHER_num(SSL_get_ciphers(ssl)) != 0) {
-        //         tracef("ssl=%s NativeCrypto_SSL_set_cipher_lists cipherSuites=empty => error", ssl);
+        //         tracef("ssl=%s SSL_set_cipher_lists cipherSuites=empty => error", ssl);
         //         conscrypt::jniutil::throwRuntimeException(
         //                 env, "SSL_set_cipher_list did not update ciphers!");
         //         ERR_clear_error();
@@ -1967,7 +1967,7 @@ implementationMissing();
         //     return;
         // }
 
-        // tracef("ssl=%s NativeCrypto_SSL_set_cipher_lists cipherSuites=%s", ssl, cipherString.get());
+        // tracef("ssl=%s SSL_set_cipher_lists cipherSuites=%s", ssl, cipherString.get());
         // if (!SSL_set_cipher_list(ssl, cipherString.get())) {
         //     ERR_clear_error();
         //     conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
@@ -2067,7 +2067,7 @@ return null;
     static void SSL_set_session(long ssl_address, long ssl_session_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
-            warningf("ssl=%s NativeCrypto_SSL_set_session => exception", ssl);
+            warningf("ssl=%s SSL_set_session => exception", ssl);
             return;
         }
 
@@ -2087,7 +2087,7 @@ return null;
                 warning("SSL session set");
             }
         }
-        tracef("ssl=%s NativeCrypto_SSL_set_session ssl_session=%s => ret=%d", ssl, ssl_session,
+        tracef("ssl=%s SSL_set_session ssl_session=%s => ret=%d", ssl, ssl_session,
                 ret);        
     }
 
@@ -2126,7 +2126,7 @@ implementationMissing(false);
         if (ret != 1) 
             warning("Error setting host name");
         else 
-            tracef("ssl=%s NativeCrypto_SSL_set_tlsext_host_name => ok", ssl);
+            tracef("ssl=%s SSL_set_tlsext_host_name => ok", ssl);
     }
 
     static string SSL_get_servername(long ssl_address) {
@@ -2159,17 +2159,17 @@ implementationMissing(false);
     //     NetFd fd(env, fdObject);
     //     if (fd.isClosed()) {
     //         // SocketException thrown by NetFd.isClosed
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake fd.isClosed() => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake fd.isClosed() => exception", ssl);
     //         return;
     //     }
 
     //     int ret = SSL_set_fd(ssl, fd.get());
-    //     tracef("ssl=%s NativeCrypto_SSL_do_handshake s=%d", ssl, fd.get());
+    //     tracef("ssl=%s SSL_do_handshake s=%d", ssl, fd.get());
 
     //     if (ret != 1) {
     //         conscrypt::jniutil::throwSSLExceptionWithSslErrors(env, ssl, SSL_ERROR_NONE,
     //                                                         "Error setting the file descriptor");
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake SSL_set_fd => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake SSL_set_fd => exception", ssl);
     //         return;
     //     }
 
@@ -2179,14 +2179,14 @@ implementationMissing(false);
     //     */
     //     if (!conscrypt::netutil::setBlocking(fd.get(), false)) {
     //         conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to make socket non blocking");
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake setBlocking => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake setBlocking => exception", ssl);
     //         return;
     //     }
 
     //     AppData* appData = toAppData(ssl);
     //     if (appData is null) {
     //         conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake appData => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake appData => exception", ssl);
     //         return;
     //     }
 
@@ -2197,7 +2197,7 @@ implementationMissing(false);
 
     //         if (!appData->setCallbackState(env, shc, fdObject)) {
     //             // SocketException thrown by NetFd.isClosed
-    //             tracef("ssl=%s NativeCrypto_SSL_do_handshake setCallbackState => exception", ssl);
+    //             tracef("ssl=%s SSL_do_handshake setCallbackState => exception", ssl);
     //             return;
     //         }
     //         ret = SSL_do_handshake(ssl);
@@ -2205,7 +2205,7 @@ implementationMissing(false);
     //         // cert_verify_callback threw exception
     //         if (env->ExceptionCheck()) {
     //             ERR_clear_error();
-    //             tracef("ssl=%s NativeCrypto_SSL_do_handshake exception => exception", ssl);
+    //             tracef("ssl=%s SSL_do_handshake exception => exception", ssl);
     //             return;
     //         }
     //         // success case
@@ -2219,7 +2219,7 @@ implementationMissing(false);
     //         // error case
     //         sslError.reset(ssl, ret);
     //         tracef(
-    //                 "ssl=%s NativeCrypto_SSL_do_handshake ret=%d errno=%d sslError=%d "
+    //                 "ssl=%s SSL_do_handshake ret=%d errno=%d sslError=%d "
     //                 "timeout_millis=%d",
     //                 ssl, ret, errno, sslError.get(), timeout_millis);
 
@@ -2237,21 +2237,21 @@ implementationMissing(false);
 
     //             if (selectResult == THROWN_EXCEPTION) {
     //                 // SocketException thrown by NetFd.isClosed
-    //                 tracef("ssl=%s NativeCrypto_SSL_do_handshake sslSelect => exception", ssl);
+    //                 tracef("ssl=%s SSL_do_handshake sslSelect => exception", ssl);
     //                 return;
     //             }
     //             if (selectResult == -1) {
     //                 conscrypt::jniutil::throwSSLExceptionWithSslErrors(
     //                         env, ssl, SSL_ERROR_SYSCALL, "handshake error",
     //                         conscrypt::jniutil::throwSSLHandshakeExceptionStr);
-    //                 tracef("ssl=%s NativeCrypto_SSL_do_handshake selectResult == -1 => exception",
+    //                 tracef("ssl=%s SSL_do_handshake selectResult == -1 => exception",
     //                         ssl);
     //                 return;
     //             }
     //             if (selectResult == 0) {
     //                 conscrypt::jniutil::throwSocketTimeoutException(env, "SSL handshake timed out");
     //                 ERR_clear_error();
-    //                 tracef("ssl=%s NativeCrypto_SSL_do_handshake selectResult == 0 => exception",
+    //                 tracef("ssl=%s SSL_do_handshake selectResult == 0 => exception",
     //                         ssl);
     //                 return;
     //             }
@@ -2277,7 +2277,7 @@ implementationMissing(false);
     //                     env, ssl, sslError.release(), "SSL handshake terminated",
     //                     conscrypt::jniutil::throwSSLHandshakeExceptionStr);
     //         }
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake clean error => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake clean error => exception", ssl);
     //         return;
     //     }
 
@@ -2290,10 +2290,10 @@ implementationMissing(false);
     //         conscrypt::jniutil::throwSSLExceptionWithSslErrors(
     //                 env, ssl, sslError.release(), "SSL handshake aborted",
     //                 conscrypt::jniutil::throwSSLHandshakeExceptionStr);
-    //         tracef("ssl=%s NativeCrypto_SSL_do_handshake unclean error => exception", ssl);
+    //         tracef("ssl=%s SSL_do_handshake unclean error => exception", ssl);
     //         return;
     //     }
-    //     tracef("ssl=%s NativeCrypto_SSL_do_handshake => success", ssl);
+    //     tracef("ssl=%s SSL_do_handshake => success", ssl);
     // }
 
     static string SSL_get_current_cipher(long ssl_address) {
@@ -2303,13 +2303,13 @@ implementationMissing(false);
         }
         const SSL_CIPHER* cipher = deimos.openssl.ssl.SSL_get_current_cipher(ssl);
         if (cipher is null) {
-            tracef("ssl=%s NativeCrypto_SSL_get_current_cipher cipher => null", ssl);
+            tracef("ssl=%s SSL_get_current_cipher cipher => null", ssl);
             return null;
         }
         implementationMissing();
 return null;
         // const char* name = SSL_CIPHER_standard_name(cipher);
-        // tracef("ssl=%s NativeCrypto_SSL_get_current_cipher => %s", ssl, name);
+        // tracef("ssl=%s SSL_get_current_cipher => %s", ssl, name);
         // return env.NewStringUTF(name);        
     }
 
@@ -2342,7 +2342,7 @@ return null;
         //     return null;
         // }
 
-        // tracef("ssl=%s NativeCrypto_SSL_get0_peer_certificates => %s", ssl, array.get());
+        // tracef("ssl=%s SSL_get0_peer_certificates => %s", ssl, array.get());
         // return array.release();        
     }
 
@@ -2448,7 +2448,7 @@ return null;
         }
 
         SSL_SESSION* ssl_session = deimos.openssl.ssl.SSL_get_session(ssl);
-        tracef("ssl_session=%s NativeCrypto_SSL_session_id", ssl_session);
+        tracef("ssl_session=%s SSL_session_id", ssl_session);
         if (ssl_session is null) {
             return null;
         }

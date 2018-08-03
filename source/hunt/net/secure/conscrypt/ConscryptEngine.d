@@ -14,7 +14,9 @@ import hunt.net.secure.conscrypt.NativeSsl;
 import hunt.net.secure.conscrypt.NativeSslSession;
 import hunt.net.secure.conscrypt.OpenSSLKey;
 import hunt.net.secure.conscrypt.PeerInfoProvider;
+import hunt.net.secure.conscrypt.SessionSnapshot;
 import hunt.net.secure.conscrypt.SSLParametersImpl;
+import hunt.net.secure.conscrypt.SSLNullSession;
 import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.container;
@@ -97,22 +99,15 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
      */
     private ActiveSession activeSession;
 
-    // /**
-    //  * A snapshot of the active session when the engine was closed.
-    //  */
-    // private SessionSnapshot closedSession;
+    /**
+     * A snapshot of the active session when the engine was closed.
+     */
+    private SessionSnapshot closedSession;
 
     /**
      * The session object exposed externally from this class.
      */
     private SSLSession externalSession;
-
-        // Platform.wrapSSLSession(new ExternalSession(new Provider() {
-        //     override
-        //     public ConscryptSession provideSession() {
-        //         return ConscryptEngine.this.provideSession();
-        //     }
-        // }));
 
     /**
      * Private key for the TLS Channel ID extension. This field is client-side only. Set during
@@ -137,8 +132,16 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         singleSrcBuffer = new ByteBuffer[1];
         singleDstBuffer = new ByteBuffer[1];
         bufferAllocator = defaultBufferAllocator;
-        // this.networkBio = ssl.newBio();
-        // activeSession = new ActiveSession(ssl, sslParameters.getSessionContext());
+        this.networkBio = ssl.newBio();
+        activeSession = new ActiveSession(ssl, sslParameters.getSessionContext());
+        externalSession = this.provideSession();
+
+        // externalSession = Platform.wrapSSLSession(new ExternalSession(new Provider() {
+        //     override
+        //     public ConscryptSession provideSession() {
+        //         return ConscryptEngine.this.provideSession();
+        //     }
+        // }));
     }
 
     // this(string host, int port, SSLParametersImpl sslParameters) {
@@ -546,18 +549,16 @@ return null;
     }
 
     private ConscryptSession provideSession() {
-        implementationMissing();
-return null;
-        // synchronized (ssl) {
-        //     if (state == EngineStates.STATE_CLOSED) {
-        //         return closedSession !is null ? closedSession : SSLNullSession.getNullSession();
-        //     }
-        //     if (state < EngineStates.STATE_HANDSHAKE_COMPLETED) {
-        //         // Return an invalid session with invalid cipher suite of "SSL_NULL_WITH_NULL_NULL"
-        //         return SSLNullSession.getNullSession();
-        //     }
-        //     return activeSession;
-        // }
+        synchronized (ssl) {
+            if (state == EngineStates.STATE_CLOSED) {
+                return closedSession !is null ? closedSession : SSLNullSession.getNullSession();
+            }
+            if (state < EngineStates.STATE_HANDSHAKE_COMPLETED) {
+                // Return an invalid session with invalid cipher suite of "SSL_NULL_WITH_NULL_NULL"
+                return SSLNullSession.getNullSession();
+            }
+            return activeSession;
+        }
     }
 
     private ConscryptSession provideHandshakeSession() {
@@ -1839,8 +1840,7 @@ implementationMissing();
             case EngineStates.STATE_CLOSED: {
                 if (!ssl.isClosed() && state >= EngineStates.STATE_HANDSHAKE_STARTED && 
                     state < EngineStates.STATE_CLOSED ) {
-                    // closedSession = new SessionSnapshot(activeSession);
-                    implementationMissing();
+                    closedSession = new SessionSnapshot(activeSession);
                 }
                 break;
             }
