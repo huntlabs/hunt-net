@@ -1022,9 +1022,9 @@ abstract class SSLEngine {
     /**
      * Returns the current handshake status for this <code>SSLEngine</code>.
      *
-     * @return  the current <code>SSLEngineResult.HandshakeStatus</code>.
+     * @return  the current <code>HandshakeStatus</code>.
      */
-    abstract SSLEngineResult.HandshakeStatus getHandshakeStatus();
+    abstract HandshakeStatus getHandshakeStatus();
 
 
     /**

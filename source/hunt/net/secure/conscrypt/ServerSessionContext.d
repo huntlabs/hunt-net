@@ -1,6 +1,7 @@
 module hunt.net.secure.conscrypt.ServerSessionContext;
 
 import hunt.net.secure.conscrypt.AbstractSessionContext;
+import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeSslSession;
 import hunt.net.secure.conscrypt.SSLServerSessionCache;
 
@@ -33,8 +34,8 @@ final class ServerSessionContext : AbstractSessionContext {
         // sure you don't reuse sessions externalized with i2d_SSL_SESSION
         // between apps. However our sessions are either in memory or
         // exported to a app's SSLServerSessionCache.
-        implementationMissing();
-        // NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, this, [' ']);
+
+        NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
     }
 
     /**

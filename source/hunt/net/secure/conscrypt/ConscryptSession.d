@@ -1,5 +1,6 @@
 module hunt.net.secure.conscrypt.ConscryptSession;
 
+import hunt.security.cert.Certificate;
 import hunt.security.cert.X509Certificate;
 import hunt.net.ssl.SSLSession;
 import hunt.container.List;
@@ -33,5 +34,5 @@ interface ConscryptSession : SSLSession {
    */
   byte[] getPeerSignedCertificateTimestamp();
 
-  X509Certificate[] getPeerCertificates();
+  // X509Certificate[] getPeerCertificates();
 }

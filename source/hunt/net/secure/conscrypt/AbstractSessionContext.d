@@ -2,7 +2,9 @@ module hunt.net.secure.conscrypt.AbstractSessionContext;
 
 import hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSessionContext;
+
 import hunt.net.secure.conscrypt.ByteArray;
+import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeSslSession;
 
 import hunt.container;
@@ -22,7 +24,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
     private int maximumSize;
     private int timeout = DEFAULT_SESSION_TIMEOUT_SECONDS;
 
-    // long sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
+    package long sslCtxNativePointer; // = NativeCrypto.SSL_CTX_new();
 
     // private final Map<ByteArray, NativeSslSession> sessions =
     //         new LinkedHashMap<ByteArray, NativeSslSession>() {
@@ -47,6 +49,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
      */
     this(int maximumSize) {
         this.maximumSize = maximumSize;
+        sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
     }
 
     /**

@@ -88,16 +88,16 @@ abstract class NativeRef {
     //     }
     // }
 
-    // static final class EVP_PKEY : NativeRef {
-    //     EVP_PKEY(long nativePointer) {
-    //         super(nativePointer);
-    //     }
+    static final class EVP_PKEY : NativeRef {
+        this(long nativePointer) {
+            super(nativePointer);
+        }
 
-    //     override
-    //     void doFree(long context) {
-    //         NativeCrypto.EVP_PKEY_free(context);
-    //     }
-    // }
+        override
+        void doFree(long context) {
+            NativeCrypto.EVP_PKEY_free(context);
+        }
+    }
 
     // static final class EVP_PKEY_CTX : NativeRef {
     //     EVP_PKEY_CTX(long nativePointer) {

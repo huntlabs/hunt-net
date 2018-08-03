@@ -2,8 +2,8 @@ module hunt.net.secure.conscrypt.Conscrypt;
 
 import hunt.net.secure.conscrypt.AbstractConscryptEngine;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
+import hunt.net.secure.conscrypt.NativeConstants;
 
-import hunt.net.ssl.NativeConstants;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSocket;
 

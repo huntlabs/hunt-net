@@ -1,6 +1,7 @@
 module hunt.net.secure.conscrypt.OpenSSLContextImpl;
 
 import hunt.net.secure.conscrypt.ClientSessionContext;
+import hunt.net.secure.conscrypt.ConscryptEngine;
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.SSLParametersImpl;
 import hunt.net.secure.conscrypt.ServerSessionContext;
@@ -128,9 +129,10 @@ return null;
         SSLParametersImpl p = cast(SSLParametersImpl) sslParameters; //.clone();
         p.setUseClientMode(false);
         // return wrapEngine(new ConscryptEngine(p));
+        return new ConscryptEngine(p);
 
-implementationMissing();
-return null;
+// implementationMissing();
+// return null;
     }
 
     override
@@ -231,7 +233,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
         // KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfAlg);
         // kmf.init(ks, pwd);
         // KEY_MANAGERS = kmf.getKeyManagers();
-        implementationMissing();
+        // implementationMissing();
         return KEY_MANAGERS;
     }
 
@@ -265,7 +267,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
         // tmf.init(ks);
         // TRUST_MANAGERS = tmf.getTrustManagers();
 
-        implementationMissing();
+        // implementationMissing();
         return TRUST_MANAGERS;
     }
 

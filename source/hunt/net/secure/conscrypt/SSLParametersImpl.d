@@ -1,11 +1,18 @@
 module hunt.net.secure.conscrypt.SSLParametersImpl;
 
 import hunt.net.secure.conscrypt.AbstractSessionContext;
+import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.ClientSessionContext;
+import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.ServerSessionContext;
+import hunt.net.secure.conscrypt.SSLUtils;
+
+
+import hunt.net.ssl.KeyManager;
+import hunt.net.ssl.X509KeyManager;
 
 import hunt.security.key;
-import hunt.net.ssl.KeyManager;
+import hunt.security.cert.X509Certificate;
 // import hunt.net.ssl.TrustManager;
 
 import hunt.util.exception;
@@ -33,8 +40,8 @@ final class SSLParametersImpl  {
     // server session context contains the set of reusable
     // server-side SSL sessions
     private ServerSessionContext serverSessionContext;
-    // // source of X.509 certificate based authentication keys or null if not provided
-    // private X509KeyManager x509KeyManager;
+    // source of X.509 certificate based authentication keys or null if not provided
+    private X509KeyManager x509KeyManager;
     // // source of Pre-Shared Key (PSK) authentication keys or null if not provided.
     // // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
     // private PSKKeyManager pskKeyManager;
@@ -69,7 +76,7 @@ final class SSLParametersImpl  {
     byte[] ocspResponse;
 
     byte[] applicationProtocols = [];
-    // ApplicationProtocolSelectorAdapter applicationProtocolSelector;
+    ApplicationProtocolSelectorAdapter applicationProtocolSelector;
     bool useSessionTickets;
     private bool useSni;
 
@@ -153,12 +160,12 @@ final class SSLParametersImpl  {
         return clientSessionContext;
     }
 
-    // /**
-    //  * @return X.509 key manager or {@code null} for none.
-    //  */
-    // X509KeyManager getX509KeyManager() {
-    //     return x509KeyManager;
-    // }
+    /**
+     * @return X.509 key manager or {@code null} for none.
+     */
+    X509KeyManager getX509KeyManager() {
+        return x509KeyManager;
+    }
 
     // /**
     //  * @return Pre-Shared Key (PSK) key manager or {@code null} for none.
@@ -175,61 +182,61 @@ final class SSLParametersImpl  {
     //     return x509TrustManager;
     // }
 
-    // /**
-    //  * @return the names of enabled cipher suites
-    //  */
-    // string[] getEnabledCipherSuites() {
-    //     return enabledCipherSuites.clone();
-    // }
+    /**
+     * @return the names of enabled cipher suites
+     */
+    string[] getEnabledCipherSuites() {
+        return enabledCipherSuites.dup;
+    }
 
-    // /**
-    //  * Sets the enabled cipher suites after filtering through OpenSSL.
-    //  */
-    // void setEnabledCipherSuites(string[] cipherSuites) {
-    //     enabledCipherSuites = NativeCrypto.checkEnabledCipherSuites(cipherSuites).clone();
-    // }
+    /**
+     * Sets the enabled cipher suites after filtering through OpenSSL.
+     */
+    void setEnabledCipherSuites(string[] cipherSuites) {
+        enabledCipherSuites = NativeCrypto.checkEnabledCipherSuites(cipherSuites).dup;
+    }
 
-    // /**
-    //  * @return the set of enabled protocols
-    //  */
-    // string[] getEnabledProtocols() {
-    //     return enabledProtocols.clone();
-    // }
+    /**
+     * @return the set of enabled protocols
+     */
+    string[] getEnabledProtocols() {
+        return enabledProtocols.dup;
+    }
 
-    // /**
-    //  * Sets the list of available protocols for use in SSL connection.
-    //  * @throws IllegalArgumentException if {@code protocols is null}
-    //  */
-    // void setEnabledProtocols(string[] protocols) {
-    //     if (protocols is null) {
-    //         throw new IllegalArgumentException("protocols is null");
-    //     }
-    //     string[] filteredProtocols =
-    //             filterFromProtocols(protocols, NativeCrypto.OBSOLETE_PROTOCOL_SSLV3);
-    //     isEnabledProtocolsFiltered = protocols.length != filteredProtocols.length;
-    //     enabledProtocols = NativeCrypto.checkEnabledProtocols(filteredProtocols).clone();
-    // }
+    /**
+     * Sets the list of available protocols for use in SSL connection.
+     * @throws IllegalArgumentException if {@code protocols is null}
+     */
+    void setEnabledProtocols(string[] protocols) {
+        if (protocols is null) {
+            throw new IllegalArgumentException("protocols is null");
+        }
+        string[] filteredProtocols =
+                filterFromProtocols(protocols, NativeCrypto.OBSOLETE_PROTOCOL_SSLV3);
+        isEnabledProtocolsFiltered = protocols.length != filteredProtocols.length;
+        enabledProtocols = NativeCrypto.checkEnabledProtocols(filteredProtocols).dup;
+    }
 
-    // /**
-    //  * Sets the list of ALPN protocols.
-    //  *
-    //  * @param protocols the list of ALPN protocols
-    //  */
-    // void setApplicationProtocols(string[] protocols) {
-    //     this.applicationProtocols = SSLUtils.encodeProtocols(protocols);
-    // }
+    /**
+     * Sets the list of ALPN protocols.
+     *
+     * @param protocols the list of ALPN protocols
+     */
+    void setApplicationProtocols(string[] protocols) {
+        this.applicationProtocols = SSLUtils.encodeProtocols(protocols);
+    }
 
-    // string[] getApplicationProtocols() {
-    //     return SSLUtils.decodeProtocols(applicationProtocols);
-    // }
+    string[] getApplicationProtocols() {
+        return SSLUtils.decodeProtocols(applicationProtocols);
+    }
 
-    // /**
-    //  * Used for server-mode only. Sets or clears the application-provided ALPN protocol selector.
-    //  * If set, will override the protocol list provided by {@link #setApplicationProtocols(string[])}.
-    //  */
-    // void setApplicationProtocolSelector(ApplicationProtocolSelectorAdapter applicationProtocolSelector) {
-    //     this.applicationProtocolSelector = applicationProtocolSelector;
-    // }
+    /**
+     * Used for server-mode only. Sets or clears the application-provided ALPN protocol selector.
+     * If set, will override the protocol list provided by {@link #setApplicationProtocols(string[])}.
+     */
+    void setApplicationProtocolSelector(ApplicationProtocolSelectorAdapter applicationProtocolSelector) {
+        this.applicationProtocolSelector = applicationProtocolSelector;
+    }
 
     /**
      * Tunes the peer holding this parameters to work in client mode.
@@ -247,164 +254,139 @@ final class SSLParametersImpl  {
         return client_mode;
     }
 
-    // /**
-    //  * Tunes the peer holding this parameters to require client authentication
-    //  */
-    // void setNeedClientAuth(bool need) {
-    //     need_client_auth = need;
-    //     // reset the want_client_auth setting
-    //     want_client_auth = false;
-    // }
+    /**
+     * Tunes the peer holding this parameters to require client authentication
+     */
+    void setNeedClientAuth(bool need) {
+        need_client_auth = need;
+        // reset the want_client_auth setting
+        want_client_auth = false;
+    }
 
-    // /**
-    //  * Returns the value indicating if the peer with this parameters tuned
-    //  * to require client authentication
-    //  */
-    // bool getNeedClientAuth() {
-    //     return need_client_auth;
-    // }
+    /**
+     * Returns the value indicating if the peer with this parameters tuned
+     * to require client authentication
+     */
+    bool getNeedClientAuth() {
+        return need_client_auth;
+    }
 
-    // /**
-    //  * Tunes the peer holding this parameters to request client authentication
-    //  */
-    // void setWantClientAuth(bool want) {
-    //     want_client_auth = want;
-    //     // reset the need_client_auth setting
-    //     need_client_auth = false;
-    // }
+    /**
+     * Tunes the peer holding this parameters to request client authentication
+     */
+    void setWantClientAuth(bool want) {
+        want_client_auth = want;
+        // reset the need_client_auth setting
+        need_client_auth = false;
+    }
 
-    // /**
-    //  * Returns the value indicating if the peer with this parameters
-    //  * tuned to request client authentication
-    //  */
-    // bool getWantClientAuth() {
-    //     return want_client_auth;
-    // }
+    /**
+     * Returns the value indicating if the peer with this parameters
+     * tuned to request client authentication
+     */
+    bool getWantClientAuth() {
+        return want_client_auth;
+    }
 
-    // /**
-    //  * Allows/disallows the peer holding this parameters to
-    //  * create new SSL session
-    //  */
-    // void setEnableSessionCreation(bool flag) {
-    //     enable_session_creation = flag;
-    // }
+    /**
+     * Allows/disallows the peer holding this parameters to
+     * create new SSL session
+     */
+    void setEnableSessionCreation(bool flag) {
+        enable_session_creation = flag;
+    }
 
-    // /**
-    //  * Returns the value indicating if the peer with this parameters
-    //  * allowed to cteate new SSL session
-    //  */
-    // bool getEnableSessionCreation() {
-    //     return enable_session_creation;
-    // }
+    /**
+     * Returns the value indicating if the peer with this parameters
+     * allowed to cteate new SSL session
+     */
+    bool getEnableSessionCreation() {
+        return enable_session_creation;
+    }
 
-    // void setUseSessionTickets(bool useSessionTickets) {
-    //     this.useSessionTickets = useSessionTickets;
-    // }
+    void setUseSessionTickets(bool useSessionTickets) {
+        this.useSessionTickets = useSessionTickets;
+    }
 
-    // /**
-    //  * Whether connections using this SSL connection should use the TLS
-    //  * extension Server Name Indication (SNI).
-    //  */
-    // void setUseSni(bool flag) {
-    //     useSni = flag;
-    // }
+    /**
+     * Whether connections using this SSL connection should use the TLS
+     * extension Server Name Indication (SNI).
+     */
+    void setUseSni(bool flag) {
+        useSni = flag;
+    }
 
-    // /**
-    //  * Returns whether connections using this SSL connection should use the TLS
-    //  * extension Server Name Indication (SNI).
-    //  */
-    // bool getUseSni() {
-    //     return useSni != null ? useSni : isSniEnabledByDefault();
-    // }
+    /**
+     * Returns whether connections using this SSL connection should use the TLS
+     * extension Server Name Indication (SNI).
+     */
+    bool getUseSni() {
+        return useSni ? useSni : isSniEnabledByDefault();
+    }
 
-    // /**
-    //  * For testing only.
-    //  */
-    // void setCTVerificationEnabled(bool enabled) {
-    //     ctVerificationEnabled = enabled;
-    // }
+    /**
+     * For testing only.
+     */
+    void setCTVerificationEnabled(bool enabled) {
+        ctVerificationEnabled = enabled;
+    }
 
-    // /**
-    //  * For testing only.
-    //  */
-    // void setSCTExtension(byte[] extension) {
-    //     sctExtension = extension;
-    // }
+    /**
+     * For testing only.
+     */
+    void setSCTExtension(byte[] extension) {
+        sctExtension = extension;
+    }
 
-    // /**
-    //  * For testing only.
-    //  */
-    // void setOCSPResponse(byte[] response) {
-    //     ocspResponse = response;
-    // }
+    /**
+     * For testing only.
+     */
+    void setOCSPResponse(byte[] response) {
+        ocspResponse = response;
+    }
 
-    // byte[] getOCSPResponse() {
-    //     return ocspResponse;
-    // }
+    byte[] getOCSPResponse() {
+        return ocspResponse;
+    }
 
-    // /**
-    //  * This filters {@code obsoleteProtocol} from the list of {@code protocols}
-    //  * down to help with app compatibility.
-    //  */
-    // private static string[] filterFromProtocols(string[] protocols, string obsoleteProtocol) {
-    //     if (protocols.length == 1 && obsoleteProtocol.equals(protocols[0])) {
-    //         return EMPTY_STRING_ARRAY;
-    //     }
+    /**
+     * This filters {@code obsoleteProtocol} from the list of {@code protocols}
+     * down to help with app compatibility.
+     */
+    private static string[] filterFromProtocols(string[] protocols, string obsoleteProtocol) {
+        if (protocols.length == 1 && obsoleteProtocol == protocols[0]) {
+            return [];
+        }
 
-    //     ArrayList<string> newProtocols = new ArrayList<string>();
-    //     for (string protocol : protocols) {
-    //         if (!obsoleteProtocol.equals(protocol)) {
-    //             newProtocols.add(protocol);
-    //         }
-    //     }
-    //     return newProtocols.toArray(EMPTY_STRING_ARRAY);
-    // }
+        string[] newProtocols;
+        foreach (string protocol ; protocols) {
+            if (obsoleteProtocol != protocol) {
+                newProtocols ~= protocol;
+            }
+        }
+        return newProtocols;
+    }
 
-    // private static final string[] EMPTY_STRING_ARRAY = new string[0];
-
-    // /**
-    //  * Returns whether Server Name Indication (SNI) is enabled by default for
-    //  * sockets. For more information on SNI, see RFC 6066 section 3.
-    //  */
-    // private bool isSniEnabledByDefault() {
-    //     try {
-    //         string enableSNI = System.getProperty("jsse.enableSNIExtension", "true");
-    //         if ("true".equalsIgnoreCase(enableSNI)) {
-    //             return true;
-    //         } else if ("false".equalsIgnoreCase(enableSNI)) {
-    //             return false;
-    //         } else {
-    //             throw new RuntimeException(
-    //                     "Can only set \"jsse.enableSNIExtension\" to \"true\" or \"false\"");
-    //         }
-    //     } catch (SecurityException e) {
-    //         return true;
-    //     }
-    // }
-
-    // /**
-    //  * For abstracting the X509KeyManager calls between
-    //  * {@link X509KeyManager#chooseClientAlias(string[], java.security.Principal[], java.net.Socket)}
-    //  * and
-    //  * {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
-    //  */
-    // interface AliasChooser {
-    //     string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
-    //             string[] keyTypes);
-
-    //     string chooseServerAlias(X509KeyManager keyManager, string keyType);
-    // }
-
-    // /**
-    //  * For abstracting the {@code PSKKeyManager} calls between those taking an {@code SSLSocket} and
-    //  * those taking an {@code SSLEngine}.
-    //  */
-    // // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
-    // // interface PSKCallbacks {
-    // //     string chooseServerPSKIdentityHint(PSKKeyManager keyManager);
-    // //     string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint);
-    // //     SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity);
-    // // }
+    /**
+     * Returns whether Server Name Indication (SNI) is enabled by default for
+     * sockets. For more information on SNI, see RFC 6066 section 3.
+     */
+    private bool isSniEnabledByDefault() {
+        return false;
+        // try {
+        //     string enableSNI = System.getProperty("jsse.enableSNIExtension", "true");
+        //     if ("true".equalsIgnoreCase(enableSNI)) {
+        //         return true;
+        //     } else if ("false".equalsIgnoreCase(enableSNI)) {
+        //         return false;
+        //     } else {
+        //         throw new RuntimeException(
+        //                 "Can only set \"jsse.enableSNIExtension\" to \"true\" or \"false\"");
+        //     }
+        // } catch (SecurityException e) {
+        //     return true;
+        // }
+    }
 
     // /**
     //  * Returns the clone of this object.
@@ -596,15 +578,42 @@ final class SSLParametersImpl  {
     /**
      * Check if SCT verification is enforced for a given hostname.
      */
-    // bool isCTVerificationEnabled(string hostname) {
-    //     if (hostname is null) {
-    //         return false;
-    //     }
+    bool isCTVerificationEnabled(string hostname) {
+        if (hostname is null) {
+            return false;
+        }
 
-    //     // Bypass the check. This is used for testing only
-    //     if (ctVerificationEnabled) {
-    //         return true;
-    //     }
-    //     return Platform.isCTVerificationRequired(hostname);
-    // }
+        // Bypass the check. This is used for testing only
+        if (ctVerificationEnabled) {
+            return true;
+        }
+        // return Platform.isCTVerificationRequired(hostname);
+        implementationMissing();
+return false;
+    }
+}
+
+
+/**
+    * For abstracting the X509KeyManager calls between
+    * {@link X509KeyManager#chooseClientAlias(string[], java.security.Principal[], java.net.Socket)}
+    * and
+    * {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
+    */
+interface AliasChooser {
+    // string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
+    //         string[] keyTypes);
+
+    // string chooseServerAlias(X509KeyManager keyManager, string keyType);
+}
+
+/**
+    * For abstracting the {@code PSKKeyManager} calls between those taking an {@code SSLSocket} and
+    * those taking an {@code SSLEngine}.
+    */
+// @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
+interface PSKCallbacks {
+    // string chooseServerPSKIdentityHint(PSKKeyManager keyManager);
+    // string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint);
+    // SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity);
 }

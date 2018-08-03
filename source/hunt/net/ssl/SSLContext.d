@@ -6,6 +6,7 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLParameters;
 import hunt.net.ssl.SSLSessionContext;
 
+import hunt.net.secure.conscrypt.OpenSSLContextImpl;
 import hunt.security.Provider;
 
 import hunt.util.exception;
@@ -178,12 +179,15 @@ class SSLContext {
     static SSLContext getInstance(string protocol, string provider) {
         // GetInstance.Instance instance = GetInstance.getInstance
         //         ("SSLContext", SSLContextSpi.class, protocol, provider);
+
+        SSLContextSpi impl = new DefaultSSLContextImpl();
+        return new SSLContext(impl, null, protocol);
         // return new SSLContext(cast(SSLContextSpi)instance.impl, instance.provider,
         //         protocol);
 // TODO: Tasks pending completion -@zxp at 7/27/2018, 6:06:51 PM
 // 
-        implementationMissing();
-        return null;
+        // implementationMissing();
+        // return null;
     }
 
     /**

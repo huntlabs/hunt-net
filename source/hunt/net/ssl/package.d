@@ -4,7 +4,6 @@ public import hunt.net.ssl.AlgorithmConstraints;
 public import hunt.net.ssl.common;
 public import hunt.net.ssl.HandshakeCompletedEvent;
 public import hunt.net.ssl.KeyManager;
-public import hunt.net.ssl.NativeConstants;
 public import hunt.net.ssl.ServerSocketFactory;
 public import hunt.net.ssl.SNIMatcher;
 public import hunt.net.ssl.SNIServerName;

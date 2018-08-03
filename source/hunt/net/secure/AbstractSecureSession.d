@@ -20,7 +20,6 @@ import kiss.logger;
 import std.conv;
 import std.format;
 
-alias HandshakeStatus = SSLEngineResult.HandshakeStatus;
 
 abstract class AbstractSecureSession : SecureSession {
 

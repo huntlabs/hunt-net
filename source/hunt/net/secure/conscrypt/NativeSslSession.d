@@ -5,6 +5,7 @@ import hunt.net.secure.conscrypt.ClientSessionContext;
 import hunt.net.secure.conscrypt.ConscryptSession;
 import hunt.net.secure.conscrypt.NativeRef;
 import hunt.net.secure.conscrypt.NativeCrypto;
+import hunt.net.secure.conscrypt.NativeSsl;
 
 import hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSessionContext;
@@ -39,7 +40,7 @@ abstract class NativeSslSession {
         AbstractSessionContext context = cast(AbstractSessionContext) session.getSessionContext();
         if (typeid(context) == typeid(ClientSessionContext)) {
             return new Impl(context, _ref, session.getPeerHost(), session.getPeerPort(),
-                session.getPeerCertificates(), getOcspResponse(session),
+                cast(X509Certificate[])session.getPeerCertificates(), getOcspResponse(session),
                 session.getPeerSignedCertificateTimestamp());
         }
 
@@ -153,7 +154,7 @@ abstract class NativeSslSession {
 
     abstract bool isValid();
 
-    // abstract void offerToResume(NativeSsl ssl);
+    abstract void offerToResume(NativeSsl ssl);
 
     abstract string getCipherSuite();
 
@@ -246,10 +247,10 @@ implementationMissing();
             return true;
         }
 
-        // override
-        // void offerToResume(NativeSsl ssl) {
-        //     ssl.offerToResumeSession(_ref.context);
-        // }
+        override
+        void offerToResume(NativeSsl ssl) {
+            ssl.offerToResumeSession(_ref.context);
+        }
 
         override
         string getCipherSuite() {
