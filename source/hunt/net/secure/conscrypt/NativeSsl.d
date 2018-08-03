@@ -299,7 +299,8 @@ return 0;
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);
         }
         if (!isClient() && parameters.applicationProtocolSelector !is null) {
-            NativeCrypto.setApplicationProtocolSelector(ssl, parameters.applicationProtocolSelector);
+            implementationMissing();
+            // NativeCrypto.setApplicationProtocolSelector(ssl, parameters.applicationProtocolSelector);
         }
 
         // setup server certificates and private keys.

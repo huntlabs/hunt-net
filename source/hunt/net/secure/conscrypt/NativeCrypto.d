@@ -1,7 +1,6 @@
 module hunt.net.secure.conscrypt.NativeCrypto;
 
-import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
-import hunt.net.secure.conscrypt.AbstractSessionContext;
+// import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.NativeConstants;
 import hunt.net.secure.conscrypt.NativeRef;
 
@@ -622,7 +621,7 @@ return null;
             warning("Unable to set SSL cipher list");
             return null;
         }
-implementationMissing();
+implementationMissing(false);
 return null;        
         // STACK_OF(SSL_CIPHER)* ciphers = SSL_get_ciphers(ssl);
 
@@ -781,25 +780,25 @@ return null;
      * be called to delegate protocol selection to the application. Calling this method overrides
      * {@link #setApplicationProtocols(long, NativeSsl, bool, byte[])}.
      */
-    static void setApplicationProtocolSelector(long ssl_address, ApplicationProtocolSelectorAdapter selector) {
-        SSL* ssl = to_SSL(ssl_address);
-        if (ssl is null) {
-            return;
-        }
+    // static void setApplicationProtocolSelector(long ssl_address, ApplicationProtocolSelectorAdapter selector) {
+    //     SSL* ssl = to_SSL(ssl_address);
+    //     if (ssl is null) {
+    //         return;
+    //     }
 
-        implementationMissing();
-        // AppData* appData = toAppData(ssl);
-        // if (appData is null) {
-        //     conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
-        //     JNI_TRACE("ssl=%p setApplicationProtocolSelector appData => 0", ssl);
-        //     return;
-        // }
+    //     implementationMissing();
+    //     // AppData* appData = toAppData(ssl);
+    //     // if (appData is null) {
+    //     //     conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
+    //     //     JNI_TRACE("ssl=%p setApplicationProtocolSelector appData => 0", ssl);
+    //     //     return;
+    //     // }
 
-        // appData.setApplicationProtocolSelector(env, selector);
-        // if (selector != null) {
-        //     SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), alpn_select_callback, null);
-        // }
-    }
+    //     // appData.setApplicationProtocolSelector(env, selector);
+    //     // if (selector != null) {
+    //     //     SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), alpn_select_callback, null);
+    //     // }
+    // }
 
     /**
      * Returns the selected ALPN protocol. If the server did not select a
@@ -1987,14 +1986,15 @@ implementationMissing();
         if (ssl is null) {
             return null;
         }
-
-        STACK_OF!(SSL_CIPHER)* cipherStack = deimos.openssl.ssl.SSL_get_ciphers(ssl);
-        size_t count = (cipherStack !is null) ? sk_SSL_CIPHER_num(cipherStack) : 0;
-        long[] ciphers = new long[count];
-        for (size_t i = 0; i < count; i++) {
-            ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
-        }
-        return ciphers;        
+implementationMissing();
+return null;
+        // STACK_OF!(SSL_CIPHER)* cipherStack = deimos.openssl.ssl.SSL_get_ciphers(ssl);
+        // size_t count = (cipherStack !is null) ? sk_SSL_CIPHER_num(cipherStack) : 0;
+        // long[] ciphers = new long[count];
+        // for (size_t i = 0; i < count; i++) {
+        //     ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
+        // }
+        // return ciphers;        
     }
 
     static void setEnabledCipherSuites(long ssl_address, string[] cipherSuites) {
