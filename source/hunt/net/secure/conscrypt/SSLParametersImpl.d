@@ -7,15 +7,16 @@ import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.ServerSessionContext;
 import hunt.net.secure.conscrypt.SSLUtils;
 
-
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.X509KeyManager;
+import hunt.net.ssl.X509TrustManager;
 
 import hunt.security.key;
 import hunt.security.cert.X509Certificate;
 // import hunt.net.ssl.TrustManager;
 
 import hunt.util.exception;
+import kiss.logger;
 
 /**
  * The instances of this class encapsulate all the info
@@ -28,9 +29,9 @@ import hunt.util.exception;
 final class SSLParametersImpl  {
 
     // // default source of X.509 certificate based authentication keys
-    // private static X509KeyManager defaultX509KeyManager;
-    // // default source of X.509 certificate based authentication trust decisions
-    // private static X509TrustManager defaultX509TrustManager;
+    private static X509KeyManager defaultX509KeyManager;
+    // default source of X.509 certificate based authentication trust decisions
+    private static X509TrustManager defaultX509TrustManager;
     // // default SSL parameters
     private static SSLParametersImpl defaultParameters;
 
@@ -42,11 +43,11 @@ final class SSLParametersImpl  {
     private ServerSessionContext serverSessionContext;
     // source of X.509 certificate based authentication keys or null if not provided
     private X509KeyManager x509KeyManager;
-    // // source of Pre-Shared Key (PSK) authentication keys or null if not provided.
-    // // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
+    // source of Pre-Shared Key (PSK) authentication keys or null if not provided.
+    // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
     // private PSKKeyManager pskKeyManager;
-    // // source of X.509 certificate based authentication trust decisions or null if not provided
-    // private X509TrustManager x509TrustManager;
+    // source of X.509 certificate based authentication trust decisions or null if not provided
+    private X509TrustManager x509TrustManager;
 
     // protocols enabled for SSL connection
     string[] enabledProtocols;
@@ -101,29 +102,30 @@ final class SSLParametersImpl  {
         this.clientSessionContext = clientSessionContext;
 
         // initialize key managers
-        // if (kms is null) {
-        //     x509KeyManager = getDefaultX509KeyManager();
-        //     // There's no default PSK key manager
-        //     pskKeyManager = null;
-        // } else {
-        //     x509KeyManager = findFirstX509KeyManager(kms);
-        //     pskKeyManager = findFirstPSKKeyManager(kms);
-        // }
+        if (kms is null) {
+            x509KeyManager = getDefaultX509KeyManager();
+            // There's no default PSK key manager
+            // pskKeyManager = null;
+        } else {
+            // x509KeyManager = findFirstX509KeyManager(kms);
+            // pskKeyManager = findFirstPSKKeyManager(kms);
+        }
 
-        // // initialize x509TrustManager
-        // if (tms is null) {
-        //     x509TrustManager = getDefaultX509TrustManager();
-        // } else {
-        //     x509TrustManager = findFirstX509TrustManager(tms);
-        // }
+        // initialize x509TrustManager
+        if (tms is null) {
+            x509TrustManager = getDefaultX509TrustManager();
+        } else {
+            x509TrustManager = findFirstX509TrustManager(tms);
+        }
 
-        // // initialize the list of cipher suites and protocols enabled by default
-        // enabledProtocols = NativeCrypto.checkEnabledProtocols(
-        //         protocols is null ? NativeCrypto.DEFAULT_PROTOCOLS : protocols).clone();
-        // bool x509CipherSuitesNeeded = (x509KeyManager != null) || (x509TrustManager != null);
-        // bool pskCipherSuitesNeeded = pskKeyManager != null;
-        // enabledCipherSuites = getDefaultCipherSuites(
-        //         x509CipherSuitesNeeded, pskCipherSuitesNeeded);
+        // initialize the list of cipher suites and protocols enabled by default
+        enabledProtocols = NativeCrypto.checkEnabledProtocols(
+                protocols is null ? NativeCrypto.DEFAULT_PROTOCOLS : protocols).dup;
+        // trace("xxxxxx=> ", enabledProtocols);
+        bool x509CipherSuitesNeeded = (x509KeyManager !is null) || (x509TrustManager !is null);
+        bool pskCipherSuitesNeeded = false; // pskKeyManager !is null;
+        enabledCipherSuites = getDefaultCipherSuites(
+                x509CipherSuitesNeeded, pskCipherSuitesNeeded);
 
         // We ignore the SecureRandom passed in by the caller. The native code below
         // directly accesses /dev/urandom, which makes it irrelevant.
@@ -401,14 +403,15 @@ final class SSLParametersImpl  {
     // //     }
     // // }
 
-    // private static X509KeyManager getDefaultX509KeyManager()  {
-    //     X509KeyManager result = defaultX509KeyManager;
-    //     if (result is null) {
-    //         // single-check idiom
-    //         defaultX509KeyManager = result = createDefaultX509KeyManager();
-    //     }
-    //     return result;
-    // }
+    private static X509KeyManager getDefaultX509KeyManager()  {
+        X509KeyManager result = defaultX509KeyManager;
+        if (result is null) {
+            // single-check idiom
+            // defaultX509KeyManager = result = createDefaultX509KeyManager();
+        }
+        return result;
+    }
+
     // private static X509KeyManager createDefaultX509KeyManager()  {
     //     try {
     //         string algorithm = KeyManagerFactory.getDefaultAlgorithm();
@@ -463,18 +466,18 @@ final class SSLParametersImpl  {
     //     return null;
     // }
 
-    // /**
-    //  * Gets the default X.509 trust manager.
-    //  */
-    // static X509TrustManager getDefaultX509TrustManager()
-    //          {
-    //     X509TrustManager result = defaultX509TrustManager;
-    //     if (result is null) {
-    //         // single-check idiom
-    //         defaultX509TrustManager = result = createDefaultX509TrustManager();
-    //     }
-    //     return result;
-    // }
+    /**
+     * Gets the default X.509 trust manager.
+     */
+    static X509TrustManager getDefaultX509TrustManager()
+             {
+        X509TrustManager result = defaultX509TrustManager;
+        if (result is null) {
+            // single-check idiom
+            // defaultX509TrustManager = result = createDefaultX509TrustManager();
+        }
+        return result;
+    }
 
     // private static X509TrustManager createDefaultX509TrustManager()
     //          {
@@ -497,20 +500,21 @@ final class SSLParametersImpl  {
     //     }
     // }
 
-    // /**
-    //  * Finds the first {@link X509TrustManager} element in the provided array.
-    //  *
-    //  * @return the first {@code X509ExtendedTrustManager} or
-    //  *         {@code X509TrustManager} or {@code null} if not found.
-    //  */
-    // private static X509TrustManager findFirstX509TrustManager(TrustManager[] tms) {
-    //     for (TrustManager tm : tms) {
-    //         if (tm instanceof X509TrustManager) {
-    //             return (X509TrustManager) tm;
-    //         }
-    //     }
-    //     return null;
-    // }
+    /**
+     * Finds the first {@link X509TrustManager} element in the provided array.
+     *
+     * @return the first {@code X509ExtendedTrustManager} or
+     *         {@code X509TrustManager} or {@code null} if not found.
+     */
+    private static X509TrustManager findFirstX509TrustManager(TrustManager[] tms) {
+        foreach (TrustManager tm ; tms) {
+            X509TrustManager m = cast(X509TrustManager) tm; 
+            if (m !is null) {
+                return m;
+            }
+        }
+        return null;
+    }
 
     // string getEndpointIdentificationAlgorithm() {
     //     return endpointIdentificationAlgorithm;
@@ -528,38 +532,35 @@ final class SSLParametersImpl  {
     //     this.useCipherSuitesOrder = useCipherSuitesOrder;
     // }
 
-    // private static string[] getDefaultCipherSuites(
-    //         bool x509CipherSuitesNeeded,
-    //         bool pskCipherSuitesNeeded) {
-    //     if (x509CipherSuitesNeeded) {
-    //         // X.509 based cipher suites need to be listed.
-    //         if (pskCipherSuitesNeeded) {
-    //             // Both X.509 and PSK based cipher suites need to be listed. Because TLS-PSK is not
-    //             // normally used, we assume that when PSK cipher suites are requested here they
-    //             // should be preferred over other cipher suites. Thus, we give PSK cipher suites
-    //             // higher priority than X.509 cipher suites.
-    //             // NOTE: There are cipher suites that use both X.509 and PSK (e.g., those based on
-    //             // RSA_PSK key exchange). However, these cipher suites are not currently supported.
-    //             return concat(
-    //                     NativeCrypto.DEFAULT_PSK_CIPHER_SUITES,
-    //                     NativeCrypto.DEFAULT_X509_CIPHER_SUITES,
-    //                     new string[] {NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV});
-    //         } else {
-    //             // Only X.509 cipher suites need to be listed.
-    //             return concat(
-    //                     NativeCrypto.DEFAULT_X509_CIPHER_SUITES,
-    //                     new string[] {NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV});
-    //         }
-    //     } else if (pskCipherSuitesNeeded) {
-    //         // Only PSK cipher suites need to be listed.
-    //         return concat(
-    //                 NativeCrypto.DEFAULT_PSK_CIPHER_SUITES,
-    //                 new string[] {NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV});
-    //     } else {
-    //         // Neither X.509 nor PSK cipher suites need to be listed.
-    //         return new string[] {NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV};
-    //     }
-    // }
+    private static string[] getDefaultCipherSuites(
+            bool x509CipherSuitesNeeded,
+            bool pskCipherSuitesNeeded) {
+        if (x509CipherSuitesNeeded) {
+            // X.509 based cipher suites need to be listed.
+            if (pskCipherSuitesNeeded) {
+                // Both X.509 and PSK based cipher suites need to be listed. Because TLS-PSK is not
+                // normally used, we assume that when PSK cipher suites are requested here they
+                // should be preferred over other cipher suites. Thus, we give PSK cipher suites
+                // higher priority than X.509 cipher suites.
+                // NOTE: There are cipher suites that use both X.509 and PSK (e.g., those based on
+                // RSA_PSK key exchange). However, these cipher suites are not currently supported.
+                return NativeCrypto.DEFAULT_PSK_CIPHER_SUITES ~
+                        NativeCrypto.DEFAULT_X509_CIPHER_SUITES ~
+                        [ NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV ];
+            } else {
+                // Only X.509 cipher suites need to be listed.
+                return NativeCrypto.DEFAULT_X509_CIPHER_SUITES ~
+                    [ NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV ];
+            }
+        } else if (pskCipherSuitesNeeded) {
+            // Only PSK cipher suites need to be listed.
+            return NativeCrypto.DEFAULT_PSK_CIPHER_SUITES ~
+                   [ NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV ];
+        } else {
+            // Neither X.509 nor PSK cipher suites need to be listed.
+            return [ NativeCrypto.TLS_EMPTY_RENEGOTIATION_INFO_SCSV ];
+        }
+    }
 
     // private static string[] concat(string[]... arrays) {
     //     int resultLength = 0;

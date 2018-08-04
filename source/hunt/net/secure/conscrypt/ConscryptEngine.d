@@ -1192,7 +1192,9 @@ return 0;
 
     private long directByteBufferAddress(ByteBuffer directBuffer, int pos) {
         // return NativeCrypto.getDirectBufferAddress(directBuffer) + pos;
-        implementationMissing();
+// TODO: Tasks pending completion -@zxp at 8/4/2018, 10:17:02 PM        
+// 
+        implementationMissing(false);
 return 0;
     }
 

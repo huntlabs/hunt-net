@@ -293,7 +293,7 @@ return 0;
                     ~ " is no longer supported and was filtered from the list");
         }
         NativeCrypto.setEnabledProtocols(ssl, parameters.enabledProtocols);
-        NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
+        // NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
 
         if (parameters.applicationProtocols.length > 0) {
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);

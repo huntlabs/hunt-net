@@ -7,13 +7,14 @@ import hunt.net.secure.conscrypt.NativeRef;
 import deimos.openssl.ssl;
 import deimos.openssl.err;
 
-import core.stdc.config;
-
 import hunt.container;
 import hunt.util.exception;
 import hunt.util.string;
 
 import kiss.logger;
+
+import core.stdc.config;
+import core.stdc.errno;
 
 import std.algorithm;
 import std.array;
@@ -736,7 +737,7 @@ return null;
         if (ssl is null) {
             return;
         }
-        implementationMissing();
+        implementationMissing(false);
         // AppData* appData = toAppData(ssl);
         // if (appData is null) {
         //     error("Unable to retrieve application data");
@@ -847,15 +848,14 @@ return null;
             return 0;
         }
 
-        implementationMissing();
-        return 0;
+        implementationMissing(false);
         // AppData* appData = toAppData(ssl);
         // if (appData is null) {
         //     warning("Unable to retrieve application data");
         //     return 0;
         // }
 
-        // errno = 0;
+        errno = 0;
 
         // if (!appData.setCallbackState(shc, null)) {
         //     warning("Unable to set appdata callback");
@@ -863,7 +863,7 @@ return null;
         //     return 0;
         // }
 
-        // int ret = SSL_do_handshake(ssl);
+        int ret = deimos.openssl.ssl.SSL_do_handshake(ssl);
         // appData.clearCallbackState();
         // // if (env.ExceptionCheck()) {
         // //     // cert_verify_callback threw exception
@@ -872,40 +872,39 @@ return null;
         // //     return 0;
         // // }
 
-        // SslError sslError(ssl, ret);
-        // int code = sslError.get();
+        int code = deimos.openssl.ssl.SSL_get_error(ssl, ret);
 
-        // if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
-        //     // Non-exceptional case.
-        //     warningf("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
-        //     return code;
-        // }
+        if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
+            // Non-exceptional case.
+            infof("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
+            return code;
+        }
 
-        // // Exceptional case...
-        // if (ret == 0) {
-        //     // TODO(nmittler): Can this happen with memory BIOs?
-        //     /*
-        //     * Clean error. See SSL_do_handshake(3SSL) man page.
-        //     * The other side closed the socket before the handshake could be
-        //     * completed, but everything is within the bounds of the TLS protocol.
-        //     * We still might want to find out the real reason of the failure.
-        //     */
-        //     if (code == SSL_ERROR_NONE || (code == SSL_ERROR_SYSCALL && errno == 0) ||
-        //         (code == SSL_ERROR_ZERO_RETURN)) {
-        //         warning("Connection closed by peer");
-        //     } else {
-        //         warning("SSL handshake terminated");
-        //     }
-        //     return code;
-        // }
+        // Exceptional case...
+        if (ret == 0) {
+            // TODO(nmittler): Can this happen with memory BIOs?
+            /*
+            * Clean error. See SSL_do_handshake(3SSL) man page.
+            * The other side closed the socket before the handshake could be
+            * completed, but everything is within the bounds of the TLS protocol.
+            * We still might want to find out the real reason of the failure.
+            */
+            if (code == SSL_ERROR_NONE || (code == SSL_ERROR_SYSCALL && errno == 0) ||
+                (code == SSL_ERROR_ZERO_RETURN)) {
+                warning("Connection closed by peer");
+            } else {
+                warning("SSL handshake terminated");
+            }
+            return code;
+        }
 
-        // /*
-        // * Unclean error. See SSL_do_handshake(3SSL) man page.
-        // * Translate the error and throw exception. We are sure it is an error
-        // * at this point.
-        // */
-        // warning("SSL handshake aborted");
-        // return code;        
+        /*
+        * Unclean error. See SSL_do_handshake(3SSL) man page.
+        * Translate the error and throw exception. We are sure it is an error
+        * at this point.
+        */
+        warning("SSL handshake aborted");
+        return code;        
     }
 
     // /**
@@ -2026,8 +2025,8 @@ return null;
             if (cipherSuites[i] == null) {
                 throw new IllegalArgumentException("cipherSuites[" ~ i.to!string() ~ "] == null");
             }
-            if (cipherSuites[i].equals(TLS_EMPTY_RENEGOTIATION_INFO_SCSV)
-                    || cipherSuites[i].equals(TLS_FALLBACK_SCSV)) {
+            if (cipherSuites[i] == TLS_EMPTY_RENEGOTIATION_INFO_SCSV
+                    || cipherSuites[i] == TLS_FALLBACK_SCSV ) {
                 continue;
             }
             if (SUPPORTED_CIPHER_SUITES_SET.contains(cipherSuites[i])) {
