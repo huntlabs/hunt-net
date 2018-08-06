@@ -47,7 +47,7 @@ abstract class AbstractSecureSession : SecureSession {
         this.handshakeListener = handshakeListener;
 
         SSLSession ses = sslEngine.getSession();
-receivedAppBuf = newBuffer(ses.getApplicationBufferSize());
+        receivedAppBuf = newBuffer(ses.getApplicationBufferSize());
         // receivedAppBuf = newBuffer(sslEngine.getSession().getApplicationBufferSize());
         initialHSComplete = false;
 
@@ -187,14 +187,16 @@ receivedAppBuf = newBuffer(ses.getApplicationBufferSize());
             while (true) {
                 result = sslEngine.wrap(hsBuffer, packetBuffer);
                 initialHSStatus = result.getHandshakeStatus();
-                version(HuntDebugMode) {
+                // version(HuntDebugMode) 
+                {
                     tracef("session %s handshake response, init: %s | ret: %s | complete: %s ",
                             session.getSessionId(), initialHSStatus, result.getStatus(), initialHSComplete);
                 }
                 switch (result.getStatus()) {
                     case SSLEngineResult.Status.OK: {
                         packetBuffer.flip();
-                        version(HuntDebugMode) {
+                        // version(HuntDebugMode) 
+                        {
                             tracef("session %s handshake response %s bytes", session.getSessionId(), packetBuffer.remaining());
                         }
                         switch (initialHSStatus) {

@@ -170,6 +170,8 @@ final class NativeCrypto {
 
     static long SSL_CTX_new()    {
         SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+
+        infof("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
     }
 
@@ -259,6 +261,9 @@ final class NativeCrypto {
             return 0;
         }
 
+
+        infof("SSL_new => %s", ssl);
+
         /*
         * Create our special application data.
         */
@@ -278,7 +283,7 @@ final class NativeCrypto {
     }
 
     static void SSL_enable_tls_channel_id(long ssl_address) {
-         SSL* ssl = to_SSL(ssl_address);
+        SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
             return;
         }
@@ -680,6 +685,8 @@ return null;
             return 0;
         }
 
+        infof("SSL_BIO_new => %s", network_bio);
+
         SSL_set_bio(ssl, internal_bio, internal_bio);
 
         return cast(long)(network_bio);
@@ -711,7 +718,8 @@ return null;
         if (bio is null) {
             return 0;
         }
-        return cast(int)(BIO_ctrl_pending(bio));
+        int r = cast(int)(BIO_ctrl_pending(bio));
+        return r;
     }
 
     /**
@@ -1047,8 +1055,8 @@ return 0;
             return -1;
         }
 
-implementationMissing();
-return 0;
+implementationMissing(false);
+// return 0;
         // AppData* appData = toAppData(ssl);
         // if (appData is null) {
         //     warning("Unable to retrieve application data");
@@ -1063,11 +1071,11 @@ return 0;
 
         // errno = 0;
 
-        // int result = BIO_read(bio, destPtr, outputSize);
+        int result = BIO_read(bio, destPtr, outputSize);
         // appData.clearCallbackState();
         // tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
         //         ssl, bio, destPtr, outputSize, shc, result);
-        // return result;
+        return result;
     }
 
     // /**

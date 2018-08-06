@@ -562,12 +562,10 @@ return null;
     }
 
     private ConscryptSession provideHandshakeSession() {
-        implementationMissing();
-return null;
-        // synchronized (ssl) {
-        //     return state == EngineStates.STATE_HANDSHAKE_STARTED ? activeSession
-        //         : SSLNullSession.getNullSession();
-        // }
+        synchronized (ssl) {
+            return state == EngineStates.STATE_HANDSHAKE_STARTED ? activeSession
+                : SSLNullSession.getNullSession();
+        }
     }
 
     override
@@ -1191,11 +1189,13 @@ return 0;
     }
 
     private long directByteBufferAddress(ByteBuffer directBuffer, int pos) {
+        byte[] buffer =  directBuffer.array();
+        return cast(long)cast(void*)(buffer.ptr + pos);
         // return NativeCrypto.getDirectBufferAddress(directBuffer) + pos;
 // TODO: Tasks pending completion -@zxp at 8/4/2018, 10:17:02 PM        
 // 
-        implementationMissing(false);
-return 0;
+//         implementationMissing(false);
+// return 0;
     }
 
     private SSLEngineResult readPendingBytesFromBIO(ByteBuffer dst, int bytesConsumed,
@@ -1217,6 +1217,7 @@ return 0;
                 int produced = readEncryptedData(dst, pendingNet);
 
                 if (produced <= 0) {
+                    warning("Can't read encrypted data.");
                     // We ignore BIO_* errors here as we use in memory BIO anyway and will do
                     // another SSL_* call later on in which we will produce an exception in
                     // case of an error
@@ -1283,12 +1284,19 @@ return 0;
                 buffer = getOrCreateLazyDirectBuffer();
             }
 
+            trace(BufferUtils.toSummaryString(buffer));
+
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readEncryptedDataDirect(buffer, 0, bytesToRead);
+
+            byte[] temp =  buffer.array();
+            tracef("%(%02X %)", temp[0..len]);
+
             if (bytesRead > 0) {
                 buffer.position(bytesRead);
                 buffer.flip();
                 dst.put(buffer);
+                // trace(BufferUtils.toSummaryString(dst));
             }
 
             return bytesRead;
