@@ -58,9 +58,9 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         NEED_WRAP_OK = new SSLEngineResult(SSLEngineResult.Status.OK, HandshakeStatus.NEED_WRAP, 0, 0);
         NEED_WRAP_CLOSED = new SSLEngineResult(SSLEngineResult.Status.CLOSED, HandshakeStatus.NEED_WRAP, 0, 0);
         CLOSED_NOT_HANDSHAKING = new SSLEngineResult(SSLEngineResult.Status.CLOSED, HandshakeStatus.NOT_HANDSHAKING, 0, 0);
-
+        EMPTY = ByteBuffer.allocateDirect(0);
     }
-    // private static ByteBuffer EMPTY = ByteBuffer.allocateDirect(0);
+    private __gshared static ByteBuffer EMPTY;
 
     private static BufferAllocator defaultBufferAllocator = null;
 
@@ -686,208 +686,206 @@ return null;
     SSLEngineResult unwrap(ByteBuffer[] srcs, int srcsOffset, int srcsLength,
             ByteBuffer[] dsts, int dstsOffset, int dstsLength)
             {
-implementationMissing();
-return null;                
-        // checkArgument(srcs !is null, "srcs is null");
-        // checkArgument(dsts !is null, "dsts is null");
-        // checkPositionIndexes(srcsOffset, srcsOffset + srcsLength, srcs.length);
-        // checkPositionIndexes(dstsOffset, dstsOffset + dstsLength, dsts.length);
+        assert(srcs !is null, "srcs is null");
+        assert(dsts !is null, "dsts is null");
+        checkPositionIndexes(srcsOffset, srcsOffset + srcsLength, cast(int)srcs.length);
+        checkPositionIndexes(dstsOffset, dstsOffset + dstsLength, cast(int)dsts.length);
 
-        // // Determine the output capacity.
-        // int dstLength = calcDstsLength(dsts, dstsOffset, dstsLength);
-        // int endOffset = dstsOffset + dstsLength;
+        // Determine the output capacity.
+        int dstLength = calcDstsLength(dsts, dstsOffset, dstsLength);
+        int endOffset = dstsOffset + dstsLength;
 
-        // int srcsEndOffset = srcsOffset + srcsLength;
-        // long srcLength = calcSrcsLength(srcs, srcsOffset, srcsEndOffset);
+        int srcsEndOffset = srcsOffset + srcsLength;
+        long srcLength = calcSrcsLength(srcs, srcsOffset, srcsEndOffset);
 
-        // synchronized (ssl) {
-        //     switch (state) {
-        //         case EngineStates.STATE_MODE_SET:
-        //             // Begin the handshake implicitly.
-        //             beginHandshakeInternal();
-        //             break;
-        //         case EngineStates.STATE_CLOSED_INBOUND:
-        //         case EngineStates.STATE_CLOSED:
-        //             // If the inbound direction is closed. we can't send anymore.
-        //             return new SSLEngineResult(Status.CLOSED, getHandshakeStatusInternal(), 0, 0);
-        //         case EngineStates.STATE_NEW:
-        //             throw new IllegalStateException(
-        //                     "Client/server mode must be set before calling unwrap");
-        //         default:
-        //             break;
-        //     }
+        synchronized (ssl) {
+            switch (state) {
+                case EngineStates.STATE_MODE_SET:
+                    // Begin the handshake implicitly.
+                    beginHandshakeInternal();
+                    break;
+                case EngineStates.STATE_CLOSED_INBOUND:
+                case EngineStates.STATE_CLOSED:
+                    // If the inbound direction is closed. we can't send anymore.
+                    return new SSLEngineResult(SSLEngineResult.Status.CLOSED, getHandshakeStatusInternal(), 0, 0);
+                case EngineStates.STATE_NEW:
+                    throw new IllegalStateException(
+                            "Client/server mode must be set before calling unwrap");
+                default:
+                    break;
+            }
 
-        //     HandshakeStatus handshakeStatus = HandshakeStatus.NOT_HANDSHAKING;
-        //     if (!handshakeFinished) {
-        //         handshakeStatus = handshake();
-        //         if (handshakeStatus == NEED_WRAP) {
-        //             return NEED_WRAP_OK;
-        //         }
-        //         if (state == STATE_CLOSED) {
-        //             return NEED_WRAP_CLOSED;
-        //         }
-        //         // NEED_UNWRAP - just fall through to perform the unwrap.
-        //     }
+            HandshakeStatus handshakeStatus = HandshakeStatus.NOT_HANDSHAKING;
+            if (!handshakeFinished) {
+                handshakeStatus = handshake();
+                if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
+                    return NEED_WRAP_OK;
+                }
+                if (state == EngineStates.STATE_CLOSED) {
+                    return NEED_WRAP_CLOSED;
+                }
+                // NEED_UNWRAP - just fall through to perform the unwrap.
+            }
 
-        //     // Consume any source data. Skip this if there are unread cleartext data.
-        //     bool noCleartextDataAvailable = pendingInboundCleartextBytes() <= 0;
-        //     int lenRemaining = 0;
-        //     if (srcLength > 0 && noCleartextDataAvailable) {
-        //         if (srcLength < SSL3_RT_HEADER_LENGTH) {
-        //             // Need to be able to read a full TLS header.
-        //             return new SSLEngineResult(BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
-        //         }
+            // Consume any source data. Skip this if there are unread cleartext data.
+            bool noCleartextDataAvailable = pendingInboundCleartextBytes() <= 0;
+            int lenRemaining = 0;
+            if (srcLength > 0 && noCleartextDataAvailable) {
+                if (srcLength < SSL3_RT_HEADER_LENGTH) {
+                    // Need to be able to read a full TLS header.
+                    return new SSLEngineResult(SSLEngineResult.Status.BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
+                }
 
-        //         int packetLength = SSLUtils.getEncryptedPacketLength(srcs, srcsOffset);
-        //         if (packetLength < 0) {
-        //             throw new SSLException("Unable to parse TLS packet header");
-        //         }
+                int packetLength = SSLUtils.getEncryptedPacketLength(srcs, srcsOffset);
+                if (packetLength < 0) {
+                    throw new SSLException("Unable to parse TLS packet header");
+                }
 
-        //         if (srcLength < packetLength) {
-        //             // We either have not enough data to read the packet header or not enough for
-        //             // reading the whole packet.
-        //             return new SSLEngineResult(BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
-        //         }
+                if (srcLength < packetLength) {
+                    // We either have not enough data to read the packet header or not enough for
+                    // reading the whole packet.
+                    return new SSLEngineResult(SSLEngineResult.Status.BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
+                }
 
-        //         // Limit the amount of data to be read to a single packet.
-        //         lenRemaining = packetLength;
-        //     } else if (noCleartextDataAvailable) {
-        //         // No pending data and nothing provided as input.  Need more data.
-        //         return new SSLEngineResult(BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
-        //     }
+                // Limit the amount of data to be read to a single packet.
+                lenRemaining = packetLength;
+            } else if (noCleartextDataAvailable) {
+                // No pending data and nothing provided as input.  Need more data.
+                return new SSLEngineResult(SSLEngineResult.Status.BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
+            }
 
-        //     // Write all of the encrypted source data to the networkBio
-        //     int bytesConsumed = 0;
-        //     if (lenRemaining > 0 && srcsOffset < srcsEndOffset) {
-        //         do {
-        //             ByteBuffer src = srcs[srcsOffset];
-        //             int remaining = src.remaining();
-        //             if (remaining == 0) {
-        //                 // We must skip empty buffers as BIO_write will return 0 if asked to
-        //                 // write something with length 0.
-        //                 srcsOffset++;
-        //                 continue;
-        //             }
-        //             // Write the source encrypted data to the networkBio.
-        //             int written = writeEncryptedData(src, min(lenRemaining, remaining));
-        //             if (written > 0) {
-        //                 bytesConsumed += written;
-        //                 lenRemaining -= written;
-        //                 if (lenRemaining == 0) {
-        //                     // A whole packet has been consumed.
-        //                     break;
-        //                 }
+            // Write all of the encrypted source data to the networkBio
+            int bytesConsumed = 0;
+            if (lenRemaining > 0 && srcsOffset < srcsEndOffset) {
+                do {
+                    ByteBuffer src = srcs[srcsOffset];
+                    int remaining = src.remaining();
+                    if (remaining == 0) {
+                        // We must skip empty buffers as BIO_write will return 0 if asked to
+                        // write something with length 0.
+                        srcsOffset++;
+                        continue;
+                    }
+                    // Write the source encrypted data to the networkBio.
+                    int written = writeEncryptedData(src, min(lenRemaining, remaining));
+                    if (written > 0) {
+                        bytesConsumed += written;
+                        lenRemaining -= written;
+                        if (lenRemaining == 0) {
+                            // A whole packet has been consumed.
+                            break;
+                        }
 
-        //                 if (written == remaining) {
-        //                     srcsOffset++;
-        //                 } else {
-        //                     // We were not able to write everything into the BIO so break the
-        //                     // write loop as otherwise we will produce an error on the next
-        //                     // write attempt, which will trigger a SSL.clearError() later.
-        //                     break;
-        //                 }
-        //             } else {
-        //                 // BIO_write returned a negative or zero number, this means we could not
-        //                 // complete the write operation and should retry later.
-        //                 // We ignore BIO_* errors here as we use in memory BIO anyway and will
-        //                 // do another SSL_* call later on in which we will produce an exception
-        //                 // in case of an error
-        //                 NativeCrypto.SSL_clear_error();
-        //                 break;
-        //             }
-        //         } while (srcsOffset < srcsEndOffset);
-        //     }
+                        if (written == remaining) {
+                            srcsOffset++;
+                        } else {
+                            // We were not able to write everything into the BIO so break the
+                            // write loop as otherwise we will produce an error on the next
+                            // write attempt, which will trigger a SSL.clearError() later.
+                            break;
+                        }
+                    } else {
+                        // BIO_write returned a negative or zero number, this means we could not
+                        // complete the write operation and should retry later.
+                        // We ignore BIO_* errors here as we use in memory BIO anyway and will
+                        // do another SSL_* call later on in which we will produce an exception
+                        // in case of an error
+                        NativeCrypto.SSL_clear_error();
+                        break;
+                    }
+                } while (srcsOffset < srcsEndOffset);
+            }
 
-        //     // Now read any available plaintext data.
-        //     int bytesProduced = 0;
-        //     try {
-        //         if (dstLength > 0) {
-        //             // Write decrypted data to dsts buffers
-        //             for (int idx = dstsOffset; idx < endOffset; ++idx) {
-        //                 ByteBuffer dst = dsts[idx];
-        //                 if (!dst.hasRemaining()) {
-        //                     continue;
-        //                 }
+            // Now read any available plaintext data.
+            int bytesProduced = 0;
+            try {
+                if (dstLength > 0) {
+                    // Write decrypted data to dsts buffers
+                    for (int idx = dstsOffset; idx < endOffset; ++idx) {
+                        ByteBuffer dst = dsts[idx];
+                        if (!dst.hasRemaining()) {
+                            continue;
+                        }
 
-        //                 int bytesRead = readPlaintextData(dst);
-        //                 if (bytesRead > 0) {
-        //                     bytesProduced += bytesRead;
-        //                     if (dst.hasRemaining()) {
-        //                         // We haven't filled this buffer fully, break out of the loop
-        //                         // and determine the correct response status below.
-        //                         break;
-        //                     }
-        //                 } else {
-        //                     switch (bytesRead) {
-        //                         case -SSL_ERROR_WANT_READ:
-        //                         case -SSL_ERROR_WANT_WRITE: {
-        //                             return newResult(bytesConsumed, bytesProduced, handshakeStatus);
-        //                         }
-        //                         case -SSL_ERROR_ZERO_RETURN: {
-        //                             // We received a close_notify from the peer, so mark the
-        //                             // inbound direction as closed and shut down the SSL object
-        //                             closeInbound();
-        //                             sendSSLShutdown();
-        //                             return new SSLEngineResult(Status.CLOSED,
-        //                                     pendingOutboundEncryptedBytes() > 0
-        //                                             ? NEED_WRAP : NOT_HANDSHAKING,
-        //                                     bytesConsumed, bytesProduced);
-        //                         }
-        //                         default: {
-        //                             // Should never get here.
-        //                             sendSSLShutdown();
-        //                             throw newSslExceptionWithMessage("SSL_read");
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         } else {
-        //             // If the capacity of all destination buffers is 0 we need to trigger a SSL_read
-        //             // anyway to ensure everything is flushed in the BIO pair and so we can detect
-        //             // it in the pendingInboundCleartextBytes() call.
-        //             readPlaintextData(EMPTY);
-        //         }
-        //     } catch (SSLException e) {
-        //         if (pendingOutboundEncryptedBytes() > 0) {
-        //             // We need to flush any pending bytes to the remote endpoint in case
-        //             // there is an alert that needs to be propagated.
-        //             if (!handshakeFinished && handshakeException == null) {
-        //                 // Save the handshake exception. We will re-throw during the next
-        //                 // handshake.
-        //                 handshakeException = e;
-        //             }
-        //             return new SSLEngineResult(OK, NEED_WRAP, bytesConsumed, bytesProduced);
-        //         }
+                        int bytesRead = readPlaintextData(dst);
+                        if (bytesRead > 0) {
+                            bytesProduced += bytesRead;
+                            if (dst.hasRemaining()) {
+                                // We haven't filled this buffer fully, break out of the loop
+                                // and determine the correct response status below.
+                                break;
+                            }
+                        } else {
+                            switch (bytesRead) {
+                                case -SSL_ERROR_WANT_READ:
+                                case -SSL_ERROR_WANT_WRITE: {
+                                    return newResult(bytesConsumed, bytesProduced, handshakeStatus);
+                                }
+                                case -SSL_ERROR_ZERO_RETURN: {
+                                    // We received a close_notify from the peer, so mark the
+                                    // inbound direction as closed and shut down the SSL object
+                                    closeInbound();
+                                    sendSSLShutdown();
+                                    return new SSLEngineResult(SSLEngineResult.Status.CLOSED,
+                                            pendingOutboundEncryptedBytes() > 0
+                                                    ? HandshakeStatus.NEED_WRAP : HandshakeStatus.NOT_HANDSHAKING,
+                                            bytesConsumed, bytesProduced);
+                                }
+                                default: {
+                                    // Should never get here.
+                                    sendSSLShutdown();
+                                    throw newSslExceptionWithMessage("SSL_read");
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // If the capacity of all destination buffers is 0 we need to trigger a SSL_read
+                    // anyway to ensure everything is flushed in the BIO pair and so we can detect
+                    // it in the pendingInboundCleartextBytes() call.
+                    readPlaintextData(EMPTY);
+                }
+            } catch (SSLException e) {
+                if (pendingOutboundEncryptedBytes() > 0) {
+                    // We need to flush any pending bytes to the remote endpoint in case
+                    // there is an alert that needs to be propagated.
+                    if (!handshakeFinished && handshakeException is null) {
+                        // Save the handshake exception. We will re-throw during the next
+                        // handshake.
+                        handshakeException = e;
+                    }
+                    return new SSLEngineResult(SSLEngineResult.Status.OK, HandshakeStatus.NEED_WRAP, bytesConsumed, bytesProduced);
+                }
 
-        //         // Nothing to write, just shutdown and throw the exception.
-        //         sendSSLShutdown();
-        //         throw convertException(e);
-        //     } catch (InterruptedIOException e) {
-        //         return newResult(bytesConsumed, bytesProduced, handshakeStatus);
-        //     } catch (EOFException e) {
-        //         closeAll();
-        //         throw convertException(e);
-        //     } catch (IOException e) {
-        //         sendSSLShutdown();
-        //         throw convertException(e);
-        //     }
+                // Nothing to write, just shutdown and throw the exception.
+                sendSSLShutdown();
+                throw convertException(e);
+            } catch (InterruptedIOException e) {
+                return newResult(bytesConsumed, bytesProduced, handshakeStatus);
+            } catch (EOFException e) {
+                closeAll();
+                throw convertException(e);
+            } catch (IOException e) {
+                sendSSLShutdown();
+                throw convertException(e);
+            }
 
-        //     // There won't be any application data until we're done handshaking.
-        //     // We first check handshakeFinished to eliminate the overhead of extra JNI call if
-        //     // possible.
-        //     int pendingCleartextBytes = handshakeFinished ? pendingInboundCleartextBytes() : 0;
-        //     if (pendingCleartextBytes > 0) {
-        //         // We filled all buffers but there is still some data pending in the BIO buffer,
-        //         // return BUFFER_OVERFLOW.
-        //         return new SSLEngineResult(BUFFER_OVERFLOW,
-        //                 mayFinishHandshake(handshakeStatus == FINISHED
-        //                                 ? handshakeStatus
-        //                                 : getHandshakeStatusInternal()),
-        //                 bytesConsumed, bytesProduced);
-        //     }
+            // There won't be any application data until we're done handshaking.
+            // We first check handshakeFinished to eliminate the overhead of extra JNI call if
+            // possible.
+            int pendingCleartextBytes = handshakeFinished ? pendingInboundCleartextBytes() : 0;
+            if (pendingCleartextBytes > 0) {
+                // We filled all buffers but there is still some data pending in the BIO buffer,
+                // return BUFFER_OVERFLOW.
+                return new SSLEngineResult(SSLEngineResult.Status.BUFFER_OVERFLOW,
+                        mayFinishHandshake(handshakeStatus == HandshakeStatus.FINISHED
+                                        ? handshakeStatus
+                                        : getHandshakeStatusInternal()),
+                        bytesConsumed, bytesProduced);
+            }
 
-        //     return newResult(bytesConsumed, bytesProduced, handshakeStatus);
-        // }
+            return newResult(bytesConsumed, bytesProduced, handshakeStatus);
+        }
     }
 
     private static int calcDstsLength(ByteBuffer[] dsts, int dstsOffset, int dstsLength) {
@@ -1045,67 +1043,65 @@ return 0;
         // }
     }
 
-    // /**
-    //  * Read plaintext data from the OpenSSL internal BIO
-    //  */
-    // private int readPlaintextData(ByteBuffer dst) {
-    //     try {
-    //         int pos = dst.position();
-    //         int limit = dst.limit();
-    //         int len = min(SSL3_RT_MAX_PACKET_SIZE, limit - pos);
-    //         if (dst.isDirect()) {
-    //             int bytesRead = readPlaintextDataDirect(dst, pos, len);
-    //             if (bytesRead > 0) {
-    //                 dst.position(pos + bytesRead);
-    //             }
-    //             return bytesRead;
-    //         }
+    /**
+     * Read plaintext data from the OpenSSL internal BIO
+     */
+    private int readPlaintextData(ByteBuffer dst) {
+        try {
+            int pos = dst.position();
+            int limit = dst.limit();
+            int len = min(SSL3_RT_MAX_PACKET_SIZE, limit - pos);
+            if (dst.isDirect()) {
+                int bytesRead = readPlaintextDataDirect(dst, pos, len);
+                if (bytesRead > 0) {
+                    dst.position(pos + bytesRead);
+                }
+                return bytesRead;
+            }
 
-    //         // The heap method updates the dst position automatically.
-    //         return readPlaintextDataHeap(dst, len);
-    //     } catch (CertificateException e) {
-    //         throw convertException(e);
-    //     }
-    // }
+            // The heap method updates the dst position automatically.
+            return readPlaintextDataHeap(dst, len);
+        } catch (CertificateException e) {
+            throw convertException(e);
+        }
+    }
 
-    // private int readPlaintextDataDirect(ByteBuffer dst, int pos, int len)
-    //        , CertificateException {
-    //     return ssl.readDirectByteBuffer(directByteBufferAddress(dst, pos), len);
-    // }
+    private int readPlaintextDataDirect(ByteBuffer dst, int pos, int len) {
+        return ssl.readDirectByteBuffer(directByteBufferAddress(dst, pos), len);
+    }
 
-    // private int readPlaintextDataHeap(ByteBuffer dst, int len)
-    //        , CertificateException {
-    //     AllocatedBuffer allocatedBuffer = null;
-    //     try {
-    //         ByteBuffer buffer;
-    //         if (bufferAllocator !is null) {
-    //             allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
-    //             buffer = allocatedBuffer.nioBuffer();
-    //         } else {
-    //             // We don't have a buffer allocator, but we don't want to send a heap
-    //             // buffer to JNI. So lazy-create a direct buffer that we will use from now
-    //             // on to copy plaintext data.
-    //             buffer = getOrCreateLazyDirectBuffer();
-    //         }
+    private int readPlaintextDataHeap(ByteBuffer dst, int len) {
+        AllocatedBuffer allocatedBuffer = null;
+        try {
+            ByteBuffer buffer;
+            if (bufferAllocator !is null) {
+                allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
+                buffer = allocatedBuffer.nioBuffer();
+            } else {
+                // We don't have a buffer allocator, but we don't want to send a heap
+                // buffer to JNI. So lazy-create a direct buffer that we will use from now
+                // on to copy plaintext data.
+                buffer = getOrCreateLazyDirectBuffer();
+            }
 
-    //         // Read the data to the direct buffer.
-    //         int bytesToRead = min(len, buffer.remaining());
-    //         int bytesRead = readPlaintextDataDirect(buffer, 0, bytesToRead);
-    //         if (bytesRead > 0) {
-    //             // Copy the data to the heap buffer.
-    //             buffer.position(bytesRead);
-    //             buffer.flip();
-    //             dst.put(buffer);
-    //         }
+            // Read the data to the direct buffer.
+            int bytesToRead = min(len, buffer.remaining());
+            int bytesRead = readPlaintextDataDirect(buffer, 0, bytesToRead);
+            if (bytesRead > 0) {
+                // Copy the data to the heap buffer.
+                buffer.position(bytesRead);
+                buffer.flip();
+                dst.put(buffer);
+            }
 
-    //         return bytesRead;
-    //     } finally {
-    //         if (allocatedBuffer !is null) {
-    //             // Release the buffer back to the pool.
-    //             allocatedBuffer.release();
-    //         }
-    //     }
-    // }
+            return bytesRead;
+        } finally {
+            if (allocatedBuffer !is null) {
+                // Release the buffer back to the pool.
+                allocatedBuffer.release();
+            }
+        }
+    }
 
     private SSLException convertException(Throwable e) {
         if (typeid(e) == typeid(SSLHandshakeException) || !handshakeFinished) {
@@ -1114,70 +1110,70 @@ return 0;
         return SSLUtils.toSSLException(e);
     }
 
-    // /**
-    //  * Write encrypted data to the OpenSSL network BIO.
-    //  */
-    // private int writeEncryptedData(ByteBuffer src, int len) {
-    //     try {
-    //         int pos = src.position();
-    //         int bytesWritten;
-    //         if (src.isDirect()) {
-    //             bytesWritten = writeEncryptedDataDirect(src, pos, len);
-    //         } else {
-    //             bytesWritten = writeEncryptedDataHeap(src, pos, len);
-    //         }
+    /**
+     * Write encrypted data to the OpenSSL network BIO.
+     */
+    private int writeEncryptedData(ByteBuffer src, int len) {
+        try {
+            int pos = src.position();
+            int bytesWritten;
+            if (src.isDirect()) {
+                bytesWritten = writeEncryptedDataDirect(src, pos, len);
+            } else {
+                bytesWritten = writeEncryptedDataHeap(src, pos, len);
+            }
 
-    //         if (bytesWritten > 0) {
-    //             src.position(pos + bytesWritten);
-    //         }
+            if (bytesWritten > 0) {
+                src.position(pos + bytesWritten);
+            }
 
-    //         return bytesWritten;
-    //     } catch (IOException e) {
-    //         throw new SSLException(e);
-    //     }
-    // }
+            return bytesWritten;
+        } catch (IOException e) {
+            throw new SSLException("", e);
+        }
+    }
 
-    // private int writeEncryptedDataDirect(ByteBuffer src, int pos, int len) {
-    //     return networkBio.writeDirectByteBuffer(directByteBufferAddress(src, pos), len);
-    // }
+    private int writeEncryptedDataDirect(ByteBuffer src, int pos, int len) {
+        return networkBio.writeDirectByteBuffer(directByteBufferAddress(src, pos), len);
+    }
 
-    // private int writeEncryptedDataHeap(ByteBuffer src, int pos, int len) {
-    //     AllocatedBuffer allocatedBuffer = null;
-    //     try {
-    //         ByteBuffer buffer;
-    //         if (bufferAllocator !is null) {
-    //             allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
-    //             buffer = allocatedBuffer.nioBuffer();
-    //         } else {
-    //             // We don't have a buffer allocator, but we don't want to send a heap
-    //             // buffer to JNI. So lazy-create a direct buffer that we will use from now
-    //             // on to copy encrypted packets.
-    //             buffer = getOrCreateLazyDirectBuffer();
-    //         }
+    private int writeEncryptedDataHeap(ByteBuffer src, int pos, int len) {
+        AllocatedBuffer allocatedBuffer = null;
+        try {
+            ByteBuffer buffer;
+            if (bufferAllocator !is null) {
+                allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
+                buffer = allocatedBuffer.nioBuffer();
+            } else {
+                // We don't have a buffer allocator, but we don't want to send a heap
+                // buffer to JNI. So lazy-create a direct buffer that we will use from now
+                // on to copy encrypted packets.
+                buffer = getOrCreateLazyDirectBuffer();
+            }
 
-    //         int limit = src.limit();
-    //         int bytesToCopy = min(min(limit - pos, len), buffer.remaining());
-    //         src.limit(pos + bytesToCopy);
-    //         buffer.put(src);
-    //         // Restore the original limit.
-    //         src.limit(limit);
+            int limit = src.limit();
+            int bytesToCopy = min(min(limit - pos, len), buffer.remaining());
+            src.limit(pos + bytesToCopy);
+            buffer.put(src);
+            // Restore the original limit.
+            src.limit(limit);
 
-    //         // Reset the original position on the source buffer.
-    //         src.position(pos);
+            // Reset the original position on the source buffer.
+            src.position(pos);
 
-    //         int bytesWritten = writeEncryptedDataDirect(buffer, 0, bytesToCopy);
+            int bytesWritten = writeEncryptedDataDirect(buffer, 0, bytesToCopy);
 
-    //         // Restore the original position.
-    //         src.position(pos);
+            // Restore the original position.
+            src.position(pos);
 
-    //         return bytesWritten;
-    //     } finally {
-    //         if (allocatedBuffer !is null) {
-    //             // Release the buffer back to the pool.
-    //             allocatedBuffer.release();
-    //         }
-    //     }
-    // }
+            return bytesWritten;
+        } finally {
+            if (allocatedBuffer !is null) {
+                // Release the buffer back to the pool.
+                allocatedBuffer.release();
+            }
+        }
+    }
 
     private ByteBuffer getOrCreateLazyDirectBuffer() {
         if (lazyDirectBuffer is null) {
@@ -1191,11 +1187,6 @@ return 0;
     private long directByteBufferAddress(ByteBuffer directBuffer, int pos) {
         byte[] buffer =  directBuffer.array();
         return cast(long)cast(void*)(buffer.ptr + pos);
-        // return NativeCrypto.getDirectBufferAddress(directBuffer) + pos;
-// TODO: Tasks pending completion -@zxp at 8/4/2018, 10:17:02 PM        
-// 
-//         implementationMissing(false);
-// return 0;
     }
 
     private SSLEngineResult readPendingBytesFromBIO(ByteBuffer dst, int bytesConsumed,

@@ -338,7 +338,7 @@ return null;
 implementationMissing();
         // EVP_PKEY* pkey = fromContextObject<EVP_PKEY>(env, pkeyRef);
         // if (pkey is null) {
-        //     tracef("ssl=%s SSL_set1_tls_channel_id => pkey == null", ssl);
+        //     tracef("ssl=%s SSL_set1_tls_channel_id => pkey is null", ssl);
         //     return;
         // }
 
@@ -389,7 +389,7 @@ implementationMissing();
         }
         long result = cast(long)(deimos.openssl.ssl.SSL_set_options(ssl, cast(uint)(options)));
         // NOLINTNEXTLINE(runtime/int)
-        // JNI_TRACE("ssl=%p SSL_set_options => 0x%lx", ssl, (long)result);
+        // JNI_TRACE("ssl=%s SSL_set_options => 0x%lx", ssl, (long)result);
         return result;        
     }
 
@@ -523,7 +523,7 @@ return null;
 
         // ScopedByteArrayRO responseBytes(env, response);
         // if (responseBytes.get() is null) {
-        //     JNI_TRACE("ssl=%s SSL_set_ocsp_response => response == null", ssl);
+        //     JNI_TRACE("ssl=%s SSL_set_ocsp_response => response is null", ssl);
         //     return;
         // }
 
@@ -613,7 +613,7 @@ return null;
 
     static string[] get_cipher_names(string selector) {
         if (selector.empty) {
-            warning("selector == null");
+            warning("selector is null");
             return null;
         }
 
@@ -633,7 +633,7 @@ return null;
 
         // size_t size = sk_SSL_CIPHER_num(ciphers);
         // ScopedLocalRef<jobjectArray> cipherNamesArray(
-        //         env, env->NewObjectArray(static_cast<jsize>(2 * size), conscrypt::jniutil::stringClass,
+        //         env, env.NewObjectArray(static_cast<jsize>(2 * size), conscrypt::jniutil::stringClass,
         //                                 null));
         // if (cipherNamesArray.get() is null) {
         //     return null;
@@ -643,12 +643,12 @@ return null;
         // for (size_t i = 0; i < size; i++) {
         //     const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
         //     ScopedLocalRef<jstring> cipherName(env,
-        //                                     env->NewStringUTF(SSL_CIPHER_standard_name(cipher)));
-        //     env->SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i),
+        //                                     env.NewStringUTF(SSL_CIPHER_standard_name(cipher)));
+        //     env.SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i),
         //                             cipherName.get());
 
-        //     ScopedLocalRef<jstring> opensslName(env, env->NewStringUTF(SSL_CIPHER_get_name(cipher)));
-        //     env->SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i + 1),
+        //     ScopedLocalRef<jstring> opensslName(env, env.NewStringUTF(SSL_CIPHER_get_name(cipher)));
+        //     env.SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i + 1),
         //                             opensslName.get());
         // }
 
@@ -758,7 +758,7 @@ return null;
         //         if (protosBytes.get() is null) {
         //             JNI_TRACE(
         //                     "ssl=%s setApplicationProtocols protocols=%s => "
-        //                     "protosBytes == null",
+        //                     "protosBytes is null",
         //                     ssl, protocols);
         //             return;
         //         }
@@ -799,7 +799,7 @@ return null;
     //     // AppData* appData = toAppData(ssl);
     //     // if (appData is null) {
     //     //     conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
-    //     //     JNI_TRACE("ssl=%p setApplicationProtocolSelector appData => 0", ssl);
+    //     //     JNI_TRACE("ssl=%s setApplicationProtocolSelector appData => 0", ssl);
     //     //     return;
     //     // }
 
@@ -852,7 +852,7 @@ return null;
         }
 
         if (shc is null) {
-            warning("sslHandshakeCallbacks == null");
+            warning("sslHandshakeCallbacks is null");
             return 0;
         }
 
@@ -915,28 +915,113 @@ return null;
         return code;        
     }
 
-    // /**
-    //  * Variant of the {@link #SSL_read} for a direct {@link java.nio.ByteBuffer} used by {@link
-    //  * ConscryptEngine}.
-    //  *
-    //  * @return if positive, represents the number of bytes read into the given buffer.
-    //  * Returns {@code -SSL_ERROR_WANT_READ} if more data is needed. Returns
-    //  * {@code -SSL_ERROR_WANT_WRITE} if data needs to be written out to flush the BIO.
-    //  *
-    //  * @throws java.io.InterruptedIOException if the read was interrupted.
-    //  * @throws java.io.EOFException if the end of stream has been reached.
-    //  * @throws CertificateException if the application's certificate verification callback failed.
-    //  * Only occurs during handshake processing.
-    //  * @ if any other error occurs.
-    //  */
-    // static int ENGINE_SSL_read_direct(long ssl_address, long address, int length,
-    //         SSLHandshakeCallbacks shc), CertificateException;
+    /**
+     * Variant of the {@link #SSL_read} for a direct {@link java.nio.ByteBuffer} used by {@link
+     * ConscryptEngine}.
+     *
+     * @return if positive, represents the number of bytes read into the given buffer.
+     * Returns {@code -SSL_ERROR_WANT_READ} if more data is needed. Returns
+     * {@code -SSL_ERROR_WANT_WRITE} if data needs to be written out to flush the BIO.
+     *
+     * @throws java.io.InterruptedIOException if the read was interrupted.
+     * @throws java.io.EOFException if the end of stream has been reached.
+     * @throws CertificateException if the application's certificate verification callback failed.
+     * Only occurs during handshake processing.
+     * @ if any other error occurs.
+     */
+    static int ENGINE_SSL_read_direct(long ssl_address, long address, int length,
+            SSLHandshakeCallbacks shc) {
+        SSL* ssl = to_SSL(ssl_address);
+        char* destPtr = cast(char*)(address);
+        if (ssl is null) {
+            return -1;
+        }
+
+        if (shc is null) {
+            warning("sslHandshakeCallbacks is null");
+            return -1;
+        }
+
+        // AppData* appData = toAppData(ssl);
+        // if (appData is null) {
+        //     warning("Unable to retrieve application data");
+        //     return -1;
+        // }
+        // if (!appData.setCallbackState(env, shc, null)) {
+        //     warning("Unable to set appdata callback");
+        //     ERR_clear_error();
+        //     return -1;
+        // }
+
+        errno = 0;
+
+        int result = SSL_read(ssl, destPtr, length);
+        // appData.clearCallbackState();
+        // if (env.ExceptionCheck()) {
+        //     // An exception was thrown by one of the callbacks. Just propagate that exception.
+        //     ERR_clear_error();
+        //     JNI_TRACE("ssl=%s ENGINE_SSL_read_direct => THROWN_EXCEPTION", ssl);
+        //     return -1;
+        // }
+
+        // SslError sslError(ssl, result);
+        switch (result) {
+            case SSL_ERROR_NONE: {
+                // Successfully read at least one byte. Just return the result.
+                break;
+            }
+            case SSL_ERROR_ZERO_RETURN: {
+                // A close_notify was received, this stream is finished.
+                return -SSL_ERROR_ZERO_RETURN;
+            }
+            case SSL_ERROR_WANT_READ:
+            case SSL_ERROR_WANT_WRITE: {
+                // Return the negative of these values.
+                result = -result;
+                break;
+            }
+            case SSL_ERROR_SYSCALL: {
+                // A problem occurred during a system call, but this is not
+                // necessarily an error.
+                if (result == 0) {
+                    // TODO(nmittler): Can this happen with memory BIOs?
+                    // Connection closed without proper shutdown. Tell caller we
+                    // have reached end-of-stream.
+                    warning("EOFException: ", "Read error");
+                    break;
+                }
+
+                if (errno == EINTR) {
+                    // TODO(nmittler): Can this happen with memory BIOs?
+                    // System call has been interrupted. Simply retry.
+                    warning("InterruptedIOException: ",
+                                                        "Read error");
+                    break;
+                }
+
+                // Note that for all other system call errors we fall through
+                // to the default case, which results in an Exception.
+                // FALLTHROUGH_INTENDED;
+                error("Read error");
+                break;
+            }
+            default: {
+                // Everything else is basically an error.
+                error("Read error");
+                break;
+            }
+        }
+
+        tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d shc=%s result=%d",
+                ssl, destPtr, length, shc, result);
+        return result;
+    }
 
     /**
      * Variant of the {@link #SSL_write} for a direct {@link java.nio.ByteBuffer} used by {@link
      * ConscryptEngine}. This version does not lock or and does no error pre-processing.
      */
-    static int ENGINE_SSL_write_direct(long ssl_address, long address, int length,
+    static int ENGINE_SSL_write_direct(long ssl_address, long address, int len,
             SSLHandshakeCallbacks shc) {
 
         SSL* ssl = to_SSL(ssl_address);
@@ -944,14 +1029,13 @@ return null;
         if (ssl is null) {
             return -1;
         }
-        // JNI_TRACE("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s", ssl,
-        //         sourcePtr, len, shc);
-implementationMissing();
-return -1;
-        // if (shc is null) {
-        //     warning("sslHandshakeCallbacks == null");
-        //     return -1;
-        // }
+
+// implementationMissing();
+// return -1;
+        if (shc is null) {
+            warning("sslHandshakeCallbacks is null");
+            return -1;
+        }
 
         // AppData* appData = toAppData(ssl);
         // if (appData is null) {
@@ -965,13 +1049,13 @@ return -1;
         //     return -1;
         // }
 
-        // errno = 0;
+        errno = 0;
 
-        // int result = SSL_write(ssl, sourcePtr, len);
+        int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        // tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
-        //         ssl, sourcePtr, len, shc, result);
-        // return result;
+        tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+                ssl, sourcePtr, len, shc, result);
+        return result;
     }
 
     /**
@@ -985,7 +1069,7 @@ return -1;
             return -1;
         }
         if (shc is null) {
-            warning("sslHandshakeCallbacks == null");
+            warning("sslHandshakeCallbacks is null");
             return -1;
         }
         BIO* bio = to_SSL_BIO(bioRef);
@@ -1042,7 +1126,7 @@ return 0;
             return -1;
         }
         if (shc is null) {
-            warning("sslHandshakeCallbacks == null");
+            warning("sslHandshakeCallbacks is null");
             return -1;
         }
         BIO* bio = to_SSL_BIO(bioRef);
@@ -1051,7 +1135,7 @@ return 0;
         }
         char* destPtr = cast(char*)(address);
         if (destPtr is null) {
-            warning("destPtr == null");
+            warning("destPtr is null");
             return -1;
         }
 
@@ -1096,7 +1180,7 @@ implementationMissing(false);
         tracef("ssl=%s ENGINE_SSL_shutdown", ssl);
 
         if (shc is null) {
-            warning("sslHandshakeCallbacks == null");
+            warning("sslHandshakeCallbacks is null");
             return;
         }
 
@@ -1816,7 +1900,7 @@ implementationMissing(false);
     static void BIO_free_all(long bioRef)    {
         BIO* bio = to_SSL_BIO(bioRef); // cast(BIO*)(cast(uintptr_t)(bioRef));
         if (bio is null) {
-            warning("bio == null");
+            warning("bio is null");
         }
         else
             deimos.openssl.ssl.BIO_free_all(bio);
@@ -1838,7 +1922,7 @@ implementationMissing(false);
         for (int i = 0; i < SUPPORTED_PROTOCOLS.length; i++) {
             string protocol = SUPPORTED_PROTOCOLS[i];
             if (protocols.contains(protocol)) {
-                if (min == null) {
+                if (min is null) {
                     min = protocol;
                 }
                 max = protocol;
@@ -1846,7 +1930,7 @@ implementationMissing(false);
                 break;
             }
         }
-        if ((min == null) || (max == null)) {
+        if ((min is null) || (max is null)) {
             throw new IllegalArgumentException("No protocols enabled.");
         }
         SSL_set_protocol_versions(ssl_address, getProtocolConstant(min), getProtocolConstant(max));
@@ -1866,7 +1950,7 @@ implementationMissing(false);
 
     static string[] checkEnabledProtocols(string[] protocols) {
         if (protocols is null) {
-            throw new IllegalArgumentException("protocols == null");
+            throw new IllegalArgumentException("protocols is null");
         }
 
         foreach (string protocol ; protocols) {
@@ -1889,12 +1973,12 @@ implementationMissing(false);
             return;
         }
         if (cipherSuites is null) {
-            warning("cipherSuites == null");
+            warning("cipherSuites is null");
             return;
         }
 implementationMissing();
 
-        // int length = env->GetArrayLength(cipherSuites);
+        // int length = env.GetArrayLength(cipherSuites);
 
         // /*
         // * Special case for empty cipher list. This is considered an error by the
@@ -1921,21 +2005,21 @@ implementationMissing();
 
         // for (int i = 0; i < length; i++) {
         //     ScopedLocalRef<jstring> cipherSuite(
-        //             env, reinterpret_cast<jstring>(env->GetObjectArrayElement(cipherSuites, i)));
+        //             env, reinterpret_cast<jstring>(env.GetObjectArrayElement(cipherSuites, i)));
         //     ScopedUtfChars c(env, cipherSuite.get());
         //     if (c.c_str() is null) {
         //         return;
         //     }
 
         //     if (cipherStringLen + 1 < cipherStringLen) {
-        //         conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
+        //         warning("java/lang/IllegalArgumentException",
         //                                             "Overflow in cipher suite strings");
         //         return;
         //     }
         //     cipherStringLen += 1; /* For the separating colon */
 
         //     if (cipherStringLen + c.size() < cipherStringLen) {
-        //         conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
+        //         warning("java/lang/IllegalArgumentException",
         //                                             "Overflow in cipher suite strings");
         //         return;
         //     }
@@ -1943,7 +2027,7 @@ implementationMissing();
         // }
 
         // if (cipherStringLen + 1 < cipherStringLen) {
-        //     conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
+        //     warning("java/lang/IllegalArgumentException",
         //                                         "Overflow in cipher suite strings");
         //     return;
         // }
@@ -1959,7 +2043,7 @@ implementationMissing();
 
         // for (int i = 0; i < length; i++) {
         //     ScopedLocalRef<jstring> cipherSuite(
-        //             env, reinterpret_cast<jstring>(env->GetObjectArrayElement(cipherSuites, i)));
+        //             env, reinterpret_cast<jstring>(env.GetObjectArrayElement(cipherSuites, i)));
         //     ScopedUtfChars c(env, cipherSuite.get());
 
         //     cipherString[j++] = ':';
@@ -1969,7 +2053,7 @@ implementationMissing();
 
         // cipherString[j++] = 0;
         // if (j != cipherStringLen) {
-        //     conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
+        //     warning("java/lang/IllegalArgumentException",
         //                                         "Internal error");
         //     return;
         // }
@@ -1977,7 +2061,7 @@ implementationMissing();
         // tracef("ssl=%s SSL_set_cipher_lists cipherSuites=%s", ssl, cipherString.get());
         // if (!SSL_set_cipher_list(ssl, cipherString.get())) {
         //     ERR_clear_error();
-        //     conscrypt::jniutil::throwException(env, "java/lang/IllegalArgumentException",
+        //     warning("java/lang/IllegalArgumentException",
         //                                         "Illegal cipher suite strings.");
         //     return;
         // }        
@@ -2025,13 +2109,13 @@ return null;
     }
 
     static string[] checkEnabledCipherSuites(string[] cipherSuites) {
-        if (cipherSuites == null) {
-            throw new IllegalArgumentException("cipherSuites == null");
+        if (cipherSuites is null) {
+            throw new IllegalArgumentException("cipherSuites is null");
         }
         // makes sure all suites are valid, throwing on error
         for (size_t i = 0; i < cipherSuites.length; i++) {
-            if (cipherSuites[i] == null) {
-                throw new IllegalArgumentException("cipherSuites[" ~ i.to!string() ~ "] == null");
+            if (cipherSuites[i] is null) {
+                throw new IllegalArgumentException("cipherSuites[" ~ i.to!string() ~ "] is null");
             }
             if (cipherSuites[i] == TLS_EMPTY_RENEGOTIATION_INFO_SCSV
                     || cipherSuites[i] == TLS_FALLBACK_SCSV ) {
@@ -2154,12 +2238,12 @@ implementationMissing(false);
     //         return;
     //     }
     //     if (fdObject is null) {
-    //         warning("fd == null");
+    //         warning("fd is null");
     //         return;
     //     }
 
     //     if (shc is null) {
-    //         warning("sslHandshakeCallbacks == null");
+    //         warning("sslHandshakeCallbacks is null");
     //         return;
     //     }
 
@@ -2199,18 +2283,18 @@ implementationMissing(false);
 
     //     ret = 0;
     //     SslError sslError;
-    //     while (appData->aliveAndKicking) {
+    //     while (appData.aliveAndKicking) {
     //         errno = 0;
 
-    //         if (!appData->setCallbackState(env, shc, fdObject)) {
+    //         if (!appData.setCallbackState(env, shc, fdObject)) {
     //             // SocketException thrown by NetFd.isClosed
     //             tracef("ssl=%s SSL_do_handshake setCallbackState => exception", ssl);
     //             return;
     //         }
     //         ret = SSL_do_handshake(ssl);
-    //         appData->clearCallbackState();
+    //         appData.clearCallbackState();
     //         // cert_verify_callback threw exception
-    //         if (env->ExceptionCheck()) {
+    //         if (env.ExceptionCheck()) {
     //             ERR_clear_error();
     //             tracef("ssl=%s SSL_do_handshake exception => exception", ssl);
     //             return;
@@ -2239,7 +2323,7 @@ implementationMissing(false);
     //         * again.
     //         */
     //         if (sslError.get() == SSL_ERROR_WANT_READ || sslError.get() == SSL_ERROR_WANT_WRITE) {
-    //             appData->waitingThreads++;
+    //             appData.waitingThreads++;
     //             int selectResult = sslSelect(env, sslError.get(), fdObject, appData, timeout_millis);
 
     //             if (selectResult == THROWN_EXCEPTION) {

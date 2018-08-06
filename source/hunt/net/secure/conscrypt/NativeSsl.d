@@ -512,16 +512,15 @@ return 0;
         return (NativeCrypto.SSL_get_shutdown(ssl) & SSL_SENT_SHUTDOWN) != 0;
     }
 
-    // int readDirectByteBuffer(long destAddress, int destLength)
-    //        , CertificateException {
-    //     lock.readLock().lock();
-    //     try {
-    //         return NativeCrypto.ENGINE_SSL_read_direct(
-    //                 ssl, destAddress, destLength, handshakeCallbacks);
-    //     } finally {
-    //         lock.readLock().unlock();
-    //     }
-    // }
+    int readDirectByteBuffer(long destAddress, int destLength) {
+        // lock.readLock().lock();
+        try {
+            return NativeCrypto.ENGINE_SSL_read_direct(
+                    ssl, destAddress, destLength, handshakeCallbacks);
+        } finally {
+            // lock.readLock().unlock();
+        }
+    }
 
     int writeDirectByteBuffer(long sourceAddress, int sourceLength) {
         // lock.readLock().lock();
