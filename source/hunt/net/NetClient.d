@@ -25,10 +25,11 @@ class NetClient : Client
         _sock.close();
     }
 
-    NetClient connect(int port, string host, int sessionId =0, ConnectHandler handler=null)
+    NetClient connect(int port, string host, int sessionId=0, ConnectHandler handler=null)
     {
         _host = host;
         _port = port;
+        _sessionId = sessionId;
 
         auto client = new TcpStream(_loop);
         
@@ -68,7 +69,7 @@ class NetClient : Client
 
     int connect(string host, int port)
     {
-        int id = _sessionId++;
+        int id = _sessionId + 1;
         connect(port, host, id);
         return id;
     }

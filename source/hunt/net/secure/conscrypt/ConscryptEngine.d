@@ -1274,7 +1274,7 @@ return 0;
                 buffer = getOrCreateLazyDirectBuffer();
             }
 
-            trace(BufferUtils.toSummaryString(buffer));
+            version(HuntDebugMode) trace(BufferUtils.toSummaryString(buffer));
 
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readEncryptedDataDirect(buffer, 0, bytesToRead);

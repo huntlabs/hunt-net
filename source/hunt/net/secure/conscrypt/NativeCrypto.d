@@ -886,7 +886,7 @@ return null;
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
-            infof("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
+            version(HuntDebugMode) infof("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
             return code;
         }
 
@@ -966,8 +966,6 @@ return null;
         //     return -1;
         // }
 
-        // SslError sslError(ssl, result);
-
         int sslErrorCode = SSL_ERROR_NONE;
         if(result<=0)
             sslErrorCode = deimos.openssl.ssl.SSL_get_error(ssl, result);
@@ -1018,7 +1016,7 @@ return null;
             }
         }
 
-        tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d shc=%s result=%d",
+        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d shc=%s result=%d",
                 ssl, destPtr, length, shc, result);
         return result;
     }
@@ -1059,7 +1057,7 @@ return null;
 
         int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
                 ssl, sourcePtr, len, shc, result);
         return result;
     }
@@ -1110,7 +1108,7 @@ return null;
 
         int result = deimos.openssl.ssl.BIO_write(bio, cast(const char*)(sourcePtr), len);
         // appData.clearCallbackState();
-        tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d shc=%s => ret=%d",
+        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d shc=%s => ret=%d",
                 ssl, bio, sourcePtr, len, shc, result);
         return result;
     }
