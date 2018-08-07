@@ -17,6 +17,8 @@ import hunt.util.functional;
 import hunt.util.string;
 
 import kiss.logger;
+
+import std.array;
 import std.conv;
 import std.format;
 
@@ -417,7 +419,8 @@ abstract class AbstractSecureSession : SecureSession {
         if (!initialHSComplete)
             throw new IllegalStateException("The initial handshake is not complete.");
 
-        version(HuntDebugMode) {
+        // version(HuntDebugMode) 
+        {
             tracef("session %s read data status -> %s, initialHSComplete -> %s", session.getSessionId(),
                     session.isOpen(), initialHSComplete);
         }
@@ -433,7 +436,7 @@ abstract class AbstractSecureSession : SecureSession {
 
             version(HuntDebugMode) {
                 tracef("Session %s read data result -> %s, receivedPacketBuf -> %s, appBufSize -> %s",
-                        session.getSessionId(), result.toString().replace('\n', ' '),
+                        session.getSessionId(), result.toString().replace("\n", " "),
                         receivedPacketBuf.remaining(), receivedAppBuf.remaining());
             }
 

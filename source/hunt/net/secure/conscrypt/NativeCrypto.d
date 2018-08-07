@@ -880,7 +880,9 @@ return null;
         // //     return 0;
         // // }
 
-        int code = deimos.openssl.ssl.SSL_get_error(ssl, ret);
+        int code = SSL_ERROR_NONE;
+        if(ret<=0)
+            code = deimos.openssl.ssl.SSL_get_error(ssl, ret);
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
@@ -955,7 +957,7 @@ return null;
 
         errno = 0;
 
-        int result = SSL_read(ssl, destPtr, length);
+        int result = deimos.openssl.ssl.SSL_read(ssl, destPtr, length);
         // appData.clearCallbackState();
         // if (env.ExceptionCheck()) {
         //     // An exception was thrown by one of the callbacks. Just propagate that exception.
@@ -965,7 +967,12 @@ return null;
         // }
 
         // SslError sslError(ssl, result);
-        switch (result) {
+
+        int sslErrorCode = SSL_ERROR_NONE;
+        if(result<=0)
+            sslErrorCode = deimos.openssl.ssl.SSL_get_error(ssl, result);
+
+        switch (sslErrorCode) {
             case SSL_ERROR_NONE: {
                 // Successfully read at least one byte. Just return the result.
                 break;
@@ -994,8 +1001,7 @@ return null;
                 if (errno == EINTR) {
                     // TODO(nmittler): Can this happen with memory BIOs?
                     // System call has been interrupted. Simply retry.
-                    warning("InterruptedIOException: ",
-                                                        "Read error");
+                    warning("InterruptedIOException: ", "Read error");
                     break;
                 }
 
@@ -1083,8 +1089,8 @@ return null;
         }
         const char* sourcePtr = cast(const char*)(address);
 
-implementationMissing();
-return 0;
+// implementationMissing();
+// return 0;
 
 // TODO: Tasks pending completion -@zxp at 8/2/2018, 9:45:01 AM
 // 
@@ -1100,13 +1106,13 @@ return 0;
         //     return -1;
         // }
 
-        // errno = 0;
+        errno = 0;
 
-        // int result = BIO_write(bio, cast(const char*)(sourcePtr), len);
-        // // appData.clearCallbackState();
-        // tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d shc=%s => ret=%d",
-        //         ssl, bio, sourcePtr, len, shc, result);
-        // return result;
+        int result = deimos.openssl.ssl.BIO_write(bio, cast(const char*)(sourcePtr), len);
+        // appData.clearCallbackState();
+        tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d shc=%s => ret=%d",
+                ssl, bio, sourcePtr, len, shc, result);
+        return result;
     }
 
     // /**
@@ -1153,12 +1159,12 @@ implementationMissing(false);
         //     return -1;
         // }
 
-        // errno = 0;
+        errno = 0;
 
         int result = BIO_read(bio, destPtr, outputSize);
         // appData.clearCallbackState();
-        // tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
-        //         ssl, bio, destPtr, outputSize, shc, result);
+        tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
+                ssl, bio, destPtr, outputSize, shc, result);
         return result;
     }
 

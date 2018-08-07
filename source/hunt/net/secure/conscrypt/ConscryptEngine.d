@@ -684,8 +684,7 @@ return null;
 
     override
     SSLEngineResult unwrap(ByteBuffer[] srcs, int srcsOffset, int srcsLength,
-            ByteBuffer[] dsts, int dstsOffset, int dstsLength)
-            {
+            ByteBuffer[] dsts, int dstsOffset, int dstsLength) {
         assert(srcs !is null, "srcs is null");
         assert(dsts !is null, "dsts is null");
         checkPositionIndexes(srcsOffset, srcsOffset + srcsLength, cast(int)srcs.length);

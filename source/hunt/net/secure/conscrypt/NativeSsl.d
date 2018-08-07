@@ -609,7 +609,6 @@ class BioWrapper {
     }
 
     int writeDirectByteBuffer(long address, int length) {
-        implementationMissing();
         return NativeCrypto.ENGINE_SSL_write_BIO_direct(
                 nativeSsl.ssl, bio, address, length, nativeSsl.handshakeCallbacks);
     }
