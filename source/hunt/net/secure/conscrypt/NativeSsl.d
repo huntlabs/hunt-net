@@ -122,7 +122,7 @@ final class NativeSsl {
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
     int clientPSKKeyRequested(string identityHint, byte[] identityBytesOut, byte[] key) {
 
-implementationMissing();
+implementationMissing(false);
 return 0;
         // PSKKeyManager pskKeyManager = parameters.getPSKKeyManager();
         // if (pskKeyManager == null) {
@@ -171,7 +171,7 @@ return 0;
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
     int serverPSKKeyRequested(string identityHint, string identity, byte[] key) {
 
-implementationMissing();
+implementationMissing(false);
 return 0;
         // PSKKeyManager pskKeyManager = parameters.getPSKKeyManager();
         // if (pskKeyManager == null) {
@@ -190,7 +190,7 @@ return 0;
 
     void chooseClientCertificate(byte[] keyTypeBytes, byte[][] asn1DerEncodedPrincipals) {
         
-        implementationMissing();
+        implementationMissing(false);
         // Set<string> keyTypesSet = SSLUtils.getSupportedClientKeyTypes(keyTypeBytes);
         // string[] keyTypes = keyTypesSet.toArray(new string[keyTypesSet.size()]);
 
@@ -299,7 +299,7 @@ return 0;
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);
         }
         if (!isClient() && parameters.applicationProtocolSelector !is null) {
-            implementationMissing();
+            implementationMissing(false);
             // NativeCrypto.setApplicationProtocolSelector(ssl, parameters.applicationProtocolSelector);
         }
 

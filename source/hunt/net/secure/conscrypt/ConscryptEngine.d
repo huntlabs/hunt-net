@@ -914,61 +914,69 @@ return null;
         return len;
     }
 
+
+    // private HandshakeStatus handshake() {
+    //     // try {
+    //         return doHandshake();
+    //     // } catch (Exception e) {
+    //     //     throw SSLUtils.toSSLHandshakeException(e);
+    //     // }
+    // }
+
     private HandshakeStatus handshake() {
+        // Only actually perform the handshake if we haven't already just completed it
+        // via BIO operations.
         try {
-            // Only actually perform the handshake if we haven't already just completed it
-            // via BIO operations.
-            try {
-                // First, check to see if we already have a pending alert that needs to be written.
-                if (handshakeException !is null) {
-                    if (pendingOutboundEncryptedBytes() > 0) {
-                        // Need to finish writing the alert to the remote peer.
-                        return HandshakeStatus.NEED_WRAP;
-                    }
-
-                    // We've finished writing the alert, just throw the exception.
-                    SSLException e = handshakeException;
-                    handshakeException = null;
-                    throw e;
-                }
-
-                int ssl_error_code = ssl.doHandshake();
-                switch (ssl_error_code) {
-                    case SSL_ERROR_WANT_READ:
-                        return pendingStatus(pendingOutboundEncryptedBytes());
-                    case SSL_ERROR_WANT_WRITE: {
-                        return HandshakeStatus.NEED_WRAP;
-                    }
-                    default: {
-                        // SSL_ERROR_NONE.
-                    }
-                }
-            } catch (SSLException e) {
+            // First, check to see if we already have a pending alert that needs to be written.
+            if (handshakeException !is null) {
                 if (pendingOutboundEncryptedBytes() > 0) {
-                    // Delay throwing the exception since we appear to have an outbound alert
-                    // that needs to be written to the remote endpoint.
-                    handshakeException = e;
+                    // Need to finish writing the alert to the remote peer.
                     return HandshakeStatus.NEED_WRAP;
                 }
 
-                // There is no pending alert to write - just shutdown and throw.
-                sendSSLShutdown();
-                throw e;
-            } catch (IOException e) {
-                sendSSLShutdown();
+                // We've finished writing the alert, just throw the exception.
+                SSLException e = handshakeException;
+                handshakeException = null;
                 throw e;
             }
 
-            // The handshake has completed successfully...
+            int ssl_error_code = ssl.doHandshake();
+            switch (ssl_error_code) {
+                case SSL_ERROR_WANT_READ:
+                    return pendingStatus(pendingOutboundEncryptedBytes());
+                case SSL_ERROR_WANT_WRITE: {
+                    return HandshakeStatus.NEED_WRAP;
+                }
+                default: {
+                    // SSL_ERROR_NONE.
+                }
+            }
+        } catch (SSLException e) {
+            if (pendingOutboundEncryptedBytes() > 0) {
+                // Delay throwing the exception since we appear to have an outbound alert
+                // that needs to be written to the remote endpoint.
+                handshakeException = e;
+                return HandshakeStatus.NEED_WRAP;
+            }
 
-            // Update the session from the current state of the SSL object.
-            activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());
-
-            finishHandshake();
-            return HandshakeStatus.FINISHED;
-        } catch (Exception e) {
-            throw SSLUtils.toSSLHandshakeException(e);
+            // There is no pending alert to write - just shutdown and throw.
+            sendSSLShutdown();
+            throw e;
+        } catch (IOException e) {
+            sendSSLShutdown();
+            throw e;
         }
+
+        // The handshake has completed successfully...
+            version(HuntDebugMode){
+                trace("The handshake is completing...");
+            }
+
+        // Update the session from the current state of the SSL object.
+        activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());
+
+        finishHandshake();
+        return HandshakeStatus.FINISHED;
     }
 
     private void finishHandshake() {

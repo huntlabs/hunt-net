@@ -243,7 +243,7 @@ return null;
             return cast(SSLHandshakeException) e;
         }
 
-        return cast(SSLHandshakeException) new SSLHandshakeException(e.msg, e);
+        return new SSLHandshakeException(e.msg, e);
     }
 
     /**

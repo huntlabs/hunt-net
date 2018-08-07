@@ -288,7 +288,7 @@ final class NativeCrypto {
             return;
         }
 
-        implementationMissing();
+        implementationMissing(false);
         // NOLINTNEXTLINE(runtime/int)
         // long ret = deimos.openssl.ssl.SSL_enable_tls_channel_id(ssl);
         // if (ret != 1L) {
@@ -308,7 +308,7 @@ final class NativeCrypto {
         // as a constant anywhere.
         ubyte[] bytes = new ubyte[64];
         
-implementationMissing();
+implementationMissing(false);
 return null;
 
         // Unfortunately, the SSL_get_tls_channel_id method below always returns 64 (upon success)
@@ -335,7 +335,7 @@ return null;
         if (ssl is null) {
             return;
         }
-implementationMissing();
+implementationMissing(false);
         // EVP_PKEY* pkey = fromContextObject<EVP_PKEY>(env, pkeyRef);
         // if (pkey is null) {
         //     tracef("ssl=%s SSL_set1_tls_channel_id => pkey is null", ssl);
@@ -431,7 +431,7 @@ implementationMissing();
             return;
         }
 
-implementationMissing();
+implementationMissing(false);
         // deimos.openssl.ssl.SSL_enable_signed_cert_timestamps(ssl);        
     }
 
@@ -440,7 +440,7 @@ implementationMissing();
         if (ssl is null) {
             return null;
         }
-implementationMissing();
+implementationMissing(false);
 return null;
         // const uint8_t* data;
         // size_t data_len;
@@ -464,7 +464,7 @@ return null;
             return;
         }
         
-        implementationMissing();
+        implementationMissing(false);
 
         // if (!deimos.openssl.ssl.SSL_set_signed_cert_timestamp_list(ssl, reinterpret_cast<const uint8_t*>(listBytes.get()),
         //                                         listBytes.size())) {
@@ -489,7 +489,7 @@ return null;
         if (ssl is null) {
             return null;
         }
-        implementationMissing();
+        implementationMissing(false);
         return null;
 
         // const uint8_t* data;
@@ -605,7 +605,7 @@ return null;
 
     static string SSL_CIPHER_get_kx_name(long cipher_address) {
         const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
-        implementationMissing();
+        implementationMissing(false);
 return null;
         // const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
         // return fromStringz(kx_name);        
@@ -795,7 +795,7 @@ return null;
     //         return;
     //     }
 
-    //     implementationMissing();
+    //     implementationMissing(false);
     //     // AppData* appData = toAppData(ssl);
     //     // if (appData is null) {
     //     //     conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
@@ -819,7 +819,7 @@ return null;
             return null;
         }
 
-        implementationMissing();
+        implementationMissing(false);
         return null;
         // const jbyte* protocol;
         // unsigned int protocolLength;
@@ -1034,7 +1034,7 @@ return null;
             return -1;
         }
 
-// implementationMissing();
+// implementationMissing(false);
 // return -1;
         if (shc is null) {
             warning("sslHandshakeCallbacks is null");
@@ -1087,7 +1087,7 @@ return null;
         }
         const char* sourcePtr = cast(const char*)(address);
 
-// implementationMissing();
+// implementationMissing(false);
 // return 0;
 
 // TODO: Tasks pending completion -@zxp at 8/2/2018, 9:45:01 AM
@@ -1980,7 +1980,7 @@ implementationMissing(false);
             warning("cipherSuites is null");
             return;
         }
-implementationMissing();
+implementationMissing(false);
 
         // int length = env.GetArrayLength(cipherSuites);
 
@@ -2081,7 +2081,7 @@ implementationMissing();
         if (ssl is null) {
             return null;
         }
-implementationMissing();
+implementationMissing(false);
 return null;
         // STACK_OF!(SSL_CIPHER)* cipherStack = deimos.openssl.ssl.SSL_get_ciphers(ssl);
         // size_t count = (cipherStack !is null) ? sk_SSL_CIPHER_num(cipherStack) : 0;
@@ -2401,7 +2401,7 @@ implementationMissing(false);
             tracef("ssl=%s SSL_get_current_cipher cipher => null", ssl);
             return null;
         }
-        implementationMissing();
+        implementationMissing(false);
 return null;
         // const char* name = SSL_CIPHER_standard_name(cipher);
         // tracef("ssl=%s SSL_get_current_cipher => %s", ssl, name);
@@ -2425,7 +2425,7 @@ return null;
         if (ssl is null) {
             return null;
         }
-implementationMissing();
+implementationMissing(false);
 return null;
         // const STACK_OF(CRYPTO_BUFFER)* chain = deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
         // if (chain is null) {
