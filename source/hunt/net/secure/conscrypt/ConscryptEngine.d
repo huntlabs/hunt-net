@@ -1127,7 +1127,7 @@ return 0;
             }
 
             return bytesWritten;
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new SSLException("", e);
         }
     }
@@ -1279,14 +1279,17 @@ return 0;
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readEncryptedDataDirect(buffer, 0, bytesToRead);
 
-            byte[] temp =  buffer.array();
-            tracef("%(%02X %)", temp[0..len]);
+            // byte[] temp =  buffer.array();
+            // tracef("%(%02X %)", temp[0..len]);
+            version(HuntDebugMode) {
+                tracef("read encrypted data: %d / %d bytes", bytesRead, bytesToRead);
+            }
 
             if (bytesRead > 0) {
                 buffer.position(bytesRead);
                 buffer.flip();
                 dst.put(buffer);
-                // trace(BufferUtils.toSummaryString(dst));
+                version(HuntDebugMode) trace(BufferUtils.toSummaryString(dst));
             }
 
             return bytesRead;

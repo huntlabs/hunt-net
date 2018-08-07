@@ -419,8 +419,7 @@ abstract class AbstractSecureSession : SecureSession {
         if (!initialHSComplete)
             throw new IllegalStateException("The initial handshake is not complete.");
 
-        // version(HuntDebugMode) 
-        {
+        version(HuntDebugMode) {
             tracef("session %s read data status -> %s, initialHSComplete -> %s", session.getSessionId(),
                     session.isOpen(), initialHSComplete);
         }

@@ -38,11 +38,11 @@ class NetClient : Client
                 if(suc)
                 {
                     AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId, _config, netEvent, client); 
-                    netEvent.notifySessionOpened(session);
                     if(_handler !is null)
                         _handler(session);
                     result = new Result!NetSocket(session);
                     _isStarted = true;
+                    netEvent.notifySessionOpened(session);
                 }
                 else
                 {
@@ -63,7 +63,6 @@ class NetClient : Client
     NetClient connectHandler(Handler handler)
     {
         _handler = handler;
-
         return this;
     }
 
