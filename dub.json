@@ -11,6 +11,6 @@
         "kiss" : {
             "path": "../kiss"
         },
-        "openssl": {"path": "../openssl"}
+        "boringssl": {"path": "../boringssl"}
     }
 }

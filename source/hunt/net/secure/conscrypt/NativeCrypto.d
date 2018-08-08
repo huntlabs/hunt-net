@@ -157,9 +157,9 @@ final class NativeCrypto {
         return cast(SSL_CIPHER*)(cast(uintptr_t)ssl_cipher_address);
     }
 
-    // static AppData* toAppData(const SSL* ssl) {
-    //     return cast(AppData*)(SSL_get_app_data(ssl));
-    // }
+    static AppData* toAppData(const SSL* ssl) {
+        return cast(AppData*)(SSL_get_app_data(ssl));
+    }
 
 
     /**
@@ -2659,3 +2659,172 @@ interface SSLHandshakeCallbacks {
     
     long serverSessionRequested(byte[] id);
 }     
+
+
+struct AppData
+{
+    bool aliveAndKicking;
+    int waitingThreads;
+    version(Windows)  
+    {
+        // HANDLE interruptEvent;
+    }  
+    else
+    {
+        int[2] fdsEmergency;
+    }
+
+    void* sslHandshakeCallbacks;
+    char* applicationProtocolsData;
+    size_t applicationProtocolsLength;
+    void* applicationProtocolSelector;
+
+    /**
+     * Creates the application data context for the SSL*.
+     */
+    static AppData* create() {
+        AppData* appData = new AppData();
+        appData.initilize();
+
+version(Windows) {
+        HANDLE interruptEvent = CreateEvent(null, FALSE, FALSE, null);
+        if (interruptEvent is null) {
+            infof("AppData::create WSACreateEvent failed: %d", WSAGetLastError());
+            return null;
+        }
+        appData.interruptEvent = interruptEvent;
+} else {
+        // if (pipe(appData.fdsEmergency) == -1) {
+        //     CONSCRYPT_LOG_ERROR("AppData::create pipe(2) failed: %s", strerror(errno));
+        //     return null;
+        // }
+        // if (!netutil::setBlocking(appData.fdsEmergency[0], false)) {
+        //     CONSCRYPT_LOG_ERROR("AppData::create fcntl(2) failed: %s", strerror(errno));
+        //     return null;
+        // }
+}
+        return appData;
+    }
+
+    ~this() {
+        aliveAndKicking = false;
+version(Windows) {
+        if (interruptEvent !is null) {
+            CloseHandle(interruptEvent);
+        }
+} else {
+        if (fdsEmergency[0] != -1) {
+            // close(fdsEmergency[0]);
+        }
+        if (fdsEmergency[1] != -1) {
+            // close(fdsEmergency[1]);
+        }
+}
+        clearApplicationProtocols();
+        clearApplicationProtocolSelector();
+        clearCallbackState();
+    }
+
+    /**
+     * Only called in server mode. Sets the protocols for ALPN negotiation.
+     *
+     * @param env The JNIEnv
+     * @param alpnProtocols ALPN protocols so that they may be advertised (by the
+     *                     server) or selected (by the client). Passing
+     *                     non-null enables ALPN. This array is copied so that no
+     *                     global reference to the Java byte array is maintained.
+     */
+    bool setApplicationProtocols(char[] applicationProtocols) {
+        // TODO: Tasks pending completion -@zxp at 8/8/2018, 4:07:35 PM
+        // 
+        clearApplicationProtocols();
+        // if (applicationProtocolsJava !is null) {
+            // jbyte* applicationProtocols =
+            //     e.GetByteArrayElements(applicationProtocolsJava, null);
+            if (applicationProtocols is null) {
+                clearCallbackState();
+                infof("appData=%s setApplicationCallbackState => applicationProtocols is null",
+                          this);
+                return false;
+            }
+            applicationProtocolsLength = applicationProtocols.length;
+                // cast(size_t)(e.GetArrayLength(applicationProtocolsJava));
+            char[] temp = applicationProtocols.dup;
+            applicationProtocolsData = temp.ptr;
+            // applicationProtocolsData = new char[applicationProtocolsLength];
+            // applicationProtocolsData[0..applicationProtocolsLength] = applicationProtocols[0.. $];
+            // memcpy(applicationProtocolsData, applicationProtocols, applicationProtocolsLength);
+            // e.ReleaseByteArrayElements(applicationProtocolsJava, applicationProtocols, JNI_ABORT);
+        // }
+        return true;
+    }
+
+    /**
+     * Only called in server mode. Sets the application-provided ALPN protocol selector.
+     * This overrides the list of ALPN protocols, if set.
+     */
+    void setApplicationProtocolSelector(void* selector) {
+        clearApplicationProtocolSelector();
+        if (selector !is null) {
+            // Need to a global reference since we keep this around beyond a single JNI
+            // invocation.
+            applicationProtocolSelector = selector;
+        }
+    }
+
+    /**
+     * Used to set the SSL-to-Java callback state before each SSL_*
+     * call that may result in a callback. It should be cleared after
+     * the operation returns with clearCallbackState.
+     *
+     * @param env The JNIEnv
+     * @param shc The SSLHandshakeCallbacks
+     * @param fd The FileDescriptor
+     */
+    bool setCallbackState(void* shc, void* fd) {
+        // std::unique_ptr<NetFd> netFd;
+        // if (fd !is null) {
+        //     netFd.reset(new NetFd(e, fd));
+        //     if (netFd.isClosed()) {
+        //         infof("appData=%s setCallbackState => netFd.isClosed() == true", this);
+        //         return false;
+        //     }
+        // }
+        sslHandshakeCallbacks = shc;
+        return true;
+    }
+
+    void clearCallbackState() {
+        sslHandshakeCallbacks = null;
+    }
+
+private:
+
+    void initilize() {
+        aliveAndKicking = true;
+        waitingThreads = 0;
+        sslHandshakeCallbacks = null;
+        applicationProtocolsData = null;
+        applicationProtocolsLength = cast(size_t)(-1),
+        applicationProtocolSelector = null;
+version(Windows) {
+        interruptEvent = null;
+} else {
+        fdsEmergency[0] = -1;
+        fdsEmergency[1] = -1;
+}
+    }
+
+    void clearApplicationProtocols() {
+        if (applicationProtocolsData !is null) {
+            applicationProtocolsData = null;
+            applicationProtocolsLength = cast(size_t)(-1);
+        }
+    }
+
+    void clearApplicationProtocolSelector() {
+        if (applicationProtocolSelector !is null) {
+            applicationProtocolSelector = null;
+        }
+    }    
+}
