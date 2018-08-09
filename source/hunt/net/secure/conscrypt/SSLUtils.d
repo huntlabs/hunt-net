@@ -101,7 +101,7 @@ final class SSLUtils {
     //     return session;
     // }
 
-    static X509Certificate[] decodeX509CertificateChain(byte[][] certChain) {
+    static X509Certificate[] decodeX509CertificateChain(ubyte[][] certChain) {
         implementationMissing();
 return null;
         // CertificateFactory certificateFactory = getCertificateFactory();

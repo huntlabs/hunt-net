@@ -80,7 +80,7 @@ final class NativeSsl {
     }
 
     X509Certificate[] getPeerCertificates() {
-        byte[][] encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
+        ubyte[][] encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
         return encoded == null ? null : SSLUtils.decodeX509CertificateChain(encoded);
     }
 

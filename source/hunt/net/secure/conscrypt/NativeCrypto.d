@@ -161,6 +161,79 @@ final class NativeCrypto {
         return cast(AppData*)(SSL_get_app_data(ssl));
     }
 
+    static ubyte[] CryptoBufferToByteArray(const(CRYPTO_BUFFER)* buf) {
+
+        size_t length = CRYPTO_BUFFER_len(buf);
+
+        if (length > size_t.max) {
+            tracef("buffer too large");
+            return null;
+        }
+
+        ubyte* bufferData = CRYPTO_BUFFER_data(buf);
+        ubyte[] ret = bufferData[0..length].dup;
+
+        return ret;
+    }
+
+    static ubyte[][] CryptoBuffersToObjectArray(STACK_OF!(CRYPTO_BUFFER) * buffers) {
+        int numBuffers = sk_CRYPTO_BUFFER_num(buffers);
+        if (numBuffers > int.max) {
+            error("too many buffers");
+            return null;
+        }
+
+        ubyte[][] array = new ubyte[][numBuffers];
+
+        for (int i = 0; i < numBuffers; ++i) {
+            CRYPTO_BUFFER* buffer = sk_CRYPTO_BUFFER_value(buffers, i);
+            ubyte[] bArray = CryptoBufferToByteArray(buffer);
+            array[i] = bArray;
+        }
+
+        return array;
+    }
+
+    extern(C) static ssl_verify_result_t cert_verify_callback(SSL* ssl, uint8_t* out_alert) {
+        tracef("ssl=%s cert_verify_callback", ssl);
+
+        AppData* appData = toAppData(ssl);
+        // JNIEnv* env = appData.env;
+        // if (env is null) {
+        //     CONSCRYPT_LOG_ERROR("AppData.env missing in cert_verify_callback");
+        //     tracef("ssl=%s cert_verify_callback => 0", ssl);
+        //     return ssl_verify_invalid;
+        // }
+
+        // Create the byte[][] array that holds all the certs
+        // byte[][] array;
+        // deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
+
+        // if (array is null) {
+        //     return ssl_verify_result_t.ssl_verify_invalid;
+        // }
+
+        // jobject sslHandshakeCallbacks = appData.sslHandshakeCallbacks;
+        // jclass cls = env.GetObjectClass(sslHandshakeCallbacks);
+        // jmethodID methodID =
+        //         env.GetMethodID(cls, "verifyCertificateChain", "([[BLjava/lang/String;)V");
+
+        // const SSL_CIPHER* cipher = SSL_get_pending_cipher(ssl);
+        // const char* authMethod = SSL_CIPHER_get_kx_name(cipher);
+
+        // tracef("ssl=%s cert_verify_callback calling verifyCertificateChain authMethod=%s", ssl,
+        //         authMethod);
+        // jstring authMethodString = env.NewStringUTF(authMethod);
+        // env.CallVoidMethod(sslHandshakeCallbacks, methodID, array.get(), authMethodString);
+
+        // // We need to delete the local references so we not leak memory as this method is called
+        // // via callback.
+        // env.DeleteLocalRef(authMethodString);
+
+        ssl_verify_result_t result = ssl_verify_result_t.ssl_verify_ok;
+        // tracef("ssl=%s cert_verify_callback => %d", ssl, result);
+        return result;
+    }
 
     /**
      * Returns 1 if the BoringSSL believes the CPU has AES accelerated hardware
@@ -169,7 +242,8 @@ final class NativeCrypto {
     // static int EVP_has_aes_hardware();
 
     static long SSL_CTX_new()    {
-        SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+        // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+        SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
         infof("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
@@ -261,24 +335,23 @@ final class NativeCrypto {
             return 0;
         }
 
-
-        infof("SSL_new => %s", ssl);
+        version(HuntDebugMode) tracef("SSL_new => %s", ssl);
 
         /*
         * Create our special application data.
         */
-        // AppData* appData = AppData::create();
-        // if (appData is null) {
-        //     warning("Unable to create application data");
-        //     deimos.openssl.ssl.ERR_clear_error();
-        //     tracef("ssl_ctx=%s SSL_new appData => 0", ssl_ctx);
-        //     return 0;
-        // }
-        // deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
-        // deimos.openssl.ssl.SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, cert_verify_callback);
+        AppData* appData = AppData.create();
+        if (appData is null) {
+            warning("Unable to create application data");
+            deimos.openssl.err.ERR_clear_error();
+            warning("ssl_ctx=%s SSL_new appData => 0", ssl_ctx);
+            return 0;
+        }
+        deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
+        SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
-        // tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
-        implementationMissing(false);
+        version(HuntDebugMode) tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
+        // implementationMissing(false);
         return cast(long)ssl;        
     }
 
@@ -617,44 +690,32 @@ return null;
             return null;
         }
 
-// TODO: Tasks pending completion -@zxp at 8/3/2018, 10:42:17 AM
-// 
-        // SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
-        SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+        SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
+        // SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
         SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
 
         if (!SSL_set_cipher_list(ssl, selector.toStringz())) {
             warning("Unable to set SSL cipher list");
             return null;
         }
-implementationMissing(false);
-return null;        
-        // STACK_OF(SSL_CIPHER)* ciphers = SSL_get_ciphers(ssl);
 
-        // size_t size = sk_SSL_CIPHER_num(ciphers);
-        // ScopedLocalRef<jobjectArray> cipherNamesArray(
-        //         env, env.NewObjectArray(static_cast<jsize>(2 * size), conscrypt::jniutil::stringClass,
-        //                                 null));
-        // if (cipherNamesArray.get() is null) {
-        //     return null;
-        // }
+        STACK_OF!(SSL_CIPHER)* ciphers = deimos.openssl.ssl.SSL_get_ciphers(ssl);
 
-        // // Return an array of standard and OpenSSL name pairs.
-        // for (size_t i = 0; i < size; i++) {
-        //     const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
-        //     ScopedLocalRef<jstring> cipherName(env,
-        //                                     env.NewStringUTF(SSL_CIPHER_standard_name(cipher)));
-        //     env.SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i),
-        //                             cipherName.get());
+        int size = sk_SSL_CIPHER_num(ciphers);
+        string[] cipherNamesArray = new string[size*2];
 
-        //     ScopedLocalRef<jstring> opensslName(env, env.NewStringUTF(SSL_CIPHER_get_name(cipher)));
-        //     env.SetObjectArrayElement(cipherNamesArray.get(), static_cast<jsize>(2 * i + 1),
-        //                             opensslName.get());
-        // }
+        // Return an array of standard and OpenSSL name pairs.
+        for (int i = 0; i < size; i++) {
+            const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
+            string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
+            string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
+            cipherNamesArray[2 * i] = cipherName;
+            cipherNamesArray[2 * i + 1] = opensslName;
+        }
 
-        // tracef("get_cipher_names(%s) => success (%zd entries)", selector.c_str(),
-        //         2 * size);
-        // return cipherNamesArray.release();        
+        tracef("get_cipher_names(%s) => success (%d entries)", selector, 2 * size);
+        return cipherNamesArray;     
+        
     }
 
     // static byte[] get_ocsp_single_extension(
@@ -2420,17 +2481,15 @@ return null;
     /**
      * Returns the peer certificate chain.
      */
-    static byte[][] SSL_get0_peer_certificates(long ssl_address) {
+    static ubyte[][] SSL_get0_peer_certificates(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
             return null;
         }
-implementationMissing(false);
-return null;
-        // const STACK_OF(CRYPTO_BUFFER)* chain = deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
-        // if (chain is null) {
-        //     return null;
-        // }
+        STACK_OF!(CRYPTO_BUFFER)* chain = deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
+        if (chain is null) {
+            return null;
+        }
 
         // ScopedLocalRef<jobjectArray> array(env, CryptoBuffersToObjectArray(env, chain));
         // if (array.get() is null) {
@@ -2438,7 +2497,8 @@ return null;
         // }
 
         // tracef("ssl=%s SSL_get0_peer_certificates => %s", ssl, array.get());
-        // return array.release();        
+        // return array.release(); 
+        return CryptoBuffersToObjectArray(chain);  
     }
 
     // /**
