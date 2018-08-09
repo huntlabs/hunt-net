@@ -12,6 +12,7 @@ import hunt.util.string;
 
 import deimos.openssl.ssl3;
 
+import kiss.logger;
 import std.algorithm;
 import std.conv;
 
@@ -102,15 +103,17 @@ final class SSLUtils {
     // }
 
     static X509Certificate[] decodeX509CertificateChain(ubyte[][] certChain) {
-        implementationMissing();
-return null;
+        int numCerts = cast(int)certChain.length;
+        tracef("xxxxxxxx=>%d", numCerts);
         // CertificateFactory certificateFactory = getCertificateFactory();
-        // int numCerts = certChain.length;
         // X509Certificate[] decodedCerts = new X509Certificate[numCerts];
         // for (int i = 0; i < numCerts; i++) {
         //     decodedCerts[i] = decodeX509Certificate(certificateFactory, certChain[i]);
         // }
         // return decodedCerts;
+
+        implementationMissing();
+return null;
     }
 
     // private static CertificateFactory getCertificateFactory() {
@@ -122,9 +125,9 @@ return null;
     // }
 
     // private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
-    //         byte[] bytes) throws java.security.cert.CertificateException {
+    //         byte[] bytes) {
     //     if (certificateFactory != null) {
-    //         return (X509Certificate) certificateFactory.generateCertificate(
+    //         return cast(X509Certificate) certificateFactory.generateCertificate(
     //                 new ByteArrayInputStream(bytes));
     //     }
     //     return OpenSSLX509Certificate.fromX509Der(bytes);

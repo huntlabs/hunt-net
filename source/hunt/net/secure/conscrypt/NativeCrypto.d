@@ -245,7 +245,7 @@ final class NativeCrypto {
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
         SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
-        infof("SSL_CTX_new => %s", ctx);
+        version(HuntDebugMode) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
     }
 
@@ -503,9 +503,7 @@ implementationMissing(false);
         if (ssl is null) {
             return;
         }
-
-implementationMissing(false);
-        // deimos.openssl.ssl.SSL_enable_signed_cert_timestamps(ssl);        
+        deimos.openssl.ssl.SSL_enable_signed_cert_timestamps(ssl);        
     }
 
     static byte[] SSL_get_signed_cert_timestamp_list(long ssl_address) {
@@ -553,8 +551,7 @@ return null;
             return;
         }
 
-        implementationMissing(false);
-        // deimos.openssl.ssl.SSL_enable_ocsp_stapling(ssl);        
+        deimos.openssl.ssl.SSL_enable_ocsp_stapling(ssl);        
     }
 
     static byte[] SSL_get_ocsp_response(long ssl_address) {
@@ -746,7 +743,7 @@ return null;
             return 0;
         }
 
-        infof("SSL_BIO_new => %s", network_bio);
+        tracef("SSL_BIO_new => %s", network_bio);
 
         SSL_set_bio(ssl, internal_bio, internal_bio);
 
@@ -792,57 +789,48 @@ return null;
             return 0;
         }
 
-        implementationMissing(false);
-        return 0;
-        // return (int)deimos.openssl.ssl.SSL_max_seal_overhead(ssl);        
+        return cast(int)deimos.openssl.ssl.SSL_max_seal_overhead(ssl);        
     }
 
     /**
      * Enables ALPN for this TLS endpoint and sets the list of supported ALPN protocols in
      * wire-format (length-prefixed 8-bit strings).
      */
-    static void setApplicationProtocols(long ssl_address, bool client, byte[] protocols) {
+    static void setApplicationProtocols(long ssl_address, bool client_mode, byte[] protocols) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
             return;
         }
+
+        AppData* appData = toAppData(ssl);
+        if (appData is null) {
+            error("Unable to retrieve application data");
+            return;
+        }
+
+        if (protocols is null) 
+            return;
+
+        infof("protocols: %(%02X %)", protocols[0 .. $]);
+
+        if (client_mode) {
+            const(ubyte)* tmp = cast(const(ubyte)*)protocols.ptr;
+            int ret = deimos.openssl.ssl.SSL_set_alpn_protos(ssl, tmp, cast(uint)(protocols.length));
+            if (ret != 0) {
+                warning("Unable to set ALPN protocols for client");
+                return;
+            }
+        } else {
+            // Server mode - configure the ALPN protocol selection callback.
+            if (!appData.setApplicationProtocols(protocols)) {
+                warning("Unable to set ALPN protocols for server");
+                return;
+            }
+            SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
+
         implementationMissing(false);
-        // AppData* appData = toAppData(ssl);
-        // if (appData is null) {
-        //     error("Unable to retrieve application data");
-        //     return;
-        // }
-
-        // if (protocols != null) {
-        //     if (client_mode) {
-        //         ScopedByteArrayRO protosBytes(env, protocols);
-        //         if (protosBytes.get() is null) {
-        //             JNI_TRACE(
-        //                     "ssl=%s setApplicationProtocols protocols=%s => "
-        //                     "protosBytes is null",
-        //                     ssl, protocols);
-        //             return;
-        //         }
-
-        //         const unsigned char* tmp = reinterpret_cast<const unsigned char*>(protosBytes.get());
-        //         int ret = SSL_set_alpn_protos(ssl, tmp, static_cast<unsigned int>(protosBytes.size()));
-        //         if (ret != 0) {
-        //             conscrypt::jniutil::throwSSLExceptionStr(env,
-        //                                                     "Unable to set ALPN protocols for client");
-        //             JNI_TRACE("ssl=%s setApplicationProtocols => exception", ssl);
-        //             return;
-        //         }
-        //     } else {
-        //         // Server mode - configure the ALPN protocol selection callback.
-        //         if (!appData.setApplicationProtocols(env, protocols)) {
-        //             conscrypt::jniutil::throwSSLExceptionStr(env,
-        //                                                     "Unable to set ALPN protocols for server");
-        //             JNI_TRACE("ssl=%s setApplicationProtocols => exception", ssl);
-        //             return;
-        //         }
-        //         SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), alpn_select_callback, null);
-        //     }
-        // }        
+            // SSL_CTX_set_alpn_select_cb(ctx, alpn_select_callback, null);
+        }
     }
 
     /**
@@ -917,29 +905,22 @@ return null;
             return 0;
         }
 
-        implementationMissing(false);
-        // AppData* appData = toAppData(ssl);
-        // if (appData is null) {
-        //     warning("Unable to retrieve application data");
-        //     return 0;
-        // }
+        AppData* appData = toAppData(ssl);
+        if (appData is null) {
+            warning("Unable to retrieve application data");
+            return 0;
+        }
 
         errno = 0;
 
-        // if (!appData.setCallbackState(shc, null)) {
-        //     warning("Unable to set appdata callback");
-        //     ERR_clear_error();
-        //     return 0;
-        // }
+        if (!appData.setCallbackState(cast(void*)shc, cast(void*)null)) {
+            warning("Unable to set appdata callback");
+            ERR_clear_error();
+            return 0;
+        }
 
         int ret = deimos.openssl.ssl.SSL_do_handshake(ssl);
-        // appData.clearCallbackState();
-        // // if (env.ExceptionCheck()) {
-        // //     // cert_verify_callback threw exception
-        // //     ERR_clear_error();
-        // //     JNI_TRACE("ssl=%s ENGINE_SSL_do_handshake => exception", ssl);
-        // //     return 0;
-        // // }
+        appData.clearCallbackState();
 
         int code = SSL_ERROR_NONE;
         if(ret<=0)
@@ -1204,25 +1185,23 @@ return null;
             return -1;
         }
 
-implementationMissing(false);
-// return 0;
-        // AppData* appData = toAppData(ssl);
-        // if (appData is null) {
-        //     warning("Unable to retrieve application data");
-        //     ERR_clear_error();
-        //     return -1;
-        // }
-        // if (!appData.setCallbackState(shc, null)) {
-        //     warning("Unable to set appdata callback");
-        //     ERR_clear_error();
-        //     return -1;
-        // }
+        AppData* appData = toAppData(ssl);
+        if (appData is null) {
+            warning("Unable to retrieve application data");
+            ERR_clear_error();
+            return -1;
+        }
+        if (!appData.setCallbackState(cast(void *)shc, cast(void*)null)) {
+            warning("Unable to set appdata callback");
+            ERR_clear_error();
+            return -1;
+        }
 
         errno = 0;
 
         int result = BIO_read(bio, destPtr, outputSize);
-        // appData.clearCallbackState();
-        tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
+        appData.clearCallbackState();
+        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
                 ssl, bio, destPtr, outputSize, shc, result);
         return result;
     }
@@ -2268,8 +2247,7 @@ return null;
         if (ssl is null) {
             return;
         }
-implementationMissing(false);
-        // deimos.openssl.ssl.SSL_set_renegotiate_mode(ssl, ssl_renegotiate_freely);        
+        deimos.openssl.ssl.SSL_set_renegotiate_mode(ssl, ssl_renegotiate_mode_t.ssl_renegotiate_freely);        
     }
 
     static void SSL_set_tlsext_host_name(long ssl_address, string hostname) {
@@ -2794,7 +2772,7 @@ version(Windows) {
      *                     non-null enables ALPN. This array is copied so that no
      *                     global reference to the Java byte array is maintained.
      */
-    bool setApplicationProtocols(char[] applicationProtocols) {
+    bool setApplicationProtocols(byte[] applicationProtocols) {
         // TODO: Tasks pending completion -@zxp at 8/8/2018, 4:07:35 PM
         // 
         clearApplicationProtocols();
@@ -2809,7 +2787,7 @@ version(Windows) {
             }
             applicationProtocolsLength = applicationProtocols.length;
                 // cast(size_t)(e.GetArrayLength(applicationProtocolsJava));
-            char[] temp = applicationProtocols.dup;
+            char[] temp = cast(char[])applicationProtocols.dup;
             applicationProtocolsData = temp.ptr;
             // applicationProtocolsData = new char[applicationProtocolsLength];
             // applicationProtocolsData[0..applicationProtocolsLength] = applicationProtocols[0.. $];
