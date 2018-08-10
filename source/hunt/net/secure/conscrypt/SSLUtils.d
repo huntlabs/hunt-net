@@ -1,13 +1,16 @@
 module hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.secure.conscrypt.NativeCrypto;
+import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
 
-import hunt.util.exception;
-import hunt.net.exception;
-
+import hunt.security.cert.CertificateFactory;
 import hunt.security.cert.X509Certificate;
 
+import hunt.net.exception;
+
 import hunt.container;
+import hunt.io.ByteArrayInputStream;
+import hunt.util.exception;
 import hunt.util.string;
 
 import deimos.openssl.ssl3;
@@ -82,8 +85,7 @@ final class SSLUtils {
      */
     private enum int MAX_ENCRYPTION_OVERHEAD_LENGTH = 15 + 48 + 1 + 16 + 1 + 2 + 2;
 
-    private enum int MAX_ENCRYPTION_OVERHEAD_DIFF =
-            int.max - MAX_ENCRYPTION_OVERHEAD_LENGTH;
+    private enum int MAX_ENCRYPTION_OVERHEAD_DIFF = int.max - MAX_ENCRYPTION_OVERHEAD_LENGTH;
 
     /** Key type: RSA certificate. */
     private enum string KEY_TYPE_RSA = "RSA";
@@ -104,34 +106,34 @@ final class SSLUtils {
 
     static X509Certificate[] decodeX509CertificateChain(ubyte[][] certChain) {
         int numCerts = cast(int)certChain.length;
+        if(numCerts == 0)
+            return null;
         tracef("xxxxxxxx=>%d", numCerts);
-        // CertificateFactory certificateFactory = getCertificateFactory();
-        // X509Certificate[] decodedCerts = new X509Certificate[numCerts];
-        // for (int i = 0; i < numCerts; i++) {
-        //     decodedCerts[i] = decodeX509Certificate(certificateFactory, certChain[i]);
-        // }
-        // return decodedCerts;
-
-        implementationMissing();
-return null;
+        CertificateFactory certificateFactory = getCertificateFactory();
+        X509Certificate[] decodedCerts = new X509Certificate[numCerts];
+        for (int i = 0; i < numCerts; i++) {
+            decodedCerts[i] = decodeX509Certificate(certificateFactory, certChain[i]);
+        }
+        return decodedCerts;
     }
 
-    // private static CertificateFactory getCertificateFactory() {
-    //     try {
-    //         return CertificateFactory.getInstance("X.509");
-    //     } catch (java.security.cert.CertificateException e) {
-    //         return null;
-    //     }
-    // }
+    private static CertificateFactory getCertificateFactory() {
+        try {
+            return CertificateFactory.getInstance("X.509");
+        } catch (CertificateException e) {
+            return null;
+        }
+    }
 
-    // private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
-    //         byte[] bytes) {
-    //     if (certificateFactory != null) {
-    //         return cast(X509Certificate) certificateFactory.generateCertificate(
-    //                 new ByteArrayInputStream(bytes));
-    //     }
-    //     return OpenSSLX509Certificate.fromX509Der(bytes);
-    // }
+    private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
+            byte[] bytes) {
+        if (certificateFactory != null) {
+            return cast(X509Certificate) certificateFactory.generateCertificate(
+                    new ByteArrayInputStream(bytes));
+        }
+        // return OpenSSLX509Certificate.fromX509Der(bytes);
+        return null;
+    }
 
     /**
      * Returns key type constant suitable for calling X509KeyManager.chooseServerAlias or

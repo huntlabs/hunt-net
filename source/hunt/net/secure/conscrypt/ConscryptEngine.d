@@ -1617,7 +1617,7 @@ return 0;
     override
     public void onNewSessionEstablished(long sslSessionNativePtr) {
 
-implementationMissing();
+implementationMissing(false);
         // try {
         //     // Increment the reference count to "take ownership" of the session resource.
         //     NativeCrypto.SSL_SESSION_up_ref(sslSessionNativePtr);
@@ -1645,7 +1645,7 @@ implementationMissing();
 
     override
     public void verifyCertificateChain(byte[][] certChain, string authMethod) {
-implementationMissing();
+implementationMissing(false);
         // try {
         //     if (certChain == null || certChain.length == 0) {
         //         throw new CertificateException("Peer sent no certificate");
