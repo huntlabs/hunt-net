@@ -126,10 +126,10 @@ final class SSLUtils {
     }
 
     private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
-            byte[] bytes) {
-        if (certificateFactory != null) {
+            ubyte[] bytes) {
+        if (certificateFactory !is null) {
             return cast(X509Certificate) certificateFactory.generateCertificate(
-                    new ByteArrayInputStream(bytes));
+                    new ByteArrayInputStream(cast(byte[])bytes));
         }
         // return OpenSSLX509Certificate.fromX509Der(bytes);
         return null;

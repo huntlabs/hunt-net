@@ -5,7 +5,7 @@ import hunt.security.cert.Certificate;
 
 import hunt.security.Principal;
 import hunt.security.Provider;
-import hunt.security.X500Principal;
+import hunt.security.x500.X500Principal;
 import hunt.security.x509;
 import hunt.security.key;
 
