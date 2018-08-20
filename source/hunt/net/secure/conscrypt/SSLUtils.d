@@ -108,7 +108,7 @@ final class SSLUtils {
         int numCerts = cast(int)certChain.length;
         if(numCerts == 0)
             return null;
-        tracef("xxxxxxxx=>%d", numCerts);
+        tracef("Certificates: %d", numCerts);
         CertificateFactory certificateFactory = getCertificateFactory();
         X509Certificate[] decodedCerts = new X509Certificate[numCerts];
         for (int i = 0; i < numCerts; i++) {
@@ -127,11 +127,15 @@ final class SSLUtils {
 
     private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
             ubyte[] bytes) {
-        if (certificateFactory !is null) {
-            return cast(X509Certificate) certificateFactory.generateCertificate(
-                    new ByteArrayInputStream(cast(byte[])bytes));
-        }
+        //tracef("X509Certificate: %(%02X %)", bytes);
+        // TODO: Tasks pending completion -@zxp at 8/19/2018, 3:02:24 PM
+        // 
+        // if (certificateFactory !is null) {
+        //     return cast(X509Certificate) certificateFactory.generateCertificate(
+        //             new ByteArrayInputStream(cast(byte[])bytes));
+        // }
         // return OpenSSLX509Certificate.fromX509Der(bytes);
+        implementationMissing(false);
         return null;
     }
 

@@ -198,6 +198,13 @@ final class NativeCrypto {
         tracef("ssl=%s cert_verify_callback", ssl);
 
         AppData* appData = toAppData(ssl);
+        if(appData is null)
+        {
+            warning("appData is null");
+            return ssl_verify_result_t.ssl_verify_invalid;
+
+        }
+        // tracef("appData.name=%s", appData.name);
         // JNIEnv* env = appData.env;
         // if (env is null) {
         //     CONSCRYPT_LOG_ERROR("AppData.env missing in cert_verify_callback");
@@ -347,6 +354,7 @@ final class NativeCrypto {
             warning("ssl_ctx=%s SSL_new appData => 0", ssl_ctx);
             return 0;
         }
+        appData.name = "<<SSL_new>>";
         deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
         SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
@@ -2514,9 +2522,8 @@ return null;
         }
 
         // AppData* appData = toAppData(ssl);
-        // SSL_set_app_data(ssl, null);
         // delete appData;
-        implementationMissing(false);
+        deimos.openssl.ssl.SSL_set_app_data(ssl, null);
         deimos.openssl.ssl.SSL_free(ssl);        
     }
 
@@ -2701,6 +2708,7 @@ interface SSLHandshakeCallbacks {
 
 struct AppData
 {
+    string name;
     bool aliveAndKicking;
     int waitingThreads;
     version(Windows)  
@@ -2839,6 +2847,7 @@ version(Windows) {
 private:
 
     void initilize() {
+        name = "default";
         aliveAndKicking = true;
         waitingThreads = 0;
         sslHandshakeCallbacks = null;

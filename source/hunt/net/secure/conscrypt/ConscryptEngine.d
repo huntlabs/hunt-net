@@ -968,9 +968,9 @@ return null;
         }
 
         // The handshake has completed successfully...
-            version(HuntDebugMode){
-                trace("The handshake is completing...");
-            }
+        version(HuntDebugMode){
+            trace("The handshake is completing...");
+        }
 
         // Update the session from the current state of the SSL object.
         activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());
@@ -980,6 +980,7 @@ return null;
     }
 
     private void finishHandshake() {
+        trace("Handshake finish.");
         handshakeFinished = true;
         // Notify the listener, if provided.
         if (handshakeListener !is null) {
