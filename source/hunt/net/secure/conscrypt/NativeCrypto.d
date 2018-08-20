@@ -936,7 +936,7 @@ return null;
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
-            version(HuntDebugMode) infof("ssl=%s ENGINE_SSL_do_handshake shc=%s => ret=%d", ssl, shc, code);
+            version(HuntDebugMode) infof("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
             return code;
         }
 
@@ -1066,8 +1066,14 @@ return null;
             }
         }
 
-        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d shc=%s result=%d",
-                ssl, destPtr, length, shc, result);
+        version(HuntDebugMode) {
+            tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d result=%d",
+                    ssl, destPtr, length,  result);
+            if(result>16)
+                tracef("%(%02X %)", cast(ubyte[])destPtr[0..16]);
+            else
+                tracef("%(%02X %)", cast(ubyte[])destPtr[0..result]);
+        }
         return result;
     }
 
@@ -1084,8 +1090,6 @@ return null;
             return -1;
         }
 
-// implementationMissing(false);
-// return -1;
         if (shc is null) {
             warning("sslHandshakeCallbacks is null");
             return -1;
@@ -1137,9 +1141,6 @@ return null;
         }
         const char* sourcePtr = cast(const char*)(address);
 
-// implementationMissing(false);
-// return 0;
-
 // TODO: Tasks pending completion -@zxp at 8/2/2018, 9:45:01 AM
 // 
         // AppData* appData = toAppData(ssl);
@@ -1156,10 +1157,10 @@ return null;
 
         errno = 0;
 
-        int result = deimos.openssl.ssl.BIO_write(bio, cast(const char*)(sourcePtr), len);
+        int result = deimos.openssl.ssl.BIO_write(bio, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d shc=%s => ret=%d",
-                ssl, bio, sourcePtr, len, shc, result);
+        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
+                ssl, bio, sourcePtr, len, result);
         return result;
     }
 

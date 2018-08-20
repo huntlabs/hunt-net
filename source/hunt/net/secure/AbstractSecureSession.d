@@ -303,7 +303,11 @@ abstract class AbstractSecureSession : SecureSession {
 
     protected ByteBuffer getReceivedAppBuf() {
         receivedAppBuf.flip();
-        tracef("Session %s read data, get app buf -> %s, %s", session.getSessionId(), receivedAppBuf.position(), receivedAppBuf.limit());
+        version(HuntDebugMode) {
+            tracef("Session %s read data, get app buf -> %s, %s", 
+                session.getSessionId(), receivedAppBuf.position(), receivedAppBuf.limit());
+        }
+
         if (receivedAppBuf.hasRemaining()) {
             ByteBuffer buf = newBuffer(receivedAppBuf.remaining());
             buf.put(receivedAppBuf).flip();
@@ -331,7 +335,7 @@ abstract class AbstractSecureSession : SecureSession {
         //     runnable.run();
         // }
         // return sslEngine.getHandshakeStatus();
-        implementationMissing();
+        implementationMissing(false);
         return HandshakeStatus.FINISHED;
     }
 
@@ -392,9 +396,13 @@ abstract class AbstractSecureSession : SecureSession {
         version(HuntDebugMode) {
             tracef("Session %d read data, src -> %s, dst -> %s", session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
         }
+
+        receivedAppBuf.clear();
+        warningf("xxxx=>receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
-        if (input != receivedPacketBuf) {
+        if (input !is receivedPacketBuf) {
             int consumed = result.bytesConsumed();
+            warningf("yyyyyy=>receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
             receivedPacketBuf.position(receivedPacketBuf.position() + consumed);
         }
         return result;

@@ -178,6 +178,7 @@ abstract class AbstractConnection  : Connection, ConnectionExtInfo
         try {
             secureSession.write(buffer, Callback.NOOP);
         } catch (IOException e) {
+            errorf(e.toString());
             throw new SecureNetException("encrypt exception", e);
         }
     }

@@ -806,7 +806,9 @@ return null;
                             continue;
                         }
 
+                // tracef("eeeeee, dst=> %s", dst.toString());
                         int bytesRead = readPlaintextData(dst);
+                // tracef("ffffffffff, dst=> %s", dst.toString());
                         if (bytesRead > 0) {
                             bytesProduced += bytesRead;
                             if (dst.hasRemaining()) {
@@ -1016,39 +1018,36 @@ return null;
     }
 
     private int writePlaintextDataHeap(ByteBuffer src, int pos, int len) {
+        AllocatedBuffer allocatedBuffer = null;
+        try {
+            ByteBuffer buffer;
+            if (bufferAllocator !is null) {
+                allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
+                buffer = allocatedBuffer.nioBuffer();
+            } else {
+                // We don't have a buffer allocator, but we don't want to send a heap
+                // buffer to JNI. So lazy-create a direct buffer that we will use from now
+                // on to copy plaintext data.
+                buffer = getOrCreateLazyDirectBuffer();
+            }
 
-implementationMissing();
-return 0;
-        // AllocatedBuffer allocatedBuffer = null;
-        // try {
-        //     ByteBuffer buffer;
-        //     if (bufferAllocator !is null) {
-        //         allocatedBuffer = bufferAllocator.allocateDirectBuffer(len);
-        //         buffer = allocatedBuffer.nioBuffer();
-        //     } else {
-        //         // We don't have a buffer allocator, but we don't want to send a heap
-        //         // buffer to JNI. So lazy-create a direct buffer that we will use from now
-        //         // on to copy plaintext data.
-        //         buffer = getOrCreateLazyDirectBuffer();
-        //     }
+            // Copy the data to the direct buffer.
+            int limit = src.limit();
+            int bytesToWrite = min(len, buffer.remaining());
+            src.limit(pos + bytesToWrite);
+            buffer.put(src);
+            buffer.flip();
+            // Restore the original position and limit.
+            src.limit(limit);
+            src.position(pos);
 
-        //     // Copy the data to the direct buffer.
-        //     int limit = src.limit();
-        //     int bytesToWrite = min(len, buffer.remaining());
-        //     src.limit(pos + bytesToWrite);
-        //     buffer.put(src);
-        //     buffer.flip();
-        //     // Restore the original position and limit.
-        //     src.limit(limit);
-        //     src.position(pos);
-
-        //     return writePlaintextDataDirect(buffer, 0, bytesToWrite);
-        // } finally {
-        //     if (allocatedBuffer !is null) {
-        //         // Release the buffer back to the pool.
-        //         allocatedBuffer.release();
-        //     }
-        // }
+            return writePlaintextDataDirect(buffer, 0, bytesToWrite);
+        } finally {
+            if (allocatedBuffer !is null) {
+                // Release the buffer back to the pool.
+                allocatedBuffer.release();
+            }
+        }
     }
 
     /**
@@ -1076,6 +1075,15 @@ return 0;
 
     private int readPlaintextDataDirect(ByteBuffer dst, int pos, int len) {
         return ssl.readDirectByteBuffer(directByteBufferAddress(dst, pos), len);
+        // tracef("bbbbbbbbbbb=>%s", dst.toString());
+        // int r = ssl.readDirectByteBuffer(directByteBufferAddress(dst, pos), len);
+        // byte[] bf = dst.array();
+        // if(bf.length>16)
+        // tracef("ccccccccccccc=>%s, %(%02X %)", dst.toString(), bf[0..16]);
+        // else
+        // tracef("ccccccccccccc=>%s, %(%02X %)", dst.toString(), bf[0..$]);
+
+        // return r;
     }
 
     private int readPlaintextDataHeap(ByteBuffer dst, int len) {
@@ -1092,14 +1100,26 @@ return 0;
                 buffer = getOrCreateLazyDirectBuffer();
             }
 
+            byte[] bf = buffer.array();
+            // if(bf.length>16)
+            // tracef("aaaaaaaaa=>%s, %(%02X %)", buffer.toString(), bf[0..16]);
+            // else
+            // tracef("aaaaaaaaa=>%s, %(%02X %)", buffer.toString(), bf[0..$]);
+
             // Read the data to the direct buffer.
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readPlaintextDataDirect(buffer, 0, bytesToRead);
+
+            // if(bf.length>16)
+            //     tracef("ccccccccccccc=>bytesRead=%d, %s, %(%02X %)", bytesRead, buffer.toString(), bf[0..16]);
+
             if (bytesRead > 0) {
                 // Copy the data to the heap buffer.
                 buffer.position(bytesRead);
                 buffer.flip();
+                // tracef("ccccccccc, dst=> %s", dst.toString());
                 dst.put(buffer);
+                // tracef("ddddddddd, dst=> %s", dst.toString());
             }
 
             return bytesRead;
@@ -1194,6 +1214,7 @@ return 0;
 
     private long directByteBufferAddress(ByteBuffer directBuffer, int pos) {
         byte[] buffer =  directBuffer.array();
+        // tracef("xxxxxxxxxxxxx=>%s, pos=%d", buffer.ptr, pos);
         return cast(long)cast(void*)(buffer.ptr + pos);
     }
 
@@ -1490,8 +1511,7 @@ return 0;
                 while (src.hasRemaining()) {
                     SSLEngineResult pendingNetResult;
                     // Write plaintext application data to the SSL engine
-                    int result = writePlaintextData(
-                        src, min(src.remaining(), SSL3_RT_MAX_PLAIN_LENGTH - bytesConsumed));
+                    int result = writePlaintextData(src, min(src.remaining(), SSL3_RT_MAX_PLAIN_LENGTH - bytesConsumed));
                     if (result > 0) {
                         bytesConsumed += result;
 
