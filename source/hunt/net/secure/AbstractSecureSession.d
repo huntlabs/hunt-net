@@ -396,8 +396,9 @@ abstract class AbstractSecureSession : SecureSession {
         version(HuntDebugMode) {
             tracef("Session %d read data, src -> %s, dst -> %s", session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
         }
-
-        receivedAppBuf.clear();
+        // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
+        // 
+        receivedAppBuf.clear();  // why?
         warningf("xxxx=>receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
         if (input !is receivedPacketBuf) {
