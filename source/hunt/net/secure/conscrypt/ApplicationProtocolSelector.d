@@ -2,14 +2,15 @@ module hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 
 import hunt.net.ssl.SSLSocket;
 
-import hunt.net.ssl;
+import hunt.net.ssl.SSLEngine;
+import hunt.net.ssl.SSLSocket;
 
 /**
  * Server-side selector for the ALPN protocol. This is a backward-compatibility shim for Java 9's
  * new {@code setHandshakeApplicationProtocolSelector} API, which takes a {@code BiFunction}
  * (available in Java 8+). This interface is provided to support protocol selection in Java < 8.
  */
-public abstract class ApplicationProtocolSelector {
+abstract class ApplicationProtocolSelector {
     /**
      * Selects the appropriate ALPN protocol.
      *
@@ -22,7 +23,7 @@ public abstract class ApplicationProtocolSelector {
      * "no_application_protocol" alert will be sent to the peer and the connection will be
      * terminated.
      */
-    public abstract string selectApplicationProtocol(SSLEngine engine, string[] protocols);
+    abstract string selectApplicationProtocol(SSLEngine engine, string[] protocols);
 
     /**
      * Selects the appropriate ALPN protocol.
@@ -36,6 +37,6 @@ public abstract class ApplicationProtocolSelector {
      * "no_application_protocol" alert will be sent to the peer and the connection will be
      * terminated.
      */
-    public abstract string selectApplicationProtocol(SSLSocket socket, string[] protocols);
+    abstract string selectApplicationProtocol(SSLSocket socket, string[] protocols);
 }
 
