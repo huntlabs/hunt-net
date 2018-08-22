@@ -1,6 +1,13 @@
 module hunt.net.secure.conscrypt.OpenSSLKey;
 
+import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeRef;
+import hunt.net.secure.conscrypt.OpenSSLKeyHolder;
+
+import hunt.security.key;
+
+import hunt.util.exception;
+import hunt.util.string;
 
 /**
  * Represents a BoringSSL {@code EVP_PKEY}.
@@ -30,12 +37,12 @@ final class OpenSSLKey {
         return wrapped;
     }
 
-    // static OpenSSLKey fromPrivateKey(PrivateKey key) throws InvalidKeyException {
+    // static OpenSSLKey fromPrivateKey(PrivateKey key) {
     //     if (key instanceof OpenSSLKeyHolder) {
     //         return ((OpenSSLKeyHolder) key).getOpenSSLKey();
     //     }
 
-    //     String keyFormat = key.getFormat();
+    //     string keyFormat = key.getFormat();
     //     if (keyFormat == null) {
     //         return wrapPrivateKey(key);
     //     } else if (!"PKCS#8".equals(key.getFormat())) {
@@ -60,7 +67,7 @@ final class OpenSSLKey {
     //  * @throws InvalidKeyException if parsing fails
     //  */
     // static OpenSSLKey fromPrivateKeyPemInputStream(InputStream is)
-    //         throws InvalidKeyException {
+    //         {
     //     OpenSSLBIOInputStream bis = new OpenSSLBIOInputStream(is, true);
     //     try {
     //         long keyCtx = NativeCrypto.PEM_read_bio_PrivateKey(bis.getBioContext());
@@ -76,28 +83,28 @@ final class OpenSSLKey {
     //     }
     // }
 
-    // /**
-    //  * Gets an {@code OpenSSLKey} instance backed by the provided private key. The resulting key is
-    //  * usable only by this provider's TLS/SSL stack.
-    //  *
-    //  * @param privateKey private key.
-    //  * @param publicKey corresponding key or {@code null} if not available. Some opaque
-    //  *        private keys cannot be used by the TLS/SSL stack without the key.
-    //  */
-    // static OpenSSLKey fromPrivateKeyForTLSStackOnly(
-    //         PrivateKey privateKey, PublicKey publicKey) throws InvalidKeyException {
-    //     OpenSSLKey result = getOpenSSLKey(privateKey);
-    //     if (result != null) {
-    //         return result;
-    //     }
+    /**
+     * Gets an {@code OpenSSLKey} instance backed by the provided private key. The resulting key is
+     * usable only by this provider's TLS/SSL stack.
+     *
+     * @param privateKey private key.
+     * @param publicKey corresponding key or {@code null} if not available. Some opaque
+     *        private keys cannot be used by the TLS/SSL stack without the key.
+     */
+    static OpenSSLKey fromPrivateKeyForTLSStackOnly(
+            PrivateKey privateKey, PublicKey publicKey) {
+        OpenSSLKey result = getOpenSSLKey(privateKey);
+        if (result !is null) {
+            return result;
+        }
 
-    //     result = fromKeyMaterial(privateKey);
-    //     if (result != null) {
-    //         return result;
-    //     }
+        result = fromKeyMaterial(privateKey);
+        if (result !is null) {
+            return result;
+        }
 
-    //     return wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
-    // }
+        return wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
+    }
 
     // /**
     //  * Gets an {@code OpenSSLKey} instance backed by the provided EC private key. The resulting key
@@ -109,77 +116,81 @@ final class OpenSSLKey {
     //  *        might not expose the parameters.
     //  */
     // static OpenSSLKey fromECPrivateKeyForTLSStackOnly(
-    //         PrivateKey key, ECParameterSpec ecParams) throws InvalidKeyException {
+    //         PrivateKey key, ECParameterSpec ecParams) {
     //     OpenSSLKey result = getOpenSSLKey(key);
-    //     if (result != null) {
+    //     if (result !is null) {
     //         return result;
     //     }
 
     //     result = fromKeyMaterial(key);
-    //     if (result != null) {
+    //     if (result !is null) {
     //         return result;
     //     }
 
     //     return OpenSSLECPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(key, ecParams);
     // }
 
-    // /**
-    //  * Gets the {@code OpenSSLKey} instance of the provided key.
-    //  *
-    //  * @return instance or {@code null} if the {@code key} is not backed by OpenSSL's
-    //  *         {@code EVP_PKEY}.
-    //  */
-    // private static OpenSSLKey getOpenSSLKey(PrivateKey key) {
-    //     if (key instanceof OpenSSLKeyHolder) {
-    //         return ((OpenSSLKeyHolder) key).getOpenSSLKey();
-    //     }
+    /**
+     * Gets the {@code OpenSSLKey} instance of the provided key.
+     *
+     * @return instance or {@code null} if the {@code key} is not backed by OpenSSL's
+     *         {@code EVP_PKEY}.
+     */
+    private static OpenSSLKey getOpenSSLKey(PrivateKey key) {
+        OpenSSLKeyHolder keyHolder = cast(OpenSSLKeyHolder) key;
+        if (keyHolder !is null) {
+            return keyHolder.getOpenSSLKey();
+        }
 
-    //     if ("RSA".equals(key.getAlgorithm())) {
-    //         return Platform.wrapRsaKey(key);
-    //     }
+        if ("RSA" == key.getAlgorithm()) {
+            implementationMissing(false);
+            // return Platform.wrapRsaKey(key);
+        }
 
-    //     return null;
-    // }
+        return null;
+    }
 
-    // /**
-    //  * Gets an {@code OpenSSLKey} instance initialized with the key material of the provided key.
-    //  *
-    //  * @return instance or {@code null} if the {@code key} does not export its key material in a
-    //  *         suitable format.
-    //  */
-    // private static OpenSSLKey fromKeyMaterial(PrivateKey key) throws InvalidKeyException {
-    //     if (!"PKCS#8".equals(key.getFormat())) {
-    //         return null;
-    //     }
-    //     byte[] encoded = key.getEncoded();
-    //     if (encoded == null) {
-    //         return null;
-    //     }
-    //     try {
-    //         return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
-    //     } catch (ParsingException e) {
-    //         throw new InvalidKeyException(e);
-    //     }
-    // }
+    /**
+     * Gets an {@code OpenSSLKey} instance initialized with the key material of the provided key.
+     *
+     * @return instance or {@code null} if the {@code key} does not export its key material in a
+     *         suitable format.
+     */
+    private static OpenSSLKey fromKeyMaterial(PrivateKey key) {
+        if (!"PKCS#8".equals(key.getFormat())) {
+            return null;
+        }
+        byte[] encoded = key.getEncoded();
+        if (encoded == null) {
+            return null;
+        }
+        try {
+            return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
+        } catch (ParsingException e) {
+            throw new InvalidKeyException(e.msg);
+        }
+    }
 
-    // /**
-    //  * Wraps the provided private key for use in the TLS/SSL stack only. Sign/decrypt operations
-    //  * using the key will be delegated to the {@code Signature}/{@code Cipher} implementation of the
-    //  * provider which accepts the key.
-    //  */
-    // private static OpenSSLKey wrapJCAPrivateKeyForTLSStackOnly(PrivateKey privateKey,
-    //         PublicKey publicKey) throws InvalidKeyException {
-    //     String keyAlgorithm = privateKey.getAlgorithm();
-    //     if ("RSA".equals(keyAlgorithm)) {
-    //         return OpenSSLRSAPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
-    //     } else if ("EC".equals(keyAlgorithm)) {
-    //         return OpenSSLECPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
-    //     } else {
-    //         throw new InvalidKeyException("Unsupported key algorithm: " + keyAlgorithm);
-    //     }
-    // }
+    /**
+     * Wraps the provided private key for use in the TLS/SSL stack only. Sign/decrypt operations
+     * using the key will be delegated to the {@code Signature}/{@code Cipher} implementation of the
+     * provider which accepts the key.
+     */
+    private static OpenSSLKey wrapJCAPrivateKeyForTLSStackOnly(PrivateKey privateKey,
+            PublicKey publicKey) {
+        string keyAlgorithm = privateKey.getAlgorithm();
+        implementationMissing(false);
+        return null;
+        // if ("RSA".equals(keyAlgorithm)) {
+        //     return OpenSSLRSAPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
+        // } else if ("EC".equals(keyAlgorithm)) {
+        //     return OpenSSLECPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
+        // } else {
+        //     throw new InvalidKeyException("Unsupported key algorithm: " + keyAlgorithm);
+        // }
+    }
 
-    // private static OpenSSLKey wrapPrivateKey(PrivateKey key) throws InvalidKeyException {
+    // private static OpenSSLKey wrapPrivateKey(PrivateKey key) {
     //     if (key instanceof RSAPrivateKey) {
     //         return OpenSSLRSAPrivateKey.wrapPlatformKey((RSAPrivateKey) key);
     //     } else if (key instanceof ECPrivateKey) {
@@ -189,7 +200,7 @@ final class OpenSSLKey {
     //     }
     // }
 
-    // static OpenSSLKey fromPublicKey(PublicKey key) throws InvalidKeyException {
+    // static OpenSSLKey fromPublicKey(PublicKey key) {
     //     if (key instanceof OpenSSLKeyHolder) {
     //         return ((OpenSSLKeyHolder) key).getOpenSSLKey();
     //     }
@@ -216,7 +227,7 @@ final class OpenSSLKey {
     //  * @throws InvalidKeyException if parsing fails
     //  */
     // static OpenSSLKey fromPublicKeyPemInputStream(InputStream is)
-    //         throws InvalidKeyException {
+    //         {
     //     OpenSSLBIOInputStream bis = new OpenSSLBIOInputStream(is, true);
     //     try {
     //         long keyCtx = NativeCrypto.PEM_read_bio_PUBKEY(bis.getBioContext());

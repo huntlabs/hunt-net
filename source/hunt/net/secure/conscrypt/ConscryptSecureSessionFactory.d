@@ -6,19 +6,16 @@ import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptSSLSession;
 
 import hunt.net.secure.ProtocolSelector;
-import hunt.net.secure.SecureUtils;
 import hunt.net.secure.SecureSession;
 
 import hunt.net.secure.SecureSessionFactory;
 import hunt.net.Session;
 import hunt.net.ssl;
 
-import hunt.io.ByteArrayInputStream;
 import hunt.util.exception;
 import hunt.util.TypeUtils;
 
 import kiss.logger;
-
 import std.typecons;
 
 /**
@@ -86,32 +83,4 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
     void setSupportedProtocols(string[] supportedProtocols) {
         this.supportedProtocols = supportedProtocols;
     }
-}
-
-
-/**
-*/
-class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
-    override SSLContext getSSLContext() {
-        try {
-            return getSSLContextWithManager(null, [SecureUtils.createX509TrustManagerNoCheck()]);
-        } catch (Exception e) {
-            errorf("get SSL context error: %s", e.msg);
-            return null;
-        }
-    }
-}
-
-class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
-
-    override SSLContext getSSLContext() {
-        try {
-            return getSSLContext(new ByteArrayInputStream(SecureUtils.DEFAULT_CREDENTIAL), "ptmima1234", "ptmima4321");
-        } catch (Exception e) {
-            errorf("get SSL context error", e);
-            return null;
-        }
-    }
-
-    alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
 }

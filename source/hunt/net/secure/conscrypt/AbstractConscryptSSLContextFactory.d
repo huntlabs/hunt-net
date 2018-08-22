@@ -1,12 +1,13 @@
 module hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
 
-import hunt.net.ssl.KeyManager;
+// import hunt.net.ssl.KeyManager;
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptALPNSelector;
-
+import hunt.net.secure.SecureUtils;
 import hunt.net.secure.SSLContextFactory;
 import hunt.net.ssl;
 
+import hunt.io.ByteArrayInputStream;
 import hunt.io.common;
 
 import hunt.util.exception;
@@ -15,6 +16,7 @@ import hunt.util.TypeUtils;
 
 import kiss.logger;
 
+import std.array;
 import std.datetime : Clock;
 import std.datetime.stopwatch;
 import std.typecons;
@@ -41,7 +43,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
     SSLContext getSSLContextWithManager(KeyManager[] km, TrustManager[] tm){
         version(HuntDebugMode) long start = Clock.currStdTime;
-        
+
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2", provideName);
         sslContext.init(km, tm);
 
@@ -72,17 +74,17 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType == null ? "SunX509" : trustManagerFactoryType);
         // tmf.init(ks);
 
-        // // TLSv1 TLSv1.2
-        // sslContext = SSLContext.getInstance(sslProtocol == null ? "TLSv1.2" : sslProtocol, provideName);
+        // TLSv1 TLSv1.2
+        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
         version(HuntDebugMode) {
             sw.stop();
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
         }
-        // return sslContext;
+
         implementationMissing(false);
-        return null;
+        return sslContext;
     }
 
     abstract SSLContext getSSLContext();
@@ -110,4 +112,35 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     void setSupportedProtocols(string[] supportedProtocols) {
         this.supportedProtocols = supportedProtocols;
     }
+}
+
+
+/**
+*/
+class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
+    override SSLContext getSSLContext() {
+        try {
+            return getSSLContextWithManager(null, [SecureUtils.createX509TrustManagerNoCheck()]);
+        } catch (Exception e) {
+            errorf("get SSL context error: %s", e.msg);
+            return null;
+        }
+    }
+}
+
+
+/**
+*/
+class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
+
+    override SSLContext getSSLContext() {
+        try {
+            return getSSLContext(new ByteArrayInputStream(SecureUtils.DEFAULT_CREDENTIAL), "ptmima1234", "ptmima4321");
+        } catch (Exception e) {
+            errorf("get SSL context error", e);
+            return null;
+        }
+    }
+
+    alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
 }

@@ -8,13 +8,18 @@ import hunt.net.secure.conscrypt.SSLParametersImpl;
 import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.ssl.X509KeyManager;
+
 import hunt.security.cert.X509Certificate;
+import hunt.security.key;
+import hunt.security.x500.X500Principal;
 
 import deimos.openssl.ssl;
 
 import hunt.container;
+import kiss.logger;
 import hunt.net.exception;
 import hunt.util.exception;
+import std.array;
 
 
 /**
@@ -82,7 +87,7 @@ final class NativeSsl {
 
     X509Certificate[] getPeerCertificates() {
         ubyte[][] encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
-        return encoded == null ? null : SSLUtils.decodeX509CertificateChain(encoded);
+        return encoded is null ? null : SSLUtils.decodeX509CertificateChain(encoded);
     }
 
     X509Certificate[] getLocalCertificates() {
@@ -106,7 +111,7 @@ final class NativeSsl {
     // }
 
     // byte[] exportKeyingMaterial(string label, byte[] context, int length) {
-    //     if (label == null) {
+    //     if (label is null) {
     //         throw new NullPointerException("Label is null");
     //     }
     //     byte[] labelBytes = label.getBytes(Charset.forName("US-ASCII"));
@@ -126,14 +131,14 @@ final class NativeSsl {
 implementationMissing(false);
 return 0;
         // PSKKeyManager pskKeyManager = parameters.getPSKKeyManager();
-        // if (pskKeyManager == null) {
+        // if (pskKeyManager is null) {
         //     return 0;
         // }
 
         // string identity = pskCallbacks.chooseClientPSKIdentity(pskKeyManager, identityHint);
         // // Store identity in NULL-terminated modified UTF-8 representation into ientityBytesOut
         // byte[] identityBytes;
-        // if (identity == null) {
+        // if (identity is null) {
         //     identity = "";
         //     identityBytes = EmptyArray.BYTE;
         // } else if (identity.isEmpty()) {
@@ -156,7 +161,7 @@ return 0;
 
         // SecretKey secretKey = pskCallbacks.getPSKKey(pskKeyManager, identityHint, identity);
         // byte[] secretKeyBytes = secretKey.getEncoded();
-        // if (secretKeyBytes == null) {
+        // if (secretKeyBytes is null) {
         //     return 0;
         // } else if (secretKeyBytes.length > key.length) {
         //     // Insufficient space in the output buffer
@@ -175,12 +180,12 @@ return 0;
 implementationMissing(false);
 return 0;
         // PSKKeyManager pskKeyManager = parameters.getPSKKeyManager();
-        // if (pskKeyManager == null) {
+        // if (pskKeyManager is null) {
         //     return 0;
         // }
         // SecretKey secretKey = pskCallbacks.getPSKKey(pskKeyManager, identityHint, identity);
         // byte[] secretKeyBytes = secretKey.getEncoded();
-        // if (secretKeyBytes == null) {
+        // if (secretKeyBytes is null) {
         //     return 0;
         // } else if (secretKeyBytes.length > key.length) {
         //     return 0;
@@ -196,7 +201,7 @@ return 0;
         // string[] keyTypes = keyTypesSet.toArray(new string[keyTypesSet.size()]);
 
         // X500Principal[] issuers;
-        // if (asn1DerEncodedPrincipals == null) {
+        // if (asn1DerEncodedPrincipals is null) {
         //     issuers = null;
         // } else {
         //     issuers = new X500Principal[asn1DerEncodedPrincipals.length];
@@ -205,48 +210,49 @@ return 0;
         //     }
         // }
         // X509KeyManager keyManager = parameters.getX509KeyManager();
-        // string alias = (keyManager != null)
+        // string name = (keyManager != null)
         //         ? aliasChooser.chooseClientAlias(keyManager, issuers, keyTypes)
         //         : null;
-        // setCertificate(alias);
+        // setCertificate(name);
     }
 
-    // void setCertificate(string alias) throws CertificateEncodingException, SSLException {
-    //     if (alias == null) {
-    //         return;
-    //     }
-    //     X509KeyManager keyManager = parameters.getX509KeyManager();
-    //     if (keyManager == null) {
-    //         return;
-    //     }
-    //     PrivateKey privateKey = keyManager.getPrivateKey(alias);
-    //     if (privateKey == null) {
-    //         return;
-    //     }
-    //     localCertificates = keyManager.getCertificateChain(alias);
-    //     if (localCertificates == null) {
-    //         return;
-    //     }
-    //     int numLocalCerts = localCertificates.length;
-    //     PublicKey publicKey = (numLocalCerts > 0) ? localCertificates[0].getPublicKey() : null;
+    void setCertificate(string name) {
+        if (name.empty) {
+            return;
+        }
+        tracef("Certificate: %s", name);
+        X509KeyManager keyManager = parameters.getX509KeyManager();
+        if (keyManager is null) {
+            return;
+        }
+        PrivateKey privateKey = keyManager.getPrivateKey(name);
+        if (privateKey is null) {
+            return;
+        }
+        localCertificates = keyManager.getCertificateChain(name);
+        if (localCertificates is null) {
+            return;
+        }
+        size_t numLocalCerts = localCertificates.length;
+        PublicKey publicKey = (numLocalCerts > 0) ? localCertificates[0].getPublicKey() : null;
 
-    //     // Encode the local certificates.
-    //     byte[][] encodedLocalCerts = new byte[numLocalCerts][];
-    //     for (int i = 0; i < numLocalCerts; ++i) {
-    //         encodedLocalCerts[i] = localCertificates[i].getEncoded();
-    //     }
+        // Encode the local certificates.
+        byte[][] encodedLocalCerts = new byte[][numLocalCerts];
+        for (size_t i = 0; i < numLocalCerts; ++i) {
+            encodedLocalCerts[i] = localCertificates[i].getEncoded();
+        }
 
-    //     // Convert the key so we can access a native reference.
-    //     OpenSSLKey key;
-    //     try {
-    //         key = OpenSSLKey.fromPrivateKeyForTLSStackOnly(privateKey, publicKey);
-    //     } catch (InvalidKeyException e) {
-    //         throw new SSLException(e);
-    //     }
+        // Convert the key so we can access a native reference.
+        OpenSSLKey key;
+        try {
+            key = OpenSSLKey.fromPrivateKeyForTLSStackOnly(privateKey, publicKey);
+        } catch (InvalidKeyException e) {
+            throw new SSLException("", e);
+        }
 
-    //     // Set the local certs and private key.
-    //     NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
-    // }
+        // Set the local certs and private key.
+        NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
+    }
 
     string getVersion() {
         return NativeCrypto.SSL_get_version(ssl);
@@ -300,8 +306,7 @@ return 0;
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);
         }
         if (!isClient() && parameters.applicationProtocolSelector !is null) {
-            implementationMissing(false);
-            // NativeCrypto.setApplicationProtocolSelector(ssl, parameters.applicationProtocolSelector);
+            NativeCrypto.setApplicationProtocolSelector(ssl, parameters.applicationProtocolSelector);
         }
 
         // setup server certificates and private keys.
@@ -317,15 +322,15 @@ return 0;
 
             X509KeyManager keyManager = parameters.getX509KeyManager();
             implementationMissing(false);
-            // if (keyManager != null) {
-            //     foreach (string keyType ; keyTypes) {
-            //         try {
-            //             setCertificate(aliasChooser.chooseServerAlias(keyManager, keyType));
-            //         } catch (CertificateEncodingException e) {
-            //             throw new IOException(e);
-            //         }
-            //     }
-            // }
+            if (keyManager !is null) {
+                foreach (string keyType ; keyTypes) {
+                    try {
+                        setCertificate(aliasChooser.chooseServerAlias(keyManager, keyType));
+                    } catch (CertificateEncodingException e) {
+                        throw new IOException(e.msg);
+                    }
+                }
+            }
 
             NativeCrypto.SSL_set_options(ssl, SSL_OP_CIPHER_SERVER_PREFERENCE);
 
@@ -366,7 +371,7 @@ return 0;
     //         throws CertificateException, IOException {
     //     lock.readLock().lock();
     //     try {
-    //         if (isClosed() || fd == null || !fd.valid()) {
+    //         if (isClosed() || fd is null || !fd.valid()) {
     //             throw new SocketException("Socket is closed");
     //         }
     //         NativeCrypto.SSL_do_handshake(ssl, fd, handshakeCallbacks, timeoutMillis);
@@ -389,7 +394,7 @@ return 0;
     //         {
     //     lock.readLock().lock();
     //     try {
-    //         if (isClosed() || fd == null || !fd.valid()) {
+    //         if (isClosed() || fd is null || !fd.valid()) {
     //             throw new SocketException("Socket is closed");
     //         }
     //         return NativeCrypto
@@ -404,7 +409,7 @@ return 0;
     //         {
     //     lock.readLock().lock();
     //     try {
-    //         if (isClosed() || fd == null || !fd.valid()) {
+    //         if (isClosed() || fd is null || !fd.valid()) {
     //             throw new SocketException("Socket is closed");
     //         }
     //         NativeCrypto

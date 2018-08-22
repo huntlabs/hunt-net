@@ -8,11 +8,13 @@ import hunt.net.secure.conscrypt.ServerSessionContext;
 import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.ssl.KeyManager;
+
 import hunt.net.ssl.X509KeyManager;
 import hunt.net.ssl.X509TrustManager;
 
 import hunt.security.key;
 import hunt.security.cert.X509Certificate;
+import hunt.security.x500.X500Principal;
 // import hunt.net.ssl.TrustManager;
 
 import hunt.util.exception;
@@ -76,7 +78,7 @@ final class SSLParametersImpl  {
     byte[] sctExtension;
     byte[] ocspResponse;
 
-    byte[] applicationProtocols = [];
+    ubyte[] applicationProtocols = [];
     ApplicationProtocolSelectorAdapter applicationProtocolSelector;
     bool useSessionTickets;
     private bool useSni;
@@ -225,7 +227,7 @@ final class SSLParametersImpl  {
      * @param protocols the list of ALPN protocols
      */
     void setApplicationProtocols(string[] protocols) {
-        this.applicationProtocols = SSLUtils.encodeProtocols(protocols);
+        this.applicationProtocols = cast(ubyte[])SSLUtils.encodeProtocols(protocols);
     }
 
     string[] getApplicationProtocols() {
@@ -602,10 +604,10 @@ return false;
     * {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
     */
 interface AliasChooser {
-    // string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
-    //         string[] keyTypes);
+    string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
+            string[] keyTypes);
 
-    // string chooseServerAlias(X509KeyManager keyManager, string keyType);
+    string chooseServerAlias(X509KeyManager keyManager, string keyType);
 }
 
 /**

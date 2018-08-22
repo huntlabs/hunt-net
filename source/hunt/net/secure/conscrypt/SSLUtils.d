@@ -286,7 +286,7 @@ return null;
      * empty.
      * @throws NullPointerException if protocols is {@code null}.
      */
-    static string[] decodeProtocols(byte[] protocols) {
+    static string[] decodeProtocols(ubyte[] protocols) {
         if (protocols.length == 0) {
             return null;
         }
@@ -306,7 +306,7 @@ return null;
         }
 
         string[] decoded = new string[numProtocols];
-        for (int i = 0, d = 0; i < protocols.length;) {
+        for (size_t i = 0, d = 0; i < protocols.length;) {
             int protocolLength = protocols[i];
             decoded[d++] = protocolLength > 0
                     ?  cast(string)protocols[i + 1 .. protocolLength].idup

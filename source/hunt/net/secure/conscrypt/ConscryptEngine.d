@@ -19,6 +19,15 @@ import hunt.net.secure.conscrypt.SSLParametersImpl;
 import hunt.net.secure.conscrypt.SSLNullSession;
 import hunt.net.secure.conscrypt.SSLUtils;
 
+
+import hunt.net.ssl.KeyManager;
+import hunt.net.ssl.X509KeyManager;
+import hunt.net.ssl.X509TrustManager;
+
+import hunt.security.key;
+import hunt.security.cert.X509Certificate;
+import hunt.security.x500.X500Principal;
+
 import hunt.container;
 import hunt.net.exception;
 
@@ -138,7 +147,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
 
         // externalSession = Platform.wrapSSLSession(new ExternalSession(new Provider() {
         //     override
-        //     public ConscryptSession provideSession() {
+        //     ConscryptSession provideSession() {
         //         return ConscryptEngine.this.provideSession();
         //     }
         // }));
@@ -338,17 +347,17 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
     }
 
     override
-    public string getPeerHost() {
+    string getPeerHost() {
         return peerHostname !is null ? peerHostname : peerInfoProvider.getHostnameOrIP();
     }
 
     override
-    public int getPeerPort() {
+    int getPeerPort() {
         return peerInfoProvider.getPort();
     }
 
     override
-    public void beginHandshake() {
+    void beginHandshake() {
         synchronized (ssl) {
             beginHandshakeInternal();
         }
@@ -408,7 +417,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
     }
 
     override
-    public void closeInbound() {
+    void closeInbound() {
         synchronized (ssl) {
             if (state == EngineStates.STATE_CLOSED || state == EngineStates.STATE_CLOSED_INBOUND) {
                 return;
@@ -422,7 +431,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
     }
 
     override
-    public void closeOutbound() {
+    void closeOutbound() {
         synchronized (ssl) {
             if (state == EngineStates.STATE_CLOSED || state == EngineStates.STATE_CLOSED_OUTBOUND) {
                 return;
@@ -442,41 +451,41 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
     }
 
     // override
-    // public Runnable getDelegatedTask() {
+    // Runnable getDelegatedTask() {
     //     // This implementation doesn't use any delegated tasks.
     //     return null;
     // }
 
     override
-    public string[] getEnabledCipherSuites() {
+    string[] getEnabledCipherSuites() {
         return sslParameters.getEnabledCipherSuites();
     }
 
     override
-    public string[] getEnabledProtocols() {
+    string[] getEnabledProtocols() {
         return sslParameters.getEnabledProtocols();
     }
 
     override
-    public bool getEnableSessionCreation() {
+    bool getEnableSessionCreation() {
         return sslParameters.getEnableSessionCreation();
     }
 
     // override
-    // public SSLParameters getSSLParameters() {
+    // SSLParameters getSSLParameters() {
     //     SSLParameters params = super.getSSLParameters();
     //     Platform.getSSLParameters(params, sslParameters, this);
     //     return params;
     // }
 
     // override
-    // public void setSSLParameters(SSLParameters p) {
+    // void setSSLParameters(SSLParameters p) {
     //     super.setSSLParameters(p);
     //     Platform.setSSLParameters(p, sslParameters, this);
     // }
 
     override
-    public HandshakeStatus getHandshakeStatus() {
+    HandshakeStatus getHandshakeStatus() {
         synchronized (ssl) {
             return getHandshakeStatusInternal();
         }
@@ -519,7 +528,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
     }
 
     override
-    public bool getNeedClientAuth() {
+    bool getNeedClientAuth() {
         return sslParameters.getNeedClientAuth();
     }
 
@@ -534,7 +543,7 @@ return null;
         //     if (state == EngineStates.STATE_HANDSHAKE_STARTED) {
         //         return Platform.wrapSSLSession(new ExternalSession(new Provider() {
         //             override
-        //             public ConscryptSession provideSession() {
+        //             ConscryptSession provideSession() {
         //                 return ConscryptEngine.this.provideHandshakeSession();
         //             }
         //         }));
@@ -544,7 +553,7 @@ return null;
     }
 
     override
-    public SSLSession getSession() {
+    SSLSession getSession() {
         return externalSession;
     }
 
@@ -569,27 +578,27 @@ return null;
     }
 
     override
-    public string[] getSupportedCipherSuites() {
+    string[] getSupportedCipherSuites() {
         return NativeCrypto.getSupportedCipherSuites();
     }
 
     override
-    public string[] getSupportedProtocols() {
+    string[] getSupportedProtocols() {
         return NativeCrypto.getSupportedProtocols();
     }
 
     override
-    public bool getUseClientMode() {
+    bool getUseClientMode() {
         return sslParameters.getUseClientMode();
     }
 
     override
-    public bool getWantClientAuth() {
+    bool getWantClientAuth() {
         return sslParameters.getWantClientAuth();
     }
 
     override
-    public bool isInboundDone() {
+    bool isInboundDone() {
         synchronized (ssl) {
             return state == EngineStates.STATE_CLOSED || state == EngineStates.STATE_CLOSED_INBOUND
                     || ssl.wasShutdownReceived();
@@ -597,34 +606,34 @@ return null;
     }
 
     override
-    public bool isOutboundDone() {
+    bool isOutboundDone() {
         synchronized (ssl) {
             return state == EngineStates.STATE_CLOSED || state == EngineStates.STATE_CLOSED_OUTBOUND || ssl.wasShutdownSent();
         }
     }
 
     override
-    public void setEnabledCipherSuites(string[] suites) {
+    void setEnabledCipherSuites(string[] suites) {
         sslParameters.setEnabledCipherSuites(suites);
     }
 
     override
-    public void setEnabledProtocols(string[] protocols) {
+    void setEnabledProtocols(string[] protocols) {
         sslParameters.setEnabledProtocols(protocols);
     }
 
     override
-    public void setEnableSessionCreation(bool flag) {
+    void setEnableSessionCreation(bool flag) {
         sslParameters.setEnableSessionCreation(flag);
     }
 
     override
-    public void setNeedClientAuth(bool need) {
+    void setNeedClientAuth(bool need) {
         sslParameters.setNeedClientAuth(need);
     }
 
     override
-    public void setUseClientMode(bool mode) {
+    void setUseClientMode(bool mode) {
         synchronized (ssl) {
             if (isHandshakeStarted()) {
                 throw new IllegalArgumentException(
@@ -636,12 +645,12 @@ return null;
     }
 
     override
-    public void setWantClientAuth(bool want) {
+    void setWantClientAuth(bool want) {
         sslParameters.setWantClientAuth(want);
     }
 
     override
-    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer dst) {
+    SSLEngineResult unwrap(ByteBuffer src, ByteBuffer dst) {
         synchronized (ssl) {
             try {
                 return unwrap(makeSingleSrcBuffer(src), makeSingleDstBuffer(dst));
@@ -653,7 +662,7 @@ return null;
     }
 
     override
-    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts) {
+    SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts) {
         synchronized (ssl) {
             try {
                 return unwrap(makeSingleSrcBuffer(src), dsts);
@@ -664,7 +673,7 @@ return null;
     }
 
     override
-    public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts, int offset,
+    SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts, int offset,
             int length) {
         synchronized (ssl) {
             try {
@@ -1378,7 +1387,7 @@ return null;
     alias wrap = SSLEngine.wrap;
 
     override
-    public SSLEngineResult wrap(ByteBuffer src, ByteBuffer dst) {
+    SSLEngineResult wrap(ByteBuffer src, ByteBuffer dst) {
         synchronized (ssl) {
             try {
                 return wrap(makeSingleSrcBuffer(src), dst);
@@ -1429,7 +1438,7 @@ return null;
     }
 
     override
-    public SSLEngineResult wrap(ByteBuffer[] srcs, int srcsOffset, int srcsLength, ByteBuffer dst)
+    SSLEngineResult wrap(ByteBuffer[] srcs, int srcsOffset, int srcsLength, ByteBuffer dst)
             {
         assert(srcs !is null, "srcs is null");
         assert(dst !is null, "dst is null");
@@ -1602,17 +1611,17 @@ return null;
     }
 
     override
-    public int clientPSKKeyRequested(string identityHint, byte[] identity, byte[] key) {
+    int clientPSKKeyRequested(string identityHint, byte[] identity, byte[] key) {
         return ssl.clientPSKKeyRequested(identityHint, identity, key);
     }
 
     override
-    public int serverPSKKeyRequested(string identityHint, string identity, byte[] key) {
+    int serverPSKKeyRequested(string identityHint, string identity, byte[] key) {
         return ssl.serverPSKKeyRequested(identityHint, identity, key);
     }
 
     override
-    public void onSSLStateChange(int type, int val) {
+    void onSSLStateChange(int type, int val) {
         synchronized (ssl) {
             switch (type) {
                 case SSL_CB_HANDSHAKE_START: {
@@ -1636,7 +1645,7 @@ return null;
     }
 
     override
-    public void onNewSessionEstablished(long sslSessionNativePtr) {
+    void onNewSessionEstablished(long sslSessionNativePtr) {
 
 implementationMissing(false);
         // try {
@@ -1659,13 +1668,13 @@ implementationMissing(false);
     }
 
     override
-    public long serverSessionRequested(byte[] id) {
+    long serverSessionRequested(byte[] id) {
         // TODO(nathanmittler): Implement server-side caching for TLS < 1.3
         return 0;
     }
 
     override
-    public void verifyCertificateChain(byte[][] certChain, string authMethod) {
+    void verifyCertificateChain(byte[][] certChain, string authMethod) {
 implementationMissing(false);
         // try {
         //     if (certChain == null || certChain.length == 0) {
@@ -1695,7 +1704,7 @@ implementationMissing(false);
     }
 
     override
-    public void clientCertificateRequested(byte[] keyTypeBytes, byte[][] asn1DerEncodedPrincipals) {
+    void clientCertificateRequested(byte[] keyTypeBytes, byte[][] asn1DerEncodedPrincipals) {
         ssl.chooseClientCertificate(keyTypeBytes, asn1DerEncodedPrincipals);
     }
 
@@ -1725,42 +1734,45 @@ implementationMissing(false);
     //     }
     // }
 
-    // override
-    // public string chooseServerAlias(X509KeyManager keyManager, string keyType) {
-    //     if (keyManager instanceof X509ExtendedKeyManager) {
-    //         X509ExtendedKeyManager ekm = (X509ExtendedKeyManager) keyManager;
-    //         return ekm.chooseEngineServerAlias(keyType, null, this);
-    //     } else {
-    //         return keyManager.chooseServerAlias(keyType, null, null);
-    //     }
-    // }
+    override string chooseServerAlias(X509KeyManager keyManager, string keyType) {
+        // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
+        // if (ekm is null) {
+        //     return keyManager.chooseServerAlias(keyType, null, null);
+        // } else {
+        //     return ekm.chooseEngineServerAlias(keyType, null, this);
+        // }
+        implementationMissing(false);
+        return "";
+    }
 
-    // override
-    // public string chooseClientAlias(
-    //         X509KeyManager keyManager, X500Principal[] issuers, string[] keyTypes) {
-    //     if (keyManager instanceof X509ExtendedKeyManager) {
-    //         X509ExtendedKeyManager ekm = (X509ExtendedKeyManager) keyManager;
-    //         return ekm.chooseEngineClientAlias(keyTypes, issuers, this);
-    //     } else {
-    //         return keyManager.chooseClientAlias(keyTypes, issuers, null);
-    //     }
-    // }
+    override string chooseClientAlias(X509KeyManager keyManager, 
+            X500Principal[] issuers, string[] keyTypes) {
+
+        implementationMissing(false);
+        return "";
+        // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
+        // if (ekm is null) {
+        //     return keyManager.chooseClientAlias(keyTypes, issuers, null);
+        // } else {
+        //     return ekm.chooseEngineClientAlias(keyTypes, issuers, this);
+        // }
+    }
 
     // override
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
-    // public string chooseServerPSKIdentityHint(PSKKeyManager keyManager) {
+    // string chooseServerPSKIdentityHint(PSKKeyManager keyManager) {
     //     return keyManager.chooseServerKeyIdentityHint(this);
     // }
 
     // override
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
-    // public string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint) {
+    // string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint) {
     //     return keyManager.chooseClientKeyIdentity(identityHint, this);
     // }
 
     // override
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
-    // public SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity) {
+    // SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity) {
     //     return keyManager.getKey(identityHint, identity, this);
     // }
 
@@ -1826,12 +1838,12 @@ implementationMissing(false);
     }
 
     override
-    public string getApplicationProtocol() {
+    string getApplicationProtocol() {
         return SSLUtils.toProtocolString(ssl.getApplicationProtocol());
     }
 
     override
-    public string getHandshakeApplicationProtocol() {
+    string getHandshakeApplicationProtocol() {
         synchronized (ssl) {
             return state == EngineStates.STATE_HANDSHAKE_STARTED ? getApplicationProtocol() : null;
         }

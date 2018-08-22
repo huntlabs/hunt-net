@@ -19,13 +19,13 @@ abstract class NativeRef {
         this.context = context;
     }
 
-    override
-    bool opEquals(Object o) {
-        if (typeid(o) != typeid(NativeRef)) {
+    override bool opEquals(Object o) {
+        NativeRef that = cast(NativeRef) o;
+        if (that is null) {
             return false;
         }
 
-        return (cast(NativeRef) o).context == context;
+        return that.context == context;
     }
 
     override size_t toHash() @trusted nothrow {

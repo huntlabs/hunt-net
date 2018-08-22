@@ -1,9 +1,10 @@
 module hunt.net.secure.conscrypt.NativeCrypto;
 
-// import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
+import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.NativeConstants;
 import hunt.net.secure.conscrypt.NativeRef;
 
+import deimos.openssl.evp;
 import deimos.openssl.ssl;
 import deimos.openssl.err;
 
@@ -161,6 +162,14 @@ final class NativeCrypto {
         return cast(AppData*)(SSL_get_app_data(ssl));
     }
 
+    static T* fromContextObject(T)(NativeRef.EVP_PKEY contextObject) {
+        if (contextObject is null) {
+            warning("contextObject is null");
+            return null;
+        }
+        return cast(T*)contextObject.context;
+    }
+
     static ubyte[] CryptoBufferToByteArray(const(CRYPTO_BUFFER)* buf) {
 
         size_t length = CRYPTO_BUFFER_len(buf);
@@ -192,6 +201,100 @@ final class NativeCrypto {
         }
 
         return array;
+    }
+
+
+    /**
+    * Selects the ALPN protocol to use. The list of protocols in "primary" is considered the order
+    * which should take precedence.
+    */
+    static int selectApplicationProtocol(SSL* ssl, uint8_t** outBuffer, uint8_t* outLength,
+                                        const(uint8_t) * primary,
+                                        const uint primaryLength,
+                                        const(uint8_t) * secondary,
+                                        uint secondaryLength) {
+        tracef("primary=%s, length=%d", primary, primaryLength);
+
+        int status = SSL_select_next_proto(outBuffer, outLength, primary, primaryLength, secondary,
+                                        secondaryLength);
+        switch (status) {
+            case OPENSSL_NPN_NEGOTIATED:
+                tracef("ssl=%s selectApplicationProtocol ALPN negotiated", ssl);
+                return SSL_TLSEXT_ERR_OK;
+            case OPENSSL_NPN_UNSUPPORTED:
+                tracef("ssl=%s selectApplicationProtocol ALPN unsupported", ssl);
+                break;
+            case OPENSSL_NPN_NO_OVERLAP:
+                tracef("ssl=%s selectApplicationProtocol ALPN no overlap", ssl);
+                break;
+            default:
+                break;
+        }
+        return SSL_TLSEXT_ERR_NOACK;
+    }
+
+    /**
+    * Calls out to an application-provided selector to choose the ALPN protocol.
+    */
+    static int selectApplicationProtocol(SSL* ssl, void* selector,
+                                        uint8_t** outBuffer,
+                                        uint8_t* outLen, const(uint8_t) * inBuffer,
+                                        uint inLen) {
+        // Copy the input array.
+        ubyte[] protocols = inBuffer[0..inLen].dup;
+
+        ApplicationProtocolSelectorAdapter adapter = cast(ApplicationProtocolSelectorAdapter)selector;
+        int offset = 0;
+        if(adapter is null)
+            warning("Selector adapter is null");
+        else
+            offset = adapter.selectApplicationProtocol(protocols);
+
+        if (offset < 0) {
+            tracef("ssl=%s selectApplicationProtocol selection failed", ssl);
+            return SSL_TLSEXT_ERR_NOACK;
+        }
+
+        // Point the output to the selected protocol.
+        *outLen = *(inBuffer + offset);
+        *outBuffer = cast(uint8_t*)(inBuffer + offset + 1);
+
+        return SSL_TLSEXT_ERR_OK;
+    }
+
+    /**
+    * Callback for the server to select an ALPN protocol.
+    */
+    extern(C) static int alpn_select_callback(SSL* ssl, uint8_t ** outBuffer, uint8_t* outLen,
+                                const(uint8_t) * inBuffer, uint inLen, void*) {
+        tracef("ssl=%s alpn_select_callback in=%s inLen=%d", ssl, inBuffer, inLen);
+
+        AppData* appData = toAppData(ssl);
+        if (appData is null) {
+            warningf("ssl=%s alpn_select_callback appData => 0", ssl);
+            return SSL_TLSEXT_ERR_NOACK;
+        }
+
+        if (inBuffer is null ||
+            (appData.applicationProtocolsData is null
+            && appData.applicationProtocolSelector is null)) {
+            if (outBuffer != null && outLen != null) {
+                *outBuffer = null;
+                *outLen = 0;
+            }
+            warningf("ssl=%s alpn_select_callback protocols => 0", ssl);
+            return SSL_TLSEXT_ERR_NOACK;
+        }
+
+        if (appData.applicationProtocolSelector != null) {
+            return selectApplicationProtocol(ssl, appData.applicationProtocolSelector,
+                                    outBuffer, outLen, inBuffer, inLen);
+        }
+
+        return selectApplicationProtocol(ssl, outBuffer, outLen,
+                                cast(uint8_t*)(appData.applicationProtocolsData),
+                                cast(uint)(appData.applicationProtocolsLength),
+                                inBuffer, inLen);
     }
 
     extern(C) static ssl_verify_result_t cert_verify_callback(SSL* ssl, uint8_t* out_alert) {
@@ -445,8 +548,44 @@ implementationMissing(false);
      * @param pkey a reference to the private key.
      * @ if a problem occurs setting the cert/key.
      */
-    // static void setLocalCertsAndPrivateKey(long ssl_address, byte[][] encodedCertificates,
-    //     NativeRef.EVP_PKEY pkey) ;
+    static void setLocalCertsAndPrivateKey(long ssl_address, byte[][] encodedCertificates,
+        NativeRef.EVP_PKEY pkeyRef) {
+
+        SSL* ssl = to_SSL(ssl_address);
+        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key", ssl);
+        if (ssl is null) {
+            return;
+        }
+        
+        size_t numCerts = encodedCertificates.length;
+        if (numCerts == 0) {
+            warning("certificates.length == 0");
+            return;
+        }
+        if (pkeyRef is null) {
+            warning("privateKey is null");
+            return;
+        }
+
+        // Get the private key.
+        EVP_PKEY* pkey = fromContextObject!EVP_PKEY(pkeyRef);
+        if (pkey is null) {
+            warning("pkey is null");
+            return;
+        }
+
+        // Copy the certificates.
+        CRYPTO_BUFFER*[] certBuffers = new CRYPTO_BUFFER*[numCerts];
+        for (size_t i = 0; i < numCerts; ++i) {
+            certBuffers[i] = ByteArrayToCryptoBuffer(encodedCertificates[i], null);
+        }
+
+        if (!deimos.openssl.ssl.SSL_set_chain_and_key(ssl, certBuffers.ptr, numCerts, pkey, null)) {
+            error("Error configuring certificate");
+            return;
+        }
+        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key => ok", ssl);
+    }
 
     // static void SSL_set_client_CA_list(long ssl_address, byte[][] asn1DerEncodedX500Principals)
     //         ;
@@ -804,7 +943,7 @@ return null;
      * Enables ALPN for this TLS endpoint and sets the list of supported ALPN protocols in
      * wire-format (length-prefixed 8-bit strings).
      */
-    static void setApplicationProtocols(long ssl_address, bool client_mode, byte[] protocols) {
+    static void setApplicationProtocols(long ssl_address, bool client_mode, ubyte[] protocols) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
             return;
@@ -846,25 +985,24 @@ return null;
      * be called to delegate protocol selection to the application. Calling this method overrides
      * {@link #setApplicationProtocols(long, NativeSsl, bool, byte[])}.
      */
-    // static void setApplicationProtocolSelector(long ssl_address, ApplicationProtocolSelectorAdapter selector) {
-    //     SSL* ssl = to_SSL(ssl_address);
-    //     if (ssl is null) {
-    //         return;
-    //     }
+    static void setApplicationProtocolSelector(long ssl_address, ApplicationProtocolSelectorAdapter selector) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            return;
+        }
 
-    //     implementationMissing(false);
-    //     // AppData* appData = toAppData(ssl);
-    //     // if (appData is null) {
-    //     //     conscrypt::jniutil::throwSSLExceptionStr(env, "Unable to retrieve application data");
-    //     //     JNI_TRACE("ssl=%s setApplicationProtocolSelector appData => 0", ssl);
-    //     //     return;
-    //     // }
+        implementationMissing(false);
+        AppData* appData = toAppData(ssl);
+        if (appData is null) {
+            warning("Unable to retrieve application data");
+            return;
+        }
 
-    //     // appData.setApplicationProtocolSelector(env, selector);
-    //     // if (selector != null) {
-    //     //     SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), alpn_select_callback, null);
-    //     // }
-    // }
+        appData.setApplicationProtocolSelector(cast(void*)selector);
+        if (selector !is null) {
+            SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
+        }
+    }
 
     /**
      * Returns the selected ALPN protocol. If the server did not select a
@@ -1350,11 +1488,28 @@ implementationMissing(false);
 
     // static byte[] EVP_marshal_private_key(NativeRef.EVP_PKEY pkey);
 
-    // static long EVP_parse_private_key(byte[] data) throws ParsingException;
+    static long EVP_parse_private_key(byte[] data) {
+        tracef("EVP_parse_private_key(lenght=%d)", data.length);
+
+        CBS cbs;
+        CBS_init(&cbs, cast(const(uint8_t)*)(data.ptr), data.length);
+        EVP_PKEY* pkey = deimos.openssl.evp.EVP_parse_private_key(&cbs);
+        // We intentionally do not check that cbs is exhausted, as JCA providers typically
+        // allow parsing keys from buffers that are larger than the contained key structure
+        // so we do the same for compatibility.
+        if (!pkey) {
+            warning("Error parsing private key");
+            ERR_clear_error();
+            return 0;
+        }
+
+        tracef("EVP_parse_private_key => %s", pkey);
+        return cast(long)(pkey);        
+    }
 
     // static byte[] EVP_marshal_public_key(NativeRef.EVP_PKEY pkey);
 
-    // static long EVP_parse_public_key(byte[] data) throws ParsingException;
+    // static long EVP_parse_public_key(byte[] data);
 
     // static long PEM_read_bio_PUBKEY(long bioCtx);
 
@@ -1645,7 +1800,7 @@ implementationMissing(false);
 
     // static long d2i_X509_bio(long bioCtx);
 
-    // static long d2i_X509(byte[] encoded) throws ParsingException;
+    // static long d2i_X509(byte[] encoded);
 
     // static long PEM_read_bio_X509(long bioCtx);
 
@@ -1656,7 +1811,7 @@ implementationMissing(false);
 
     // static byte[] ASN1_seq_pack_X509(long[] x509CertRefs);
 
-    // static long[] ASN1_seq_unpack_X509_bio(long bioRef) throws ParsingException;
+    // static long[] ASN1_seq_unpack_X509_bio(long bioRef);
 
     // static void X509_free(long x509ctx, OpenSSLX509Certificate holder);
 
@@ -1726,7 +1881,7 @@ implementationMissing(false);
     enum int PKCS7_CRLS = 2;
 
     // /** Returns an array of X509 or X509_CRL pointers. */
-    // static long[] d2i_PKCS7_bio(long bioCtx, int which) throws ParsingException;
+    // static long[] d2i_PKCS7_bio(long bioCtx, int which);
 
     // /** Returns an array of X509 or X509_CRL pointers. */
     // static byte[] i2d_PKCS7(long[] certs);
@@ -1806,7 +1961,7 @@ implementationMissing(false);
 
     // // --- ASN1_TIME -----------------------------------------------------------
 
-    // static void ASN1_TIME_to_Calendar(long asn1TimeCtx, Calendar cal) throws ParsingException;
+    // static void ASN1_TIME_to_Calendar(long asn1TimeCtx, Calendar cal);
 
     // // --- ASN1 Encoding -------------------------------------------------------
 
@@ -2621,6 +2776,22 @@ return null;
 
 }
 
+
+CRYPTO_BUFFER* ByteArrayToCryptoBuffer(byte[] array, CRYPTO_BUFFER_POOL* pool) {
+    if (array is null) {
+        warning("array is null");
+        return null;
+    }
+
+    CRYPTO_BUFFER* ret = CRYPTO_BUFFER_new(cast(ubyte*)array.ptr, array.length, pool);
+
+    if (ret is null) {
+        warning("failed to allocate CRYPTO_BUFFER");
+    }
+
+    return ret;
+}
+
 /**
 * A collection of callbacks from the native OpenSSL code that are
  * related to the SSL handshake initiated by SSL_do_handshake.
@@ -2781,7 +2952,7 @@ version(Windows) {
      *                     non-null enables ALPN. This array is copied so that no
      *                     global reference to the Java byte array is maintained.
      */
-    bool setApplicationProtocols(byte[] applicationProtocols) {
+    bool setApplicationProtocols(ubyte[] applicationProtocols) {
         // TODO: Tasks pending completion -@zxp at 8/8/2018, 4:07:35 PM
         // 
         clearApplicationProtocols();

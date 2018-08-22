@@ -39,8 +39,8 @@ final class ApplicationProtocolSelectorAdapter {
      * selected protocol (i.e. points to the length prefix). Otherwise, returns
      * {@link #NO_PROTOCOL_SELECTED}.
      */
-    int selectApplicationProtocol(byte[] encodedProtocols) {
-        if (encodedProtocols == null || encodedProtocols.length == 0) {
+    int selectApplicationProtocol(ubyte[] encodedProtocols) {
+        if (encodedProtocols.length == 0) {
             return NO_PROTOCOL_SELECTED;
         }
 

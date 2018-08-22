@@ -15,7 +15,7 @@ module hunt.net.ssl.KeyManager;
  * @since 1.4
  * @see KeyManagerFactory
  */
-public interface KeyManager {
+interface KeyManager {
 }
 
 
