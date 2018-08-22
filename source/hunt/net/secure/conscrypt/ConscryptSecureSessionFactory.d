@@ -91,9 +91,8 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
 
 /**
 */
-public class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
-    override
-    public SSLContext getSSLContext() {
+class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
+    override SSLContext getSSLContext() {
         try {
             return getSSLContextWithManager(null, [SecureUtils.createX509TrustManagerNoCheck()]);
         } catch (Exception e) {
@@ -103,9 +102,9 @@ public class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFact
     }
 }
 
-public class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
-    override
-    public SSLContext getSSLContext() {
+class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
+
+    override SSLContext getSSLContext() {
         try {
             return getSSLContext(new ByteArrayInputStream(SecureUtils.DEFAULT_CREDENTIAL), "ptmima1234", "ptmima4321");
         } catch (Exception e) {

@@ -15,7 +15,8 @@ import hunt.util.TypeUtils;
 
 import kiss.logger;
 
-import std.datetime;
+import std.datetime : Clock;
+import std.datetime.stopwatch;
 import std.typecons;
 
 
@@ -39,12 +40,16 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     }
 
     SSLContext getSSLContextWithManager(KeyManager[] km, TrustManager[] tm){
-        long start = Clock.currStdTime;
+        version(HuntDebugMode) long start = Clock.currStdTime;
+        
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2", provideName);
         sslContext.init(km, tm);
-        long end = Clock.currStdTime;
-        long d = convert!(TimeUnits.HectoNanosecond, TimeUnits.Millisecond)(end - start);
-        version(HuntDebugMode) tracef("creating Conscrypt SSL context spends %d ms", d);
+
+        version(HuntDebugMode) {
+            long end = Clock.currStdTime;
+            long d = convert!(TimeUnits.HectoNanosecond, TimeUnits.Millisecond)(end - start);
+            tracef("creating Conscrypt SSL context spends %d ms", d);
+        }
         return sslContext;
     }
 
@@ -54,8 +59,8 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
     SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword,
                                     string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
-        // long start = Millisecond100Clock.currentTimeMillis();
-        // SSLContext sslContext;
+        version(HuntDebugMode) StopWatch sw = StopWatch(AutoStart.yes);
+        SSLContext sslContext;
 
         // KeyStore ks = KeyStore.getInstance("JKS");
         // ks.load(inputStream, keystorePassword !is null ? keystorePassword.toCharArray() : null);
@@ -71,10 +76,12 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // sslContext = SSLContext.getInstance(sslProtocol == null ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-        // long end = Millisecond100Clock.currentTimeMillis();
-        // infof("creating Conscrypt SSL context spends %s ms", (end - start));
+        version(HuntDebugMode) {
+            sw.stop();
+            infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
+        }
         // return sslContext;
-        implementationMissing();
+        implementationMissing(false);
         return null;
     }
 

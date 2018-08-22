@@ -8,7 +8,7 @@ import hunt.net.secure.ProtocolSelector;
 /**
  * 
  */
-public interface SecureSession : ProtocolSelector { // : Closeable,  
+interface SecureSession : ProtocolSelector { 
 
     bool isOpen();
 
