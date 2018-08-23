@@ -1,5 +1,6 @@
 module hunt.net.secure.conscrypt.NativeSsl;
 
+import hunt.net.exception;
 import hunt.net.secure.conscrypt.AbstractSessionContext;
 import hunt.net.secure.conscrypt.AddressUtils;
 import hunt.net.secure.conscrypt.NativeCrypto;
@@ -13,13 +14,13 @@ import hunt.security.cert.X509Certificate;
 import hunt.security.key;
 import hunt.security.x500.X500Principal;
 
-import deimos.openssl.ssl;
-
 import hunt.container;
 import kiss.logger;
-import hunt.net.exception;
 import hunt.util.exception;
+
+import deimos.openssl.ssl;
 import std.array;
+import std.container.array;
 
 
 /**
@@ -49,7 +50,13 @@ final class NativeSsl {
             AliasChooser chooser,
             PSKCallbacks pskCallbacks) {
         AbstractSessionContext ctx = parameters.getSessionContext();
-        long ssl = NativeCrypto.SSL_new(ctx.sslCtxNativePointer);
+        long ssl_ctx = ctx.sslCtxNativePointer;
+
+        // NativeCrypto.SSL_CTX_set_ecdh_auto(ssl_ctx);
+        // NativeCrypto.SSL_CTX_use_certificate_file(ssl_ctx, "/home/zxp/cert/server.crt");
+        // NativeCrypto.SSL_CTX_use_PrivateKey_file(ssl_ctx, "/home/zxp/cert/server.key");
+        long ssl = NativeCrypto.SSL_new(ssl_ctx);
+
         return new NativeSsl(ssl, parameters, handshakeCallbacks, chooser, pskCallbacks);
     }
 
@@ -218,6 +225,7 @@ return 0;
 
     void setCertificate(string name) {
         if (name.empty) {
+            warning("The certificate name is empty");
             return;
         }
         tracef("Certificate: %s", name);
@@ -247,7 +255,7 @@ return 0;
         try {
             key = OpenSSLKey.fromPrivateKeyForTLSStackOnly(privateKey, publicKey);
         } catch (InvalidKeyException e) {
-            throw new SSLException("", e);
+            throw new SSLException(e.msg);
         }
 
         // Set the local certs and private key.
@@ -300,7 +308,7 @@ return 0;
                     ~ " is no longer supported and was filtered from the list");
         }
         NativeCrypto.setEnabledProtocols(ssl, parameters.enabledProtocols);
-        // NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
+        NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
 
         if (parameters.applicationProtocols.length > 0) {
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);
@@ -312,16 +320,14 @@ return 0;
         // setup server certificates and private keys.
         // clients will receive a call back to request certificates.
         if (!isClient()) {
-            Set!string keyTypes = new HashSet!string();
+            Array!string keyTypes;
             foreach (long sslCipherNativePointer ; NativeCrypto.SSL_get_ciphers(ssl)) {
                 string keyType = SSLUtils.getServerX509KeyType(sslCipherNativePointer);
-                if (keyType != null) {
-                    keyTypes.add(keyType);
-                }
+                if (!keyType.empty()) 
+                    keyTypes.insertBack(keyType);
             }
 
             X509KeyManager keyManager = parameters.getX509KeyManager();
-            implementationMissing(false);
             if (keyManager !is null) {
                 foreach (string keyType ; keyTypes) {
                     try {
@@ -330,6 +336,8 @@ return 0;
                         throw new IOException(e.msg);
                     }
                 }
+            } else {
+                warning("keyManager is null");
             }
 
             NativeCrypto.SSL_set_options(ssl, SSL_OP_CIPHER_SERVER_PREFERENCE);
@@ -360,7 +368,7 @@ return 0;
 
         // BEAST attack mitigation (1/n-1 record splitting for CBC cipher suites
         // with TLSv1 and SSLv3).
-        // NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
+        NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
 
         setCertificateValidation();
         setTlsChannelId(channelIdPrivateKey);
@@ -466,7 +474,7 @@ return 0;
             return ;
 
         implementationMissing(false);
-        // // needing client auth takes priority...
+        // needing client auth takes priority...
         // bool certRequested;
         // if (parameters.getNeedClientAuth()) {
         //     NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER

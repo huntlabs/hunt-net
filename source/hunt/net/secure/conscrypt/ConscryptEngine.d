@@ -265,7 +265,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
      */
     override
     void setChannelIdPrivateKey(PrivateKey privateKey) {
-        implementationMissing();
+        implementationMissing(false);
         // if (!getUseClientMode()) {
         //     throw new IllegalStateException("Not allowed in server mode");
         // }
@@ -979,9 +979,7 @@ return null;
         }
 
         // The handshake has completed successfully...
-        version(HuntDebugMode){
-            trace("The handshake is completing...");
-        }
+        version(HuntDebugMode) trace("The handshake is completing...");
 
         // Update the session from the current state of the SSL object.
         activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());

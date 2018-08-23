@@ -1,9 +1,7 @@
 module hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 
 import hunt.net.ssl.SSLSocket;
-
 import hunt.net.ssl.SSLEngine;
-import hunt.net.ssl.SSLSocket;
 
 /**
  * Server-side selector for the ALPN protocol. This is a backward-compatibility shim for Java 9's

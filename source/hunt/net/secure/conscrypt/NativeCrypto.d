@@ -353,7 +353,10 @@ final class NativeCrypto {
 
     static long SSL_CTX_new()    {
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
-        SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
+        // BUG: Reported defects -@zxp at 8/23/2018, 4:42:28 PM
+        // It doesn't work wiht TLS Server
+        // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
+        SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
 
         version(HuntDebugMode) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
@@ -464,6 +467,36 @@ final class NativeCrypto {
         version(HuntDebugMode) tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
         // implementationMissing(false);
         return cast(long)ssl;        
+    }
+
+    // static void SSL_CTX_set_ecdh_auto(long ssl_ctx_address, bool flag=true) {
+    //     SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+    //     if(ssl_ctx is null)
+    //         return;
+
+    //     deimos.openssl.ssl.SSL_CTX_set_ecdh_auto(ssl_ctx, flag ? 1 : 0);
+    // }
+
+    static void SSL_CTX_use_certificate_file(long ssl_ctx_address, string fileName) {
+        SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+        if(ssl_ctx is null)
+            return;
+        
+        int r = deimos.openssl.ssl.SSL_CTX_use_certificate_file(ssl_ctx, toStringz(fileName),  SSL_FILETYPE_PEM);
+        if(r <=0)   {
+            warning("Failed to set the certificate file.");
+        }
+    }
+
+    static void SSL_CTX_use_PrivateKey_file(long ssl_ctx_address, string fileName) {
+        SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+        if(ssl_ctx is null)
+            return;
+
+        int r = deimos.openssl.ssl.SSL_CTX_use_PrivateKey_file(ssl_ctx, toStringz(fileName),  SSL_FILETYPE_PEM);
+        if(r <=0)   {
+            warning("Failed to set the privateKey file.");
+        }
     }
 
     static void SSL_enable_tls_channel_id(long ssl_address) {
@@ -822,10 +855,10 @@ return null;
 
     static string SSL_CIPHER_get_kx_name(long cipher_address) {
         const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
-        implementationMissing(false);
-return null;
-        // const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
-        // return fromStringz(kx_name);        
+        const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
+        string s = cast(string)fromStringz(kx_name);
+        version(HuntDebugMode) trace("cipher name: ", s);
+        return s;        
     }
 
     static string[] get_cipher_names(string selector) {
@@ -991,7 +1024,6 @@ return null;
             return;
         }
 
-        implementationMissing(false);
         AppData* appData = toAppData(ssl);
         if (appData is null) {
             warning("Unable to retrieve application data");
@@ -2180,11 +2212,12 @@ implementationMissing(false);
         if (ssl is null) {
             return;
         }
+
+implementationMissing(false);
         if (cipherSuites is null) {
             warning("cipherSuites is null");
             return;
         }
-implementationMissing(false);
 
         // int length = env.GetArrayLength(cipherSuites);
 
@@ -2275,25 +2308,24 @@ implementationMissing(false);
         // }        
     }
 
-    // /**
-    //  * Gets the list of cipher suites enabled for the provided {@code SSL} instance.
-    //  *
-    //  * @return array of {@code SSL_CIPHER} references.
-    //  */
+    /**
+     * Gets the list of cipher suites enabled for the provided {@code SSL} instance.
+     *
+     * @return array of {@code SSL_CIPHER} references.
+     */
     static long[] SSL_get_ciphers(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
             return null;
         }
-implementationMissing(false);
-return null;
-        // STACK_OF!(SSL_CIPHER)* cipherStack = deimos.openssl.ssl.SSL_get_ciphers(ssl);
-        // size_t count = (cipherStack !is null) ? sk_SSL_CIPHER_num(cipherStack) : 0;
-        // long[] ciphers = new long[count];
-        // for (size_t i = 0; i < count; i++) {
-        //     ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
-        // }
-        // return ciphers;        
+        STACK_OF!(SSL_CIPHER)* cipherStack = deimos.openssl.ssl.SSL_get_ciphers(ssl);
+        size_t count = (cipherStack !is null) ? sk_SSL_CIPHER_num(cipherStack) : 0;
+        long[] ciphers = new long[count];
+        for (size_t i = 0; i < count; i++) {
+            ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
+        }
+        version(HuntDebugMode) trace("ciphers: ", ciphers.length);
+        return ciphers;        
     }
 
     static void setEnabledCipherSuites(long ssl_address, string[] cipherSuites) {
@@ -2311,7 +2343,6 @@ return null;
                 continue;
             }
             opensslSuites ~= cipherSuiteFromJava(cipherSuite);
-            // opensslSuites.add(cipherSuiteFromJava(cipherSuite));
         }
         SSL_set_cipher_lists(ssl_address, opensslSuites);
     }

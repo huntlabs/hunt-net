@@ -31,14 +31,16 @@ class NetClient : Client
         _port = port;
         _sessionId = sessionId;
 
-        auto client = new TcpStream(_loop);
-        
+        TcpStream client = new TcpStream(_loop);
+
+        AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId, _config, netEvent, client); 
+        client.onClosed( () {netEvent.notifySessionClosed(session); });
+        client.onError( (string message) {netEvent.notifyExceptionCaught(session, new Exception(message)); });
         client.onConnected(
             (bool suc){
                 Result!NetSocket result = null;
                 if(suc)
                 {
-                    AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId, _config, netEvent, client); 
                     if(_handler !is null)
                         _handler(session);
                     result = new Result!NetSocket(session);
@@ -53,7 +55,6 @@ class NetClient : Client
 
                 if(handler !is null)
                     handler(result);
-
             }
         ).connect(host , cast(ushort)port);
 

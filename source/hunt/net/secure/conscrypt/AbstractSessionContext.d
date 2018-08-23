@@ -50,6 +50,11 @@ abstract class AbstractSessionContext : SSLSessionContext {
     this(int maximumSize) {
         this.maximumSize = maximumSize;
         sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
+
+// TODO: Tasks pending completion -@zxp at 8/23/2018, 4:41:10 PM
+// 
+            NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, "/home/zxp/cert/server.crt");
+            NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, "/home/zxp/cert/server.key");
     }
 
     /**

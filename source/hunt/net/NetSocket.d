@@ -50,10 +50,12 @@ class NetSocket
     ////
     NetSocket   write(in ubyte[] data)
     {
-        version(HuntDebugMode)
-        {
-            tracef("writting data %d bytes", data.length);
-            tracef("%(%02X %)", data);
+        version(HuntDebugMode) {
+            tracef("writting %d bytes", data.length);
+            if(data.length<=64)
+                infof("%(%02X %)", data[0 .. $]);
+            else
+                infof("%(%02X %)", data[0 .. 64]);
         }
          _tcp.write(data);
          return this;

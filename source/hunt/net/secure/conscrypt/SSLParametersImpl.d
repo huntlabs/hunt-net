@@ -8,7 +8,7 @@ import hunt.net.secure.conscrypt.ServerSessionContext;
 import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.ssl.KeyManager;
-
+import hunt.net.ssl.KeyManagerFactory;
 import hunt.net.ssl.X509KeyManager;
 import hunt.net.ssl.X509TrustManager;
 
@@ -109,7 +109,7 @@ final class SSLParametersImpl  {
             // There's no default PSK key manager
             // pskKeyManager = null;
         } else {
-            // x509KeyManager = findFirstX509KeyManager(kms);
+            x509KeyManager = findFirstX509KeyManager(kms);
             // pskKeyManager = findFirstPSKKeyManager(kms);
         }
 
@@ -409,45 +409,49 @@ final class SSLParametersImpl  {
         X509KeyManager result = defaultX509KeyManager;
         if (result is null) {
             // single-check idiom
-            // defaultX509KeyManager = result = createDefaultX509KeyManager();
+            defaultX509KeyManager = result = createDefaultX509KeyManager();
         }
         return result;
     }
 
-    // private static X509KeyManager createDefaultX509KeyManager()  {
-    //     try {
-    //         string algorithm = KeyManagerFactory.getDefaultAlgorithm();
-    //         KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-    //         kmf.init(null, null);
-    //         KeyManager[] kms = kmf.getKeyManagers();
-    //         X509KeyManager result = findFirstX509KeyManager(kms);
-    //         if (result is null) {
-    //             throw new KeyManagementException("No X509KeyManager among default KeyManagers: "
-    //                     + Arrays.toString(kms));
-    //         }
-    //         return result;
-    //     } catch (NoSuchAlgorithmException e) {
-    //         throw new KeyManagementException(e);
-    //     } catch (KeyStoreException e) {
-    //         throw new KeyManagementException(e);
-    //     } catch (UnrecoverableKeyException e) {
-    //         throw new KeyManagementException(e);
-    //     }
-    // }
+    private static X509KeyManager createDefaultX509KeyManager()  {
+        try {
+            // string algorithm = KeyManagerFactory.getDefaultAlgorithm();
+            // KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+            // kmf.init(null, null);
+            // KeyManager[] kms = kmf.getKeyManagers();
+            // X509KeyManager result = findFirstX509KeyManager(kms);
+            // if (result is null) {
+            //     throw new KeyManagementException("No X509KeyManager among default KeyManagers: "
+            //             ~ kms.to!string());
+            // }
+            // return result;
+            implementationMissing(false);
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            throw new KeyManagementException(e);
+        } catch (KeyStoreException e) {
+            throw new KeyManagementException(e);
+        } catch (UnrecoverableKeyException e) {
+            throw new KeyManagementException(e);
+        }
+    }
 
-    // /**
-    //  * Finds the first {@link X509KeyManager} element in the provided array.
-    //  *
-    //  * @return the first {@code X509KeyManager} or {@code null} if not found.
-    //  */
-    // private static X509KeyManager findFirstX509KeyManager(KeyManager[] kms) {
-    //     for (KeyManager km : kms) {
-    //         if (km instanceof X509KeyManager) {
-    //             return (X509KeyManager)km;
-    //         }
-    //     }
-    //     return null;
-    // }
+    /**
+     * Finds the first {@link X509KeyManager} element in the provided array.
+     *
+     * @return the first {@code X509KeyManager} or {@code null} if not found.
+     */
+    private static X509KeyManager findFirstX509KeyManager(KeyManager[] kms) {
+        foreach (KeyManager km ; kms) {
+            X509KeyManager m = cast(X509KeyManager)km;
+            if (m !is null) {
+                return m;
+            }
+        }
+        warning("X509KeyManager is null");
+        return null;
+    }
 
     // /**
     //  * Finds the first {@link PSKKeyManager} element in the provided array.
@@ -598,11 +602,11 @@ return false;
 
 
 /**
-    * For abstracting the X509KeyManager calls between
-    * {@link X509KeyManager#chooseClientAlias(string[], java.security.Principal[], java.net.Socket)}
-    * and
-    * {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
-    */
+* For abstracting the X509KeyManager calls between
+* {@link X509KeyManager#chooseClientAlias(string[], java.security.Principal[], java.net.Socket)}
+* and
+* {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
+*/
 interface AliasChooser {
     string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
             string[] keyTypes);
