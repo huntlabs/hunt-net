@@ -10,6 +10,7 @@ import hunt.net.secure.conscrypt.NativeSslSession;
 import hunt.container;
 import hunt.util.exception;
 
+import kiss.logger;
 /**
  * Supports SSL session caches.
  */
@@ -24,7 +25,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
     private int maximumSize;
     private int timeout = DEFAULT_SESSION_TIMEOUT_SECONDS;
 
-    package long sslCtxNativePointer; // = NativeCrypto.SSL_CTX_new();
+    package long sslCtxNativePointer; 
 
     // private final Map<ByteArray, NativeSslSession> sessions =
     //         new LinkedHashMap<ByteArray, NativeSslSession>() {
@@ -50,11 +51,17 @@ abstract class AbstractSessionContext : SSLSessionContext {
     this(int maximumSize) {
         this.maximumSize = maximumSize;
         sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
+    }
 
-// TODO: Tasks pending completion -@zxp at 8/23/2018, 4:41:10 PM
-// 
-            NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, "/home/zxp/cert/server.crt");
-            NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, "/home/zxp/cert/server.key");
+    this(int maximumSize, string certificate, string privatekey ) {
+        this.maximumSize = maximumSize;
+        sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
+        
+        trace("using certificate: " ~ certificate);
+        // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, "/home/zxp/cert/server.crt");
+        // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, "/home/zxp/cert/server.key");
+        NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
+        NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privatekey);
     }
 
     /**

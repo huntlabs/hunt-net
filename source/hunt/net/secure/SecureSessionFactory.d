@@ -1,8 +1,7 @@
 module hunt.net.secure.SecureSessionFactory;
 
-import hunt.container.List;
-
 import hunt.net.secure.SecureSession;
+import hunt.net.secure.SSLContextFactory;
 import hunt.net.Session;
 
 
@@ -22,4 +21,16 @@ interface SecureSessionFactory {
 
     string[] getSupportedProtocols();
 
+    SSLContextFactory getClientSSLContextFactory();
+
+    void setClientSSLContextFactory(SSLContextFactory clientSSLContextFactory);
+
+    SSLContextFactory getServerSSLContextFactory();
+
+    void setServerSSLContextFactory(SSLContextFactory serverSSLContextFactory);
+
+    // string sslCertificate();
+    // void sslCertificate(string fileName);
+    // string sslPrivateKey();
+    // void sslPrivateKey(string fileName);
 }

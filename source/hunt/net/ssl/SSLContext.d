@@ -133,8 +133,7 @@ class SSLContext {
      * @see java.security.Provider
      */
     static SSLContext getInstance(string protocol) {
-        implementationMissing(false);
-        return null;
+        return getInstance(protocol, "");
         // GetInstance.Instance instance = GetInstance.getInstance
         //         ("SSLContext", SSLContextSpi.class, protocol);
         // return new SSLContext(cast(SSLContextSpi)instance.impl, instance.provider,
@@ -178,6 +177,11 @@ class SSLContext {
      */
     static SSLContext getInstance(string protocol, string provider) {
         SSLContextSpi impl = new DefaultSSLContextImpl();
+        return new SSLContext(impl, null, protocol);
+    }
+
+    static SSLContext getInstance(string certificate, string privatekey, string protocol, string provider) {
+        SSLContextSpi impl = new DefaultSSLContextImpl(certificate, privatekey);
         return new SSLContext(impl, null, protocol);
     }
 

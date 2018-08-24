@@ -18,8 +18,8 @@ import hunt.util.exception;
 final class ServerSessionContext : AbstractSessionContext {
     private SSLServerSessionCache persistentCache;
 
-    this() {
-        super(100);
+    this(int maximumSize = 100) {
+        super(maximumSize);
 
         // TODO make sure SSL_CTX does not automaticaly clear sessions we want it to cache
         // SSL_CTX_set_session_cache_mode(sslCtxNativePointer, SSL_SESS_CACHE_NO_AUTO_CLEAR);
@@ -35,6 +35,11 @@ final class ServerSessionContext : AbstractSessionContext {
         // between apps. However our sessions are either in memory or
         // exported to a app's SSLServerSessionCache.
 
+        NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
+    }
+
+    this(string certificate, string privatekey, int maximumSize = 100) {
+        super(maximumSize, certificate, privatekey);
         NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
     }
 

@@ -1,14 +1,14 @@
 module hunt.net.secure.conscrypt.ConscryptSecureSessionFactory;
 
-import hunt.net.secure.SSLContextFactory;
 import hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptSSLSession;
 
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.SecureSession;
-
 import hunt.net.secure.SecureSessionFactory;
+import hunt.net.secure.SSLContextFactory;
+
 import hunt.net.Session;
 import hunt.net.ssl;
 
@@ -29,6 +29,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
     this() {
         clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
         serverSSLContextFactory = new DefaultCredentialConscryptSSLContextFactory();
+        
     }
 
     this(SSLContextFactory clientSSLContextFactory, SSLContextFactory serverSSLContextFactory) {
@@ -52,16 +53,19 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         this.serverSSLContextFactory = serverSSLContextFactory;
     }
 
-    override
     SecureSession create(Session session, bool clientMode, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
+        
+        // if(clientMode)
+        //     p = sslContextFactory.createSSLEngine(clientMode);
+        // else
+        //     p = sslContextFactory.createSSLEngine(_sslCertificate, _sslPrivateKey, "hunt2018", "hunt2018");
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
-    override
     SecureSession create(Session session, bool clientMode, string peerHost, int peerPort, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
         SSLContextFactory sslContextFactory = from(clientMode);
@@ -74,13 +78,32 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         return clientMode ? clientSSLContextFactory : serverSSLContextFactory;
     }
 
-    override
     string[] getSupportedProtocols() {
         return supportedProtocols;
     }
 
-    override
     void setSupportedProtocols(string[] supportedProtocols) {
         this.supportedProtocols = supportedProtocols;
     }
+
+    // string sslCertificate() {
+    //     return _sslCertificate;
+    // }
+
+    // void sslCertificate(string fileName) {
+    //     _sslCertificate = fileName;
+    // }
+
+    // string sslPrivateKey() {
+    //     return _sslPrivateKey;
+    // }
+
+    // void sslPrivateKey(string fileName) {
+    //     _sslPrivateKey = fileName;
+    // }
+
+
+    // private string _sslCertificate;
+    // private string _sslPrivateKey;
+
 }

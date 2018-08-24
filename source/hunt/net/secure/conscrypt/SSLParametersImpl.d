@@ -123,7 +123,6 @@ final class SSLParametersImpl  {
         // initialize the list of cipher suites and protocols enabled by default
         enabledProtocols = NativeCrypto.checkEnabledProtocols(
                 protocols is null ? NativeCrypto.DEFAULT_PROTOCOLS : protocols).dup;
-        // trace("xxxxxx=> ", enabledProtocols);
         bool x509CipherSuitesNeeded = (x509KeyManager !is null) || (x509TrustManager !is null);
         bool pskCipherSuitesNeeded = false; // pskKeyManager !is null;
         enabledCipherSuites = getDefaultCipherSuites(
@@ -135,8 +134,6 @@ final class SSLParametersImpl  {
 
     static SSLParametersImpl getDefault()  {
 
-// implementationMissing();
-// return null;
         SSLParametersImpl result = defaultParameters;
         if (result is null) {
             // single-check idiom

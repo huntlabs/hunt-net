@@ -43,25 +43,25 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
     SSLParametersImpl sslParameters;
 
     /** Allows outside callers to get the preferred SSLContext. */
-    static OpenSSLContextImpl getPreferred() {
-        return new TLSv12();
-    }
+    // static OpenSSLContextImpl getPreferred() {
+    //     return new TLSv12();
+    // }
 
-    this(string[] algorithms) {
+    this(string[] algorithms, string certificate, string privatekey) {
         this.algorithms = algorithms;
         clientSessionContext = new ClientSessionContext();
-        serverSessionContext = new ServerSessionContext();
+        serverSessionContext = new ServerSessionContext(certificate, privatekey);
     }
 
     /**
      * Constuctor for the DefaultSSLContextImpl.
      */
-    this() {
+    this(string certificate, string privatekey) {
         synchronized {
             this.algorithms = null;
             if (defaultSslContextImpl is null) {
                 clientSessionContext = new ClientSessionContext();
-                serverSessionContext = new ServerSessionContext();
+                serverSessionContext = new ServerSessionContext(certificate, privatekey);
                 defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
             } else {
                 clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
@@ -145,32 +145,32 @@ return null;
         return clientSessionContext;
     }
 
-    /**
-     * Public to allow construction via the provider framework.
-     */
-    static final class TLSv12 : OpenSSLContextImpl {
-        this() {
-            super(NativeCrypto.TLSV12_PROTOCOLS);
-        }
-    }
+    // /**
+    //  * Public to allow construction via the provider framework.
+    //  */
+    // static final class TLSv12 : OpenSSLContextImpl {
+    //     this() {
+    //         super(NativeCrypto.TLSV12_PROTOCOLS);
+    //     }
+    // }
 
-    /**
-     * Public to allow construction via the provider framework.
-     */
-    static final class TLSv11 : OpenSSLContextImpl {
-        this() {
-            super(NativeCrypto.TLSV11_PROTOCOLS);
-        }
-    }
+    // /**
+    //  * Public to allow construction via the provider framework.
+    //  */
+    // static final class TLSv11 : OpenSSLContextImpl {
+    //     this() {
+    //         super(NativeCrypto.TLSV11_PROTOCOLS);
+    //     }
+    // }
 
-    /**
-     * Public to allow construction via the provider framework.
-     */
-    static final class TLSv1 : OpenSSLContextImpl {
-        this() {
-            super(NativeCrypto.TLSV1_PROTOCOLS);
-        }
-    }
+    // /**
+    //  * Public to allow construction via the provider framework.
+    //  */
+    // static final class TLSv1 : OpenSSLContextImpl {
+    //     this() {
+    //         super(NativeCrypto.TLSV1_PROTOCOLS);
+    //     }
+    // }
 }
 
 
@@ -202,7 +202,13 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * creating the state shared between all default SSLContexts.
      */
     this() {
-        super();
+        import kiss.logger;
+        error(false, "no certificate provided");
+        super("cert/server.crt", "cert/server.key");
+    }
+
+    this(string certificate, string privatekey) {
+        super(certificate, privatekey);
     }
 
     // TODO javax.net.ssl.keyStoreProvider system property
