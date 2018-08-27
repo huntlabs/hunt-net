@@ -15,7 +15,7 @@ import hunt.security.key;
 import hunt.security.x500.X500Principal;
 
 import hunt.container;
-import hunt.logger;
+import hunt.logging;
 import hunt.util.exception;
 
 import deimos.openssl.ssl;

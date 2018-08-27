@@ -12,7 +12,7 @@ import hunt.container;
 import hunt.util.exception;
 import hunt.util.string;
 
-import hunt.logger;
+import hunt.logging;
 
 import core.stdc.config;
 import core.stdc.errno;

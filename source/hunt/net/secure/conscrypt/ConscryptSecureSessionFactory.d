@@ -15,7 +15,7 @@ import hunt.net.ssl;
 import hunt.util.exception;
 import hunt.util.TypeUtils;
 
-import hunt.logger;
+import hunt.logging;
 import std.typecons;
 
 /**

@@ -14,7 +14,7 @@ import hunt.util.exception;
 import hunt.datetime;
 import hunt.util.TypeUtils;
 
-import hunt.logger;
+import hunt.logging;
 
 import std.array;
 import std.datetime : Clock;

@@ -5,7 +5,7 @@ import hunt.io.common;
 
 import hunt.util.exception;
 
-import hunt.logger;
+import hunt.logging;
 import std.socket;
 
 

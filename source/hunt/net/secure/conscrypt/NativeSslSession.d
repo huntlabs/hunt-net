@@ -17,7 +17,7 @@ import hunt.security.cert.X509Certificate;
 import hunt.util.exception;
 
 import hunt.container;
-import hunt.logger;
+import hunt.logging;
 
 import std.algorithm;
 import std.conv;

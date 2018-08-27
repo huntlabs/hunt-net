@@ -21,7 +21,7 @@ import hunt.container;
 import hunt.datetime;
 import hunt.util.exception;
 
-import hunt.logger;
+import hunt.logging;
 
 import std.datetime;
 

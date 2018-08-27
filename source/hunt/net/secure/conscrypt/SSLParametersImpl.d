@@ -18,7 +18,7 @@ import hunt.security.x500.X500Principal;
 // import hunt.net.ssl.TrustManager;
 
 import hunt.util.exception;
-import hunt.logger;
+import hunt.logging;
 
 /**
  * The instances of this class encapsulate all the info

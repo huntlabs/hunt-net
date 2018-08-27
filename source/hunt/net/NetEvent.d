@@ -3,7 +3,7 @@ module hunt.net.NetEvent;
 import hunt.net.Session;
 import hunt.net.Config;
 
-import hunt.logger;
+import hunt.logging;
 
 /**
  * The net event callback

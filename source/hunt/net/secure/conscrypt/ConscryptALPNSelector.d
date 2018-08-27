@@ -8,7 +8,7 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSocket;
 
 import hunt.util.string;
-import hunt.logger;
+import hunt.logging;
 
 
 class ConscryptALPNSelector : ProtocolSelector {

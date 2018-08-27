@@ -9,7 +9,7 @@ import hunt.container;
 import hunt.util.exception;
 import hunt.util.functional;
 
-import hunt.logger;
+import hunt.logging;
 import hunt.io.TcpStream;
 
 import std.socket;

@@ -7,7 +7,7 @@ import hunt.net.NetSocket;
 import hunt.net.Server;
 import hunt.net.Config;
 
-import hunt.logger;
+import hunt.logging;
 import hunt.io;
 import hunt.event.EventLoop;
 

@@ -15,7 +15,7 @@ import hunt.util.string;
 
 import deimos.openssl.ssl3;
 
-import hunt.logger;
+import hunt.logging;
 import std.algorithm;
 import std.conv;
 
