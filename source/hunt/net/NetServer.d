@@ -8,8 +8,8 @@ import hunt.net.Server;
 import hunt.net.Config;
 
 import hunt.logger;
-import hunt.io.net;
-import hunt.io.event.EventLoop;
+import hunt.io;
+import hunt.event.EventLoop;
 
 alias ListenHandler = void delegate(Result!NetServer);
 

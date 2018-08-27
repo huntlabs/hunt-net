@@ -1,7 +1,7 @@
 module hunt.net.NetSocket;
 
 import hunt.logger;
-import hunt.io.net.TcpStream;
+import hunt.io.TcpStream;
 
 import hunt.net.Result;
 import std.socket;

@@ -1,5 +1,5 @@
 module hunt.net.Net;
-import hunt.io.event;
+import hunt.event;
 
 import hunt.net.NetClient;
 import hunt.net.NetServer;

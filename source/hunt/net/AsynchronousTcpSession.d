@@ -10,7 +10,7 @@ import hunt.util.exception;
 import hunt.util.functional;
 
 import hunt.logger;
-import hunt.io.net.TcpStream;
+import hunt.io.TcpStream;
 
 import std.socket;
 

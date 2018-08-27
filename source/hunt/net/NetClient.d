@@ -1,7 +1,7 @@
 module hunt.net.NetClient;
 
-import hunt.io.event.EventLoop;
-import hunt.io.net.TcpStream;
+import hunt.event.EventLoop;
+import hunt.io.TcpStream;
 
 import hunt.net.AsynchronousTcpSession;
 import hunt.net.Config;
