@@ -9,7 +9,8 @@
     "license": "Apache-2.0",
     "dependencies":{
         "kiss" : {
-            "path": "../kiss"
+            "path": "../kiss",
+            "path": "../hunt-security"
         },
         "boringssl": {"path": "../boringssl"}
     }
