@@ -67,7 +67,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         NEED_WRAP_OK = new SSLEngineResult(SSLEngineResult.Status.OK, HandshakeStatus.NEED_WRAP, 0, 0);
         NEED_WRAP_CLOSED = new SSLEngineResult(SSLEngineResult.Status.CLOSED, HandshakeStatus.NEED_WRAP, 0, 0);
         CLOSED_NOT_HANDSHAKING = new SSLEngineResult(SSLEngineResult.Status.CLOSED, HandshakeStatus.NOT_HANDSHAKING, 0, 0);
-        EMPTY = ByteBuffer.allocateDirect(0);
+        EMPTY = new HeapByteBuffer(0, 0); // ByteBuffer.allocateDirect(0);
     }
     private __gshared static ByteBuffer EMPTY;
 
@@ -1212,8 +1212,10 @@ return null;
 
     private ByteBuffer getOrCreateLazyDirectBuffer() {
         if (lazyDirectBuffer is null) {
-            lazyDirectBuffer = ByteBuffer.allocateDirect(
-                    max(SSL3_RT_MAX_PLAIN_LENGTH, SSL3_RT_MAX_PACKET_SIZE));
+            int capacity = max(SSL3_RT_MAX_PLAIN_LENGTH, SSL3_RT_MAX_PACKET_SIZE);
+            lazyDirectBuffer = new HeapByteBuffer(capacity, capacity);
+            // lazyDirectBuffer = ByteBuffer.allocateDirect(
+            //         max(SSL3_RT_MAX_PLAIN_LENGTH, SSL3_RT_MAX_PACKET_SIZE));
         }
         lazyDirectBuffer.clear();
         return lazyDirectBuffer;

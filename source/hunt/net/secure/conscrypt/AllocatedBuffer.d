@@ -67,7 +67,8 @@ abstract class BufferAllocator {
         UNPOOLED = new class BufferAllocator {
             override
             AllocatedBuffer allocateDirectBuffer(int capacity) {
-                return AllocatedBuffer.wrap(ByteBuffer.allocateDirect(capacity));
+                return AllocatedBuffer.wrap(new HeapByteBuffer(capacity,capacity));
+                // ByteBuffer.allocateDirect(capacity)
             }
         };        
     }

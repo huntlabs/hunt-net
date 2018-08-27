@@ -41,7 +41,7 @@ abstract class AbstractSecureSession : SecureSession {
 
     shared static this()
     {
-        hsBuffer = ByteBuffer.allocateDirect(0);
+        hsBuffer = new HeapByteBuffer(0,0); // ByteBuffer.allocateDirect(0);
     }
 
     this(Session session, SSLEngine sslEngine,
