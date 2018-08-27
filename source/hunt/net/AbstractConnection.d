@@ -16,7 +16,7 @@ import hunt.container.ByteBuffer;
 import hunt.util.functional;
 import hunt.util.exception;
 
-import kiss.logger;
+import hunt.logger;
 import std.socket;
 
 /**

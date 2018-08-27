@@ -10,7 +10,7 @@ import hunt.net.secure.conscrypt.NativeSslSession;
 import hunt.container;
 import hunt.util.exception;
 
-import kiss.logger;
+import hunt.logger;
 /**
  * Supports SSL session caches.
  */

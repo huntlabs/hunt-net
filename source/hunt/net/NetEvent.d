@@ -3,7 +3,7 @@ module hunt.net.NetEvent;
 import hunt.net.Session;
 import hunt.net.Config;
 
-import kiss.logger;
+import hunt.logger;
 
 /**
  * The net event callback

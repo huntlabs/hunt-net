@@ -1,5 +1,5 @@
 module hunt.net.Net;
-import kiss.event;
+import hunt.io.event;
 
 import hunt.net.NetClient;
 import hunt.net.NetServer;

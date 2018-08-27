@@ -3,7 +3,7 @@ module hunt.net.ConnectionEvent;
 import hunt.net.Connection;
 // import hunt.http.utils.function.Action1;
 // import hunt.http.utils.function.Action2;
-import kiss.logger;
+import hunt.logger;
 
 import hunt.util.functional;
 

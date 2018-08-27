@@ -40,7 +40,7 @@ import hunt.security.key;
 import hunt.util.exception;
 import hunt.util.string;
 
-import kiss.logger;
+import hunt.logger;
 import deimos.openssl.ssl;
 
 import std.algorithm;

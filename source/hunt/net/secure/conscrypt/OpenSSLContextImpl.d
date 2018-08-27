@@ -202,7 +202,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * creating the state shared between all default SSLContexts.
      */
     this() {
-        import kiss.logger;
+        import hunt.logger;
         error(false, "no certificate provided");
         super("cert/server.crt", "cert/server.key");
     }
