@@ -8,8 +8,8 @@
     ],
     "license": "Apache-2.0",
     "dependencies":{
-        "kiss" : {
-            "path": "../kiss"
+        "hunt" : {
+            "path": "../hunt"
         },
         "hunt-security" : {
             "path": "../hunt-security"
