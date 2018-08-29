@@ -119,7 +119,7 @@ abstract class SSLContextSpi {
     abstract SSLSessionContext engineGetClientSessionContext();
 
     private SSLSocket getDefaultSocket() {
-        implementationMissing();
+        implementationMissing(false);
         return null;
         // try {
         //     SSLSocketFactory factory = engineGetSocketFactory();
@@ -149,7 +149,9 @@ abstract class SSLContextSpi {
      */
     SSLParameters engineGetDefaultSSLParameters() {
         SSLSocket socket = getDefaultSocket();
-        return socket.getSSLParameters();
+        // return socket.getSSLParameters();
+        implementationMissing(false);
+        return null;
     }
 
     /**
@@ -174,8 +176,9 @@ abstract class SSLContextSpi {
     SSLParameters engineGetSupportedSSLParameters() {
         SSLSocket socket = getDefaultSocket();
         SSLParameters params = new SSLParameters();
-        params.setCipherSuites(socket.getSupportedCipherSuites());
-        params.setProtocols(socket.getSupportedProtocols());
+        implementationMissing(false);
+        // params.setCipherSuites(socket.getSupportedCipherSuites());
+        // params.setProtocols(socket.getSupportedProtocols());
         return params;
     }
 

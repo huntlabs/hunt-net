@@ -13,7 +13,29 @@
         },
         "hunt-security" : {
             "path": "../hunt-security"
+        }
+    },
+    "configurations":[
+        {
+            "name": "default"
         },
-        "boringssl": {"path": "../boringssl"}
-    }
+        {
+            "name": "boringssl",
+            "versions": [
+                "BoringSSL"
+            ],
+            "dependencies": {                
+                "boringssl": {"path": "../boringssl"}
+            }
+        },
+        {
+            "name": "openssl",
+            "versions": [
+                "OpenSSL"
+            ],
+            "dependencies": {                
+                "openssl": {"path": "../openssl"}
+            }
+        }
+    ]
 }
