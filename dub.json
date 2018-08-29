@@ -7,13 +7,9 @@
         "zhangxueping"
     ],
     "license": "Apache-2.0",
-    "dependencies":{
-        "hunt" : {
-            "path": "../hunt"
-        },
-        "hunt-security" : {
-            "path": "../hunt-security"
-        }
+    "dependencies":{        
+        "hunt" : "~>1.0.0-beta.1",
+        "hunt-security" : "~>0.0.1"
     },
     "configurations":[
         {
@@ -25,7 +21,7 @@
                 "BoringSSL"
             ],
             "dependencies": {                
-                "boringssl": {"path": "../boringssl"}
+                "boringssl": "~>0.0.1"
             }
         },
         {
@@ -34,7 +30,7 @@
                 "OpenSSL"
             ],
             "dependencies": {                
-                "openssl": {"path": "../openssl"}
+                "openssl": "~>1.1.6+1.0.1g"
             }
         }
     ]
