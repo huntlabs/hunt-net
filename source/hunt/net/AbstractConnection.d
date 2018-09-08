@@ -1,12 +1,5 @@
 module hunt.net.AbstractConnection;
 
-// import hunt.net.exception.SecureNetException;
-// import hunt.util.functional;
-// import hunt.http.utils.concurrent.Scheduler;
-// import hunt.http.utils.concurrent.Schedulers;
-// import hunt.http.utils.function.Action2;
-// import hunt.util.io;
-
 import hunt.net.Connection;
 import hunt.net.ConnectionExtInfo;
 import hunt.net.secure.SecureSession;
