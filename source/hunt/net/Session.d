@@ -22,11 +22,14 @@ interface Session {
 
     void notifyMessageReceived(Object message);
 
-    void encode(ByteBuffer message);
+    void encode(Object message);
 
     void encode(ByteBuffer[] message);
 
+    // void encode(ByteBufferOutputEntry message);
+
     // void write(OutputEntry<?> entry);
+    // void write(ByteBufferOutputEntry entry);
 
     void write(ByteBuffer byteBuffer, Callback callback);
 

@@ -2,6 +2,7 @@ module hunt.net.AbstractConnection;
 
 import hunt.net.Connection;
 import hunt.net.ConnectionExtInfo;
+import hunt.net.OutputEntry;
 import hunt.net.secure.SecureSession;
 import hunt.net.Session;
 
@@ -147,15 +148,15 @@ abstract class AbstractConnection  : Connection, ConnectionExtInfo
         }
     }
 
-    // void encrypt(ByteBufferOutputEntry entry) {
-    //     encrypt(entry, (buffers, callback) {
-    //         try {
-    //             secureSession.write(buffers, callback);
-    //         } catch (IOException e) {
-    //             throw new SecureNetException("encrypt exception", e);
-    //         }
-    //     });
-    // }
+    void encrypt(ByteBufferOutputEntry entry) {
+        encrypt!(ByteBuffer)(entry, (buffers, callback) {
+            try {
+                secureSession.write(buffers, callback);
+            } catch (IOException e) {
+                throw new SecureNetException("encrypt exception", e);
+            }
+        });
+    }
 
     // void encrypt(ByteBufferArrayOutputEntry entry) {
     //     encrypt(entry, (buffers, callback) {
@@ -184,9 +185,9 @@ abstract class AbstractConnection  : Connection, ConnectionExtInfo
         }
     }
 
-    private void encrypt(T)(OutputEntry!T entry, Action2!(T, Callback) encrypt) {
+    private void encrypt(T)(OutputEntry!T entry, Action2!(T, Callback) et) {
         if (isEncrypted()) {
-            encrypt.call(entry.getData(), entry.getCallback());
+            et(entry.getData(), entry.getCallback());
         }
     }
 

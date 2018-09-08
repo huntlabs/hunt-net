@@ -1,8 +1,9 @@
 module hunt.net.AsynchronousTcpSession;
 
-import hunt.net.NetSocket;
 import hunt.net.Config;
 import hunt.net.NetEvent;
+import hunt.net.NetSocket;
+import hunt.net.OutputEntry;
 import hunt.net.Session;
 
 import hunt.container;
@@ -44,10 +45,28 @@ class AsynchronousTcpSession : NetSocket, Session
         return attachment;
     }
 
-    override
-    void encode(ByteBuffer message) {
+    void encode(Object message) {
         try {
             _config.getEncoder().encode(message, this);
+        } catch (Exception t) {
+            _netEvent.notifyExceptionCaught(this, t);
+        }
+    }
+
+    // void encode(ByteBuffer message) {
+    //     try {
+    //         _config.getEncoder().encode(message, this);
+    //     } catch (Exception t) {
+    //         _netEvent.notifyExceptionCaught(this, t);
+    //     }
+    // }
+
+    void encode(ByteBuffer[] messages){ 
+        try {
+            foreach(ByteBuffer message; messages)
+            {
+                _config.getEncoder().encode(message, this);
+            }
         } catch (Exception t) {
             _netEvent.notifyExceptionCaught(this, t);
         }
@@ -65,6 +84,23 @@ class AsynchronousTcpSession : NetSocket, Session
         super.write(cast(ubyte[])data[start .. end]);
         callback.succeeded();
     }
+
+
+    // override
+    // void write(ByteBufferOutputEntry entry) {
+    //     ByteBuffer buffer = entry.getData();
+    //     Callback callback = entry.getCallback();
+    //     write(buffer, callback);
+    //     // version(HuntDebugMode)
+    //     // tracef("writting buffer: %s", buffer.toString());
+
+    //     // byte[] data = buffer.array;
+    //     // int start = buffer.position();
+    //     // int end = buffer.limit();
+
+    //     // super.write(cast(ubyte[])data[start .. end]);
+    //     // callback.succeeded();
+    // }
 
     override
     void write(ByteBuffer[] buffers, Callback callback) {
@@ -96,16 +132,6 @@ class AsynchronousTcpSession : NetSocket, Session
 
     void notifyMessageReceived(Object message){ implementationMissing(false); }
 
-    void encode(ByteBuffer[] messages){ 
-        try {
-            foreach(ByteBuffer message; messages)
-            {
-                _config.getEncoder().encode(message, this);
-            }
-        } catch (Exception t) {
-            _netEvent.notifyExceptionCaught(this, t);
-        }
-    }
 
     int getSessionId(){ return sessionId; }
 
