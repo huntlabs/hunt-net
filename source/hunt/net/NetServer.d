@@ -10,6 +10,7 @@ import hunt.net.Config;
 import hunt.logging;
 import hunt.io;
 import hunt.event.EventLoop;
+import std.conv;
 
 alias ListenHandler = void delegate(Result!NetServer);
 
@@ -21,16 +22,19 @@ class NetServer : Server
     private Config _config;
     private NetEvent netEvent;
     private AsynchronousTcpSession tcpSession;
+    private EventLoop _loop;
+    private TcpListener _listener;
+    private Handler _handler;
+
+    protected bool _isStarted;
 
     int actualPort()
     {
-        import std.conv;
         return to!int(_listener.localAddress.toPortString());
     }
 
     void close()
     {
-        // _listener.close();
         stop();
     }
 
@@ -41,8 +45,7 @@ class NetServer : Server
         return this;
     }
 
-    NetServer listen(int port = 0 , string host = "0.0.0.0" ,
-        ListenHandler handler = null)
+    NetServer listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null)
     {
         // if (config == null)
         //     throw new NetException("server configuration is null");
@@ -51,36 +54,37 @@ class NetServer : Server
         _port = port;
         bool suc = true;
         Result!NetServer result = null;
-        try{
-            
+        try
+        {
+
             _listener = new TcpListener(_loop);
-            _listener.bind(_host , cast(ushort)_port);
+            _listener.bind(_host, cast(ushort) _port);
             _listener.listen(1024);
-            
-            _listener.onConnectionAccepted( (TcpListener sender, TcpStream stream) {
-                    _sessionId++;
-                    AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId, _config, netEvent, stream); // NetSocket(stream);
-                    netEvent.notifySessionOpened(session);
-                    if(_handler !is  null)
-                        _handler(session);
-                }
-            );
+
+            _listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
+                _sessionId++;
+                AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId,
+                    _config, netEvent, stream); // NetSocket(stream);
+                netEvent.notifySessionOpened(session);
+                if (_handler !is null)
+                    _handler(session);
+            });
 
             _listener.start();
             _isStarted = true;
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             result = new Result!NetServer(e);
-             _config.getHandler().failedOpeningSession(0, e);
+            _config.getHandler().failedOpeningSession(0, e);
         }
-        
-        if(result !is null)
+
+        if (result !is null)
         {
             result = new Result!NetServer(this);
         }
 
-        if(handler !is null)
+        if (handler !is null)
             handler(result);
 
         return this;
@@ -97,22 +101,23 @@ class NetServer : Server
         listen(port, host);
     }
 
-    override
-    bool isStarted() {
+    override bool isStarted()
+    {
         return _isStarted;
     }
 
-    override
-    bool isStopped() {
+    override bool isStopped()
+    {
         return !_isStarted;
     }
 
-    override
-    void start() {
+    override void start()
+    {
         if (isStarted())
             return;
 
-        synchronized (this) {
+        synchronized (this)
+        {
             if (isStarted())
                 return;
 
@@ -122,12 +127,13 @@ class NetServer : Server
         }
     }
 
-    override
-    void stop() {
+    override void stop()
+    {
         if (isStopped())
             return;
 
-        synchronized (this) {
+        synchronized (this)
+        {
             if (isStopped())
                 return;
 
@@ -138,6 +144,10 @@ class NetServer : Server
         }
     }
 
+    EventLoop eventLoop()
+    {
+        return _loop;
+    }
 
 package:
     this(EventLoop loop)
@@ -145,11 +155,4 @@ package:
         _loop = loop;
     }
 
-
-    protected bool _isStarted;
-
-private:
-        EventLoop       _loop;
-        TcpListener     _listener;
-        Handler         _handler;
 }
