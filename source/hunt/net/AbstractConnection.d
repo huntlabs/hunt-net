@@ -1,7 +1,6 @@
 module hunt.net.AbstractConnection;
 
 import hunt.net.Connection;
-import hunt.net.ConnectionExtInfo;
 import hunt.net.OutputEntry;
 import hunt.net.secure.SecureSession;
 import hunt.net.Session;
@@ -16,7 +15,7 @@ import std.socket;
 /**
  * 
  */
-abstract class AbstractConnection  : Connection, ConnectionExtInfo 
+abstract class AbstractConnection  : Connection
 {
     // static Scheduler scheduler = Schedulers.createScheduler();
 

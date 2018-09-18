@@ -1,6 +1,7 @@
 module hunt.net.Connection;
 
 import hunt.util.common;
+import hunt.net.ConnectionType;
 
 import std.socket;
 
@@ -40,4 +41,7 @@ interface Connection : Closeable {
 
     Address getRemoteAddress();
 
+    ConnectionType getConnectionType();
+
+    bool isEncrypted();
 }
