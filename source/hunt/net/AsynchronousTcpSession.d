@@ -74,7 +74,7 @@ class AsynchronousTcpSession : NetSocket, Session
 
     override
     void write(ByteBuffer buffer, Callback callback) {
-        version(HuntDebugMode)
+        version(HUNT_DEBUG)
         tracef("writting buffer: %s", buffer.toString());
 
         byte[] data = buffer.array;
@@ -91,7 +91,7 @@ class AsynchronousTcpSession : NetSocket, Session
     //     ByteBuffer buffer = entry.getData();
     //     Callback callback = entry.getCallback();
     //     write(buffer, callback);
-    //     // version(HuntDebugMode)
+    //     // version(HUNT_DEBUG)
     //     // tracef("writting buffer: %s", buffer.toString());
 
     //     // byte[] data = buffer.array;
@@ -105,7 +105,7 @@ class AsynchronousTcpSession : NetSocket, Session
     override
     void write(ByteBuffer[] buffers, Callback callback) {
         foreach (ByteBuffer buffer ; buffers) { 
-            version(HuntDebugMode)
+            version(HUNT_DEBUG)
             tracef("writting buffer: %s", buffer.toString());
 
             byte[] data = buffer.array;

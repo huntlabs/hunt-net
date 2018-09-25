@@ -358,7 +358,7 @@ final class NativeCrypto {
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
         SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
 
-        version(HuntDebugMode) tracef("SSL_CTX_new => %s", ctx);
+        version(HUNT_DEBUG) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
     }
 
@@ -448,7 +448,7 @@ final class NativeCrypto {
             return 0;
         }
 
-        version(HuntDebugMode) tracef("SSL_new => %s", ssl);
+        version(HUNT_DEBUG) tracef("SSL_new => %s", ssl);
 
         /*
         * Create our special application data.
@@ -464,7 +464,7 @@ final class NativeCrypto {
         deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
         SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
-        version(HuntDebugMode) tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
+        version(HUNT_DEBUG) tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
         // implementationMissing(false);
         return cast(long)ssl;        
     }
@@ -857,7 +857,7 @@ return null;
         const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
         const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
         string s = cast(string)fromStringz(kx_name);
-        version(HuntDebugMode) trace("cipher name: ", s);
+        version(HUNT_DEBUG) trace("cipher name: ", s);
         return s;        
     }
 
@@ -890,7 +890,8 @@ return null;
             cipherNamesArray[2 * i + 1] = opensslName;
         }
 
-        tracef("get_cipher_names(%s) => success (%d entries)", selector, 2 * size);
+        // version(HUNT_DEBUG)
+        // tracef("get_cipher_names(%s) => success (%d entries)", selector, 2 * size);
         return cipherNamesArray;     
         
     }
@@ -1106,7 +1107,7 @@ return null;
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
-            version(HuntDebugMode) infof("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
+            version(HUNT_DEBUG) infof("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
             return code;
         }
 
@@ -1236,7 +1237,7 @@ return null;
             }
         }
 
-        version(HuntDebugMode) {
+        version(HUNT_DEBUG) {
             tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d result=%d",
                     ssl, destPtr, length,  result);
             if(result>16)
@@ -1281,7 +1282,7 @@ return null;
 
         int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
                 ssl, sourcePtr, len, shc, result);
         return result;
     }
@@ -1329,7 +1330,7 @@ return null;
 
         int result = deimos.openssl.ssl.BIO_write(bio, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
+        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
                 ssl, bio, sourcePtr, len, result);
         return result;
     }
@@ -1380,7 +1381,7 @@ return null;
 
         int result = BIO_read(bio, destPtr, outputSize);
         appData.clearCallbackState();
-        version(HuntDebugMode) tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
+        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
                 ssl, bio, destPtr, outputSize, shc, result);
         return result;
     }
@@ -2324,7 +2325,7 @@ implementationMissing(false);
         for (size_t i = 0; i < count; i++) {
             ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
         }
-        version(HuntDebugMode) trace("ciphers: ", ciphers.length);
+        version(HUNT_DEBUG) trace("ciphers: ", ciphers.length);
         return ciphers;        
     }
 

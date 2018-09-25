@@ -50,7 +50,7 @@ class NetSocket
     ////
     NetSocket   write(in ubyte[] data)
     {
-        version(HuntDebugMode) {
+        version(HUNT_DEBUG) {
             if(data.length<=64)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else

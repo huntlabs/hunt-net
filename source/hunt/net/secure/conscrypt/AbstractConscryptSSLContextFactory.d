@@ -42,12 +42,12 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     }
 
     SSLContext getSSLContextWithManager(KeyManager[] km, TrustManager[] tm){
-        version(HuntDebugMode) long start = Clock.currStdTime;
+        version(HUNT_DEBUG) long start = Clock.currStdTime;
 
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2", provideName);
         sslContext.init(km, tm);
 
-        version(HuntDebugMode) {
+        version(HUNT_DEBUG) {
             long end = Clock.currStdTime;
             long d = convert!(TimeUnits.HectoNanosecond, TimeUnits.Millisecond)(end - start);
             tracef("creating Conscrypt SSL context spends %d ms", d);
@@ -61,7 +61,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
     SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword,
                                     string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
-        version(HuntDebugMode) StopWatch sw = StopWatch(AutoStart.yes);
+        version(HUNT_DEBUG) StopWatch sw = StopWatch(AutoStart.yes);
         SSLContext sslContext;
 
         // KeyStore ks = KeyStore.getInstance("JKS");
@@ -78,7 +78,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-        version(HuntDebugMode) {
+        version(HUNT_DEBUG) {
             sw.stop();
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
         }
@@ -89,7 +89,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
     SSLContext getSSLContext(string certificate, string privatekey, string keystorePassword, string keyPassword,
                                     string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
-        version(HuntDebugMode) StopWatch sw = StopWatch(AutoStart.yes);
+        version(HUNT_DEBUG) StopWatch sw = StopWatch(AutoStart.yes);
         SSLContext sslContext;
 
         // // PKIX,SunX509
@@ -103,7 +103,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         sslContext = SSLContext.getInstance(certificate, privatekey, sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-        version(HuntDebugMode) {
+        version(HUNT_DEBUG) {
             sw.stop();
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
         }
