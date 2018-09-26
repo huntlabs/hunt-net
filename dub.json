@@ -8,8 +8,8 @@
     ],
     "license": "Apache-2.0",
     "dependencies":{        
-        "hunt" : "~>1.0.0-beta.1",
-        "hunt-security" : "~>0.0.1"
+        "hunt" : {"path": "../hunt"},
+        "hunt-security" : {"path": "../hunt-security"}
     },
     "configurations":[
         {
@@ -21,7 +21,7 @@
                 "BoringSSL"
             ],
             "dependencies": {                
-                "boringssl": "~>0.0.1"
+                "boringssl": {"path": "../boringssl"}
             }
         },
         {
@@ -30,7 +30,7 @@
                 "OpenSSL"
             ],
             "dependencies": {                
-                "openssl": "~>1.1.6+1.0.1g"
+                "openssl": {"path": "../openssl"}
             }
         }
     ]
