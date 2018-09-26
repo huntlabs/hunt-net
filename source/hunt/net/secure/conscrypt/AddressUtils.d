@@ -1,6 +1,6 @@
 module hunt.net.secure.conscrypt.AddressUtils;
 
-import hunt.util.string;
+import hunt.string;
 
 /**
  * Utilities to check whether IP addresses meet some criteria.

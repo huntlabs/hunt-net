@@ -7,7 +7,7 @@ import hunt.net.secure.conscrypt.OpenSSLKeyHolder;
 import hunt.security.key;
 
 import hunt.util.exception;
-import hunt.util.string;
+import hunt.string;
 
 /**
  * Represents a BoringSSL {@code EVP_PKEY}.

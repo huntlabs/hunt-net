@@ -38,7 +38,7 @@ import hunt.net.ssl.SSLSession;
 import hunt.security.key;
 
 import hunt.util.exception;
-import hunt.util.string;
+import hunt.string;
 
 import hunt.logging;
 import deimos.openssl.ssl;

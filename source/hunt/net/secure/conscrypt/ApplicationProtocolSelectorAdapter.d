@@ -6,7 +6,7 @@ import hunt.net.secure.conscrypt.SSLUtils;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSocket;
 
-import hunt.util.string;
+import hunt.string;
 import std.array;
 
 

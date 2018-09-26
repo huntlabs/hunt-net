@@ -1,7 +1,7 @@
 module hunt.net.ssl.SNIServerName;
 
 import hunt.util.exception;
-import hunt.util.string;
+import hunt.string;
 
 import std.conv;
 

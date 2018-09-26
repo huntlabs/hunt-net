@@ -10,7 +10,7 @@ import deimos.openssl.err;
 
 import hunt.container;
 import hunt.util.exception;
-import hunt.util.string;
+import hunt.string;
 
 import hunt.logging;
 
