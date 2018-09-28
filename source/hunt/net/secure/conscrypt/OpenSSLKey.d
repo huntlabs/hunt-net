@@ -165,7 +165,11 @@ final class OpenSSLKey {
             return null;
         }
         try {
-            return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
+            version(BoringSSL) return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
+            version(OpenSSL) {
+                implementationMissing(false);
+                return null;
+            }
         } catch (ParsingException e) {
             throw new InvalidKeyException(e.msg);
         }

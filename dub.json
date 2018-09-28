@@ -13,7 +13,10 @@
     },
     "configurations":[
         {
-            "name": "default"
+            "name": "default",
+            "versions": [
+                "NoSSL"
+            ]
         },
         {
             "name": "boringssl",
@@ -28,6 +31,16 @@
             "name": "openssl",
             "versions": [
                 "OpenSSL"
+            ],
+            "dependencies": {                
+                "openssl": "~>1.1.6+1.0.1g"
+            }
+        },
+        {
+            "name": "opensslv11",
+            "versions": [
+                "OpenSSL",
+                "DeimosOpenSSLv1_1"
             ],
             "dependencies": {                
                 "openssl": "~>1.1.6+1.0.1g"

@@ -170,39 +170,6 @@ final class NativeCrypto {
         return cast(T*)contextObject.context;
     }
 
-    static ubyte[] CryptoBufferToByteArray(const(CRYPTO_BUFFER)* buf) {
-
-        size_t length = CRYPTO_BUFFER_len(buf);
-
-        if (length > size_t.max) {
-            tracef("buffer too large");
-            return null;
-        }
-
-        ubyte* bufferData = CRYPTO_BUFFER_data(buf);
-        ubyte[] ret = bufferData[0..length].dup;
-
-        return ret;
-    }
-
-    static ubyte[][] CryptoBuffersToObjectArray(STACK_OF!(CRYPTO_BUFFER) * buffers) {
-        int numBuffers = sk_CRYPTO_BUFFER_num(buffers);
-        if (numBuffers > int.max) {
-            error("too many buffers");
-            return null;
-        }
-
-        ubyte[][] array = new ubyte[][numBuffers];
-
-        for (int i = 0; i < numBuffers; ++i) {
-            CRYPTO_BUFFER* buffer = sk_CRYPTO_BUFFER_value(buffers, i);
-            ubyte[] bArray = CryptoBufferToByteArray(buffer);
-            array[i] = bArray;
-        }
-
-        return array;
-    }
-
 
     /**
     * Selects the ALPN protocol to use. The list of protocols in "primary" is considered the order
@@ -297,54 +264,6 @@ final class NativeCrypto {
                                 inBuffer, inLen);
     }
 
-    extern(C) static ssl_verify_result_t cert_verify_callback(SSL* ssl, uint8_t* out_alert) {
-        tracef("ssl=%s cert_verify_callback", ssl);
-
-        AppData* appData = toAppData(ssl);
-        if(appData is null)
-        {
-            warning("appData is null");
-            return ssl_verify_result_t.ssl_verify_invalid;
-
-        }
-        // tracef("appData.name=%s", appData.name);
-        // JNIEnv* env = appData.env;
-        // if (env is null) {
-        //     CONSCRYPT_LOG_ERROR("AppData.env missing in cert_verify_callback");
-        //     tracef("ssl=%s cert_verify_callback => 0", ssl);
-        //     return ssl_verify_invalid;
-        // }
-
-        // Create the byte[][] array that holds all the certs
-        // byte[][] array;
-        // deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
-
-        // if (array is null) {
-        //     return ssl_verify_result_t.ssl_verify_invalid;
-        // }
-
-        // jobject sslHandshakeCallbacks = appData.sslHandshakeCallbacks;
-        // jclass cls = env.GetObjectClass(sslHandshakeCallbacks);
-        // jmethodID methodID =
-        //         env.GetMethodID(cls, "verifyCertificateChain", "([[BLjava/lang/String;)V");
-
-        // const SSL_CIPHER* cipher = SSL_get_pending_cipher(ssl);
-        // const char* authMethod = SSL_CIPHER_get_kx_name(cipher);
-
-        // tracef("ssl=%s cert_verify_callback calling verifyCertificateChain authMethod=%s", ssl,
-        //         authMethod);
-        // jstring authMethodString = env.NewStringUTF(authMethod);
-        // env.CallVoidMethod(sslHandshakeCallbacks, methodID, array.get(), authMethodString);
-
-        // // We need to delete the local references so we not leak memory as this method is called
-        // // via callback.
-        // env.DeleteLocalRef(authMethodString);
-
-        ssl_verify_result_t result = ssl_verify_result_t.ssl_verify_ok;
-        // tracef("ssl=%s cert_verify_callback => %d", ssl, result);
-        return result;
-    }
-
     /**
      * Returns 1 if the BoringSSL believes the CPU has AES accelerated hardware
      * instructions. Used to determine cipher suite ordering.
@@ -356,7 +275,9 @@ final class NativeCrypto {
         // BUG: Reported defects -@zxp at 8/23/2018, 4:42:28 PM
         // It doesn't work wiht TLS Server
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
-        SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
+
+        version(BoringSSL) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
+        version(OpenSSL) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
         version(HUNT_DEBUG) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
@@ -462,10 +383,11 @@ final class NativeCrypto {
         }
         appData.name = "<<SSL_new>>";
         deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
-        SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
-        version(HUNT_DEBUG) tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
-        // implementationMissing(false);
+        version(BoringSSL) SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
+
+        version(HUNT_DEBUG) 
+            tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
         return cast(long)ssl;        
     }
 
@@ -573,53 +495,6 @@ implementationMissing(false);
         // tracef("ssl=%s SSL_set1_tls_channel_id => ok", ssl);        
     }
 
-    /**
-     * Sets the local certificates and private key.
-     *
-     * @param ssl the SSL reference.
-     * @param encodedCertificates the encoded form of the local certificate chain.
-     * @param pkey a reference to the private key.
-     * @ if a problem occurs setting the cert/key.
-     */
-    static void setLocalCertsAndPrivateKey(long ssl_address, byte[][] encodedCertificates,
-        NativeRef.EVP_PKEY pkeyRef) {
-
-        SSL* ssl = to_SSL(ssl_address);
-        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key", ssl);
-        if (ssl is null) {
-            return;
-        }
-        
-        size_t numCerts = encodedCertificates.length;
-        if (numCerts == 0) {
-            warning("certificates.length == 0");
-            return;
-        }
-        if (pkeyRef is null) {
-            warning("privateKey is null");
-            return;
-        }
-
-        // Get the private key.
-        EVP_PKEY* pkey = fromContextObject!EVP_PKEY(pkeyRef);
-        if (pkey is null) {
-            warning("pkey is null");
-            return;
-        }
-
-        // Copy the certificates.
-        CRYPTO_BUFFER*[] certBuffers = new CRYPTO_BUFFER*[numCerts];
-        for (size_t i = 0; i < numCerts; ++i) {
-            certBuffers[i] = ByteArrayToCryptoBuffer(encodedCertificates[i], null);
-        }
-
-        if (!deimos.openssl.ssl.SSL_set_chain_and_key(ssl, certBuffers.ptr, numCerts, pkey, null)) {
-            error("Error configuring certificate");
-            return;
-        }
-        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key => ok", ssl);
-    }
-
     // static void SSL_set_client_CA_list(long ssl_address, byte[][] asn1DerEncodedX500Principals)
     //         ;
 
@@ -678,14 +553,6 @@ implementationMissing(false);
         // return result;        
     }
 
-    static void SSL_enable_signed_cert_timestamps(long ssl_address) {
-        SSL* ssl = to_SSL(ssl_address);
-        if (ssl is null) {
-            return;
-        }
-        deimos.openssl.ssl.SSL_enable_signed_cert_timestamps(ssl);        
-    }
-
     static byte[] SSL_get_signed_cert_timestamp_list(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
@@ -723,15 +590,6 @@ return null;
         // } else {
         //     infof("ssl=%s SSL_set_signed_cert_timestamp_list => ok", ssl);
         // }        
-    }
-
-    static void SSL_enable_ocsp_stapling(long ssl_address) {
-        SSL* ssl = to_SSL(ssl_address);
-        if (ssl is null) {
-            return;
-        }
-
-        deimos.openssl.ssl.SSL_enable_ocsp_stapling(ssl);        
     }
 
     static byte[] SSL_get_ocsp_response(long ssl_address) {
@@ -853,24 +711,19 @@ return null;
     }
 
 
-    static string SSL_CIPHER_get_kx_name(long cipher_address) {
-        const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
-        const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
-        string s = cast(string)fromStringz(kx_name);
-        version(HUNT_DEBUG) trace("cipher name: ", s);
-        return s;        
-    }
-
     static string[] get_cipher_names(string selector) {
         if (selector.empty) {
             warning("selector is null");
             return null;
         }
 
+        version(BoringSSL) 
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
-        // SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
-        SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
 
+        version(OpenSSL)
+        SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+
+        SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
         if (!SSL_set_cipher_list(ssl, selector.toStringz())) {
             warning("Unable to set SSL cipher list");
             return null;
@@ -884,10 +737,16 @@ return null;
         // Return an array of standard and OpenSSL name pairs.
         for (int i = 0; i < size; i++) {
             const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
-            string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
-            string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
-            cipherNamesArray[2 * i] = cipherName;
-            cipherNamesArray[2 * i + 1] = opensslName;
+            version(BoringSSL) {
+                string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
+                string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
+                cipherNamesArray[2 * i] = cipherName;
+                cipherNamesArray[2 * i + 1] = opensslName;
+            } else version(OpenSSL) {
+                string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
+                cipherNamesArray[2 * i] = opensslName;
+                cipherNamesArray[2 * i + 1] = opensslName;
+            }
         }
 
         // version(HUNT_DEBUG)
@@ -962,18 +821,6 @@ return null;
     }
 
     /**
-     * Returns the maximum overhead, in bytes, of sealing a record with SSL.
-     */
-    static int SSL_max_seal_overhead(long ssl_address) {
-        SSL* ssl = to_SSL(ssl_address);
-        if (ssl is null) {
-            return 0;
-        }
-
-        return cast(int)deimos.openssl.ssl.SSL_max_seal_overhead(ssl);        
-    }
-
-    /**
      * Enables ALPN for this TLS endpoint and sets the list of supported ALPN protocols in
      * wire-format (length-prefixed 8-bit strings).
      */
@@ -996,7 +843,12 @@ return null;
 
         if (client_mode) {
             const(ubyte)* tmp = cast(const(ubyte)*)protocols.ptr;
+            version(BoringSSL) 
             int ret = deimos.openssl.ssl.SSL_set_alpn_protos(ssl, tmp, cast(uint)(protocols.length));
+            version(OpenSSL) {
+                implementationMissing(false);
+                int ret=0;
+            }
             if (ret != 0) {
                 warning("Unable to set ALPN protocols for client");
                 return;
@@ -1009,7 +861,7 @@ return null;
             }
             SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
 
-        implementationMissing(false);
+            implementationMissing(false);
             // SSL_CTX_set_alpn_select_cb(ctx, alpn_select_callback, null);
         }
     }
@@ -1033,7 +885,9 @@ return null;
 
         appData.setApplicationProtocolSelector(cast(void*)selector);
         if (selector !is null) {
-            SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
+            version(BoringSSL) SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
+
+            version(OpenSSL) implementationMissing(false);
         }
     }
 
@@ -1520,25 +1374,6 @@ implementationMissing(false);
     // static int EVP_PKEY_cmp(NativeRef.EVP_PKEY pkey1, NativeRef.EVP_PKEY pkey2);
 
     // static byte[] EVP_marshal_private_key(NativeRef.EVP_PKEY pkey);
-
-    static long EVP_parse_private_key(byte[] data) {
-        tracef("EVP_parse_private_key(lenght=%d)", data.length);
-
-        CBS cbs;
-        CBS_init(&cbs, cast(const(uint8_t)*)(data.ptr), data.length);
-        EVP_PKEY* pkey = deimos.openssl.evp.EVP_parse_private_key(&cbs);
-        // We intentionally do not check that cbs is exhausted, as JCA providers typically
-        // allow parsing keys from buffers that are larger than the contained key structure
-        // so we do the same for compatibility.
-        if (!pkey) {
-            warning("Error parsing private key");
-            ERR_clear_error();
-            return 0;
-        }
-
-        tracef("EVP_parse_private_key => %s", pkey);
-        return cast(long)(pkey);        
-    }
 
     // static byte[] EVP_marshal_public_key(NativeRef.EVP_PKEY pkey);
 
@@ -2443,6 +2278,8 @@ implementationMissing(false);
         if (ssl is null) {
             return;
         }
+
+        version(BoringSSL)
         deimos.openssl.ssl.SSL_set_renegotiate_mode(ssl, ssl_renegotiate_mode_t.ssl_renegotiate_freely);        
     }
 
@@ -2652,29 +2489,6 @@ return null;
         return cast(string)fromStringz(protocol);        
     }
 
-    /**
-     * Returns the peer certificate chain.
-     */
-    static ubyte[][] SSL_get0_peer_certificates(long ssl_address) {
-        SSL* ssl = to_SSL(ssl_address);
-        if (ssl is null) {
-            return null;
-        }
-        STACK_OF!(CRYPTO_BUFFER)* chain = deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
-        if (chain is null) {
-            return null;
-        }
-
-        // ScopedLocalRef<jobjectArray> array(env, CryptoBuffersToObjectArray(env, chain));
-        // if (array.get() is null) {
-        //     return null;
-        // }
-
-        // tracef("ssl=%s SSL_get0_peer_certificates => %s", ssl, array.get());
-        // return array.release(); 
-        return CryptoBuffersToObjectArray(chain);  
-    }
-
     // /**
     //  * Reads with the SSL_read function from the encrypted data stream
     //  * @return -1 if error or the end of the stream is reached.
@@ -2806,9 +2620,223 @@ return null;
 
     // static long d2i_SSL_SESSION(byte[] data) ;
 
+
+
+version(BoringSSL) {
+
+    static void SSL_enable_signed_cert_timestamps(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            return;
+        }
+        deimos.openssl.ssl.SSL_enable_signed_cert_timestamps(ssl);        
+    }
+
+    static void SSL_enable_ocsp_stapling(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            return;
+        }
+
+        deimos.openssl.ssl.SSL_enable_ocsp_stapling(ssl);        
+    }
+
+    static string SSL_CIPHER_get_kx_name(long cipher_address) {
+        const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
+        const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
+        string s = cast(string)fromStringz(kx_name);
+        version(HUNT_DEBUG) trace("cipher name: ", s);
+        return s;        
+    }
+
+    /**
+     * Returns the maximum overhead, in bytes, of sealing a record with SSL.
+     */
+    static int SSL_max_seal_overhead(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            return 0;
+        }
+
+        return cast(int)deimos.openssl.ssl.SSL_max_seal_overhead(ssl);        
+    }
+
+    /**
+     * Sets the local certificates and private key.
+     *
+     * @param ssl the SSL reference.
+     * @param encodedCertificates the encoded form of the local certificate chain.
+     * @param pkey a reference to the private key.
+     * @ if a problem occurs setting the cert/key.
+     */
+    static void setLocalCertsAndPrivateKey(long ssl_address, byte[][] encodedCertificates,
+        NativeRef.EVP_PKEY pkeyRef) {
+
+        SSL* ssl = to_SSL(ssl_address);
+        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key", ssl);
+        if (ssl is null) {
+            return;
+        }
+        
+        size_t numCerts = encodedCertificates.length;
+        if (numCerts == 0) {
+            warning("certificates.length == 0");
+            return;
+        }
+        if (pkeyRef is null) {
+            warning("privateKey is null");
+            return;
+        }
+
+        // Get the private key.
+        EVP_PKEY* pkey = fromContextObject!EVP_PKEY(pkeyRef);
+        if (pkey is null) {
+            warning("pkey is null");
+            return;
+        }
+
+        // Copy the certificates.
+        CRYPTO_BUFFER*[] certBuffers = new CRYPTO_BUFFER*[numCerts];
+        for (size_t i = 0; i < numCerts; ++i) {
+            certBuffers[i] = ByteArrayToCryptoBuffer(encodedCertificates[i], null);
+        }
+
+        if (!deimos.openssl.ssl.SSL_set_chain_and_key(ssl, certBuffers.ptr, numCerts, pkey, null)) {
+            error("Error configuring certificate");
+            return;
+        }
+        tracef("ssl=%s NativeCrypto_SSL_set_chain_and_key => ok", ssl);
+    }
+
+    static long EVP_parse_private_key(byte[] data) {
+        tracef("EVP_parse_private_key(lenght=%d)", data.length);
+
+        CBS cbs;
+        CBS_init(&cbs, cast(const(uint8_t)*)(data.ptr), data.length);
+        EVP_PKEY* pkey = deimos.openssl.evp.EVP_parse_private_key(&cbs);
+        // We intentionally do not check that cbs is exhausted, as JCA providers typically
+        // allow parsing keys from buffers that are larger than the contained key structure
+        // so we do the same for compatibility.
+        if (!pkey) {
+            warning("Error parsing private key");
+            ERR_clear_error();
+            return 0;
+        }
+
+        tracef("EVP_parse_private_key => %s", pkey);
+        return cast(long)(pkey);        
+    }
+
+    /**
+     * Returns the peer certificate chain.
+     */
+    static ubyte[][] SSL_get0_peer_certificates(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            return null;
+        }
+        STACK_OF!(CRYPTO_BUFFER)* chain = deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
+        if (chain is null) {
+            return null;
+        }
+
+        // ScopedLocalRef<jobjectArray> array(env, CryptoBuffersToObjectArray(env, chain));
+        // if (array.get() is null) {
+        //     return null;
+        // }
+
+        // tracef("ssl=%s SSL_get0_peer_certificates => %s", ssl, array.get());
+        // return array.release(); 
+        return CryptoBuffersToObjectArray(chain);  
+    }
+
+    static ubyte[] CryptoBufferToByteArray(const(CRYPTO_BUFFER)* buf) {
+
+        size_t length = CRYPTO_BUFFER_len(buf);
+
+        if (length > size_t.max) {
+            tracef("buffer too large");
+            return null;
+        }
+
+        ubyte* bufferData = CRYPTO_BUFFER_data(buf);
+        ubyte[] ret = bufferData[0..length].dup;
+
+        return ret;
+    }
+
+    static ubyte[][] CryptoBuffersToObjectArray(STACK_OF!(CRYPTO_BUFFER) * buffers) {
+        int numBuffers = sk_CRYPTO_BUFFER_num(buffers);
+        if (numBuffers > int.max) {
+            error("too many buffers");
+            return null;
+        }
+
+        ubyte[][] array = new ubyte[][numBuffers];
+
+        for (int i = 0; i < numBuffers; ++i) {
+            CRYPTO_BUFFER* buffer = sk_CRYPTO_BUFFER_value(buffers, i);
+            ubyte[] bArray = CryptoBufferToByteArray(buffer);
+            array[i] = bArray;
+        }
+
+        return array;
+    }
+
+
+    extern(C) static ssl_verify_result_t cert_verify_callback(SSL* ssl, uint8_t* out_alert) {
+        tracef("ssl=%s cert_verify_callback", ssl);
+
+        AppData* appData = toAppData(ssl);
+        if(appData is null)
+        {
+            warning("appData is null");
+            return ssl_verify_result_t.ssl_verify_invalid;
+
+        }
+        // tracef("appData.name=%s", appData.name);
+        // JNIEnv* env = appData.env;
+        // if (env is null) {
+        //     CONSCRYPT_LOG_ERROR("AppData.env missing in cert_verify_callback");
+        //     tracef("ssl=%s cert_verify_callback => 0", ssl);
+        //     return ssl_verify_invalid;
+        // }
+
+        // Create the byte[][] array that holds all the certs
+        // byte[][] array;
+        // deimos.openssl.ssl.SSL_get0_peer_certificates(ssl);
+
+        // if (array is null) {
+        //     return ssl_verify_result_t.ssl_verify_invalid;
+        // }
+
+        // jobject sslHandshakeCallbacks = appData.sslHandshakeCallbacks;
+        // jclass cls = env.GetObjectClass(sslHandshakeCallbacks);
+        // jmethodID methodID =
+        //         env.GetMethodID(cls, "verifyCertificateChain", "([[BLjava/lang/String;)V");
+
+        // const SSL_CIPHER* cipher = SSL_get_pending_cipher(ssl);
+        // const char* authMethod = SSL_CIPHER_get_kx_name(cipher);
+
+        // tracef("ssl=%s cert_verify_callback calling verifyCertificateChain authMethod=%s", ssl,
+        //         authMethod);
+        // jstring authMethodString = env.NewStringUTF(authMethod);
+        // env.CallVoidMethod(sslHandshakeCallbacks, methodID, array.get(), authMethodString);
+
+        // // We need to delete the local references so we not leak memory as this method is called
+        // // via callback.
+        // env.DeleteLocalRef(authMethodString);
+
+        ssl_verify_result_t result = ssl_verify_result_t.ssl_verify_ok;
+        // tracef("ssl=%s cert_verify_callback => %d", ssl, result);
+        return result;
+    }
 }
 
 
+}
+
+version(BoringSSL)
 CRYPTO_BUFFER* ByteArrayToCryptoBuffer(byte[] array, CRYPTO_BUFFER_POOL* pool) {
     if (array is null) {
         warning("array is null");

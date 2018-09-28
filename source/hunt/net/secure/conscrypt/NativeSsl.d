@@ -93,7 +93,9 @@ final class NativeSsl {
     }
 
     X509Certificate[] getPeerCertificates() {
-        ubyte[][] encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
+        ubyte[][] encoded = null;
+        version(BoringSSL) encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
+
         return encoded is null ? null : SSLUtils.decodeX509CertificateChain(encoded);
     }
 
@@ -259,7 +261,10 @@ return 0;
         }
 
         // Set the local certs and private key.
-        NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
+        version(BoringSSL) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
+        version(OpenSSL) {
+            implementationMissing(false);
+        }
     }
 
     string getVersion() {
@@ -289,16 +294,17 @@ return 0;
             NativeCrypto.SSL_set_connect_state(ssl);
 
             // Configure OCSP and CT extensions for client
-            NativeCrypto.SSL_enable_ocsp_stapling(ssl);
-            if (parameters.isCTVerificationEnabled(hostname)) {
-                NativeCrypto.SSL_enable_signed_cert_timestamps(ssl);
+            version(BoringSSL) {
+                NativeCrypto.SSL_enable_ocsp_stapling(ssl);
+                if (parameters.isCTVerificationEnabled(hostname))
+                    NativeCrypto.SSL_enable_signed_cert_timestamps(ssl);
             }
         } else {
             NativeCrypto.SSL_set_accept_state(ssl);
 
             // Configure OCSP for server
             if (parameters.getOCSPResponse() != null) {
-                NativeCrypto.SSL_enable_ocsp_stapling(ssl);
+                version(BoringSSL) NativeCrypto.SSL_enable_ocsp_stapling(ssl);
             }
         }
 
@@ -368,7 +374,7 @@ return 0;
 
         // BEAST attack mitigation (1/n-1 record splitting for CBC cipher suites
         // with TLSv1 and SSLv3).
-        NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
+        version(BoringSSL) NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
 
         setCertificateValidation();
         setTlsChannelId(channelIdPrivateKey);
@@ -560,7 +566,11 @@ return 0;
     }
 
     int getMaxSealOverhead() {
-        return NativeCrypto.SSL_max_seal_overhead(ssl);
+        version(BoringSSL) return NativeCrypto.SSL_max_seal_overhead(ssl);
+        version(OpenSSL) {
+            implementationMissing(false);
+            return 0;
+        }
     }
 
     void close() {

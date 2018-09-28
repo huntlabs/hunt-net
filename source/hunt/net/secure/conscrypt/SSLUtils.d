@@ -145,7 +145,12 @@ final class SSLUtils {
      * do not use X.509 for server authentication.
      */
     static string getServerX509KeyType(long sslCipherNative) {
-        string kx_name = NativeCrypto.SSL_CIPHER_get_kx_name(sslCipherNative);
+        version(OpenSSL) {
+            implementationMissing(false);
+            string kx_name = null;
+        }
+        version(BoringSSL) string kx_name = NativeCrypto.SSL_CIPHER_get_kx_name(sslCipherNative);
+
         if (kx_name.equals("RSA") || kx_name.equals("DHE_RSA") || kx_name.equals("ECDHE_RSA")) {
             return KEY_TYPE_RSA;
         } else if (kx_name.equals("ECDHE_ECDSA")) {
