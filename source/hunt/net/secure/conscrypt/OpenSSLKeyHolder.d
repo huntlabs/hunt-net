@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.OpenSSLKeyHolder;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.conscrypt.OpenSSLKey;
 
 /**

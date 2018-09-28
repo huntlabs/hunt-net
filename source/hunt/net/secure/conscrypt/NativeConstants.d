@@ -1,5 +1,6 @@
 module hunt.net.secure.conscrypt.NativeConstants;
 
+version(NoSSL) {} else {
 import deimos.openssl.ssl3;
 import deimos.openssl.tls1;
 
@@ -16,4 +17,5 @@ class NativeConstants
 
     
     enum SSL_MODE_SEND_FALLBACK_SCSV = 0x00000400L;
+}
 }

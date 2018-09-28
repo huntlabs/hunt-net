@@ -1,5 +1,93 @@
 module hunt.net.secure.conscrypt.NativeCrypto;
 
+
+/**
+* A collection of callbacks from the native OpenSSL code that are
+ * related to the SSL handshake initiated by SSL_do_handshake.
+ */
+interface SSLHandshakeCallbacks {
+    /**
+     * Verify that the certificate chain is trusted.
+     *
+     * @param certificateChain chain of X.509 certificates in their encoded form
+     * @param authMethod auth algorithm name
+     *
+     * @throws CertificateException if the certificate is untrusted
+     */
+    void verifyCertificateChain(byte[][] certificateChain, string authMethod);
+
+    /**
+     * Called on an SSL client when the server requests (or
+     * requires a certificate). The client can respond by using
+     * SSL_use_certificate and SSL_use_PrivateKey to set a
+     * certificate if has an appropriate one available, similar to
+     * how the server provides its certificate.
+     *
+     * @param keyTypes key types supported by the server,
+     * convertible to strings with #keyType
+     * @param asn1DerEncodedX500Principals CAs known to the server
+     */
+    void clientCertificateRequested(byte[] keyTypes, byte[][] asn1DerEncodedX500Principals);
+
+    /**
+     * Gets the key to be used in client mode for this connection in Pre-Shared Key (PSK) key
+     * exchange.
+     *
+     * @param identityHint PSK identity hint provided by the server or {@code null} if no hint
+     *        provided.
+     * @param identity buffer to be populated with PSK identity (NULL-terminated modified UTF-8)
+     *        by this method. This identity will be provided to the server.
+     * @param key buffer to be populated with key material by this method.
+     *
+     * @return number of bytes this method stored in the {@code key} buffer or {@code 0} if an
+     *         error occurred in which case the handshake will be aborted.
+     */
+    int clientPSKKeyRequested(string identityHint, byte[] identity, byte[] key);
+
+    /**
+     * Gets the key to be used in server mode for this connection in Pre-Shared Key (PSK) key
+     * exchange.
+     *
+     * @param identityHint PSK identity hint provided by this server to the client or
+     *        {@code null} if no hint was provided.
+     * @param identity PSK identity provided by the client.
+     * @param key buffer to be populated with key material by this method.
+     *
+     * @return number of bytes this method stored in the {@code key} buffer or {@code 0} if an
+     *         error occurred in which case the handshake will be aborted.
+     */
+    int serverPSKKeyRequested(string identityHint, string identity, byte[] key);
+
+    /**
+     * Called when SSL state changes. This could be handshake completion.
+     */
+    
+    void onSSLStateChange(int type, int val);
+
+    /**
+     * Called when a new session has been established and may be added to the session cache.
+     * The callee is responsible for incrementing the reference count on the returned session.
+     */
+    
+    void onNewSessionEstablished(long sslSessionNativePtr);
+
+    /**
+     * Called for servers where TLS < 1.3 (TLS 1.3 uses session tickets rather than
+     * application session caches).
+     *
+     * <p/>Looks up the session by ID in the application's session cache. If a valid session
+     * is returned, this callback is responsible for incrementing the reference count (and any
+     * required synchronization).
+     *
+     * @param id the ID of the session to find.
+     * @return the cached session or {@code 0} if no session was found matching the given ID.
+     */
+    
+    long serverSessionRequested(byte[] id);
+}     
+
+version(NoSSL) {} else {
+
 import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.NativeConstants;
 import hunt.net.secure.conscrypt.NativeRef;
@@ -7,6 +95,7 @@ import hunt.net.secure.conscrypt.NativeRef;
 import deimos.openssl.evp;
 import deimos.openssl.ssl;
 import deimos.openssl.err;
+
 
 import hunt.container;
 import hunt.util.exception;
@@ -2852,91 +2941,6 @@ CRYPTO_BUFFER* ByteArrayToCryptoBuffer(byte[] array, CRYPTO_BUFFER_POOL* pool) {
     return ret;
 }
 
-/**
-* A collection of callbacks from the native OpenSSL code that are
- * related to the SSL handshake initiated by SSL_do_handshake.
- */
-interface SSLHandshakeCallbacks {
-    /**
-     * Verify that the certificate chain is trusted.
-     *
-     * @param certificateChain chain of X.509 certificates in their encoded form
-     * @param authMethod auth algorithm name
-     *
-     * @throws CertificateException if the certificate is untrusted
-     */
-    void verifyCertificateChain(byte[][] certificateChain, string authMethod);
-
-    /**
-     * Called on an SSL client when the server requests (or
-     * requires a certificate). The client can respond by using
-     * SSL_use_certificate and SSL_use_PrivateKey to set a
-     * certificate if has an appropriate one available, similar to
-     * how the server provides its certificate.
-     *
-     * @param keyTypes key types supported by the server,
-     * convertible to strings with #keyType
-     * @param asn1DerEncodedX500Principals CAs known to the server
-     */
-    void clientCertificateRequested(byte[] keyTypes, byte[][] asn1DerEncodedX500Principals);
-
-    /**
-     * Gets the key to be used in client mode for this connection in Pre-Shared Key (PSK) key
-     * exchange.
-     *
-     * @param identityHint PSK identity hint provided by the server or {@code null} if no hint
-     *        provided.
-     * @param identity buffer to be populated with PSK identity (NULL-terminated modified UTF-8)
-     *        by this method. This identity will be provided to the server.
-     * @param key buffer to be populated with key material by this method.
-     *
-     * @return number of bytes this method stored in the {@code key} buffer or {@code 0} if an
-     *         error occurred in which case the handshake will be aborted.
-     */
-    int clientPSKKeyRequested(string identityHint, byte[] identity, byte[] key);
-
-    /**
-     * Gets the key to be used in server mode for this connection in Pre-Shared Key (PSK) key
-     * exchange.
-     *
-     * @param identityHint PSK identity hint provided by this server to the client or
-     *        {@code null} if no hint was provided.
-     * @param identity PSK identity provided by the client.
-     * @param key buffer to be populated with key material by this method.
-     *
-     * @return number of bytes this method stored in the {@code key} buffer or {@code 0} if an
-     *         error occurred in which case the handshake will be aborted.
-     */
-    int serverPSKKeyRequested(string identityHint, string identity, byte[] key);
-
-    /**
-     * Called when SSL state changes. This could be handshake completion.
-     */
-    
-    void onSSLStateChange(int type, int val);
-
-    /**
-     * Called when a new session has been established and may be added to the session cache.
-     * The callee is responsible for incrementing the reference count on the returned session.
-     */
-    
-    void onNewSessionEstablished(long sslSessionNativePtr);
-
-    /**
-     * Called for servers where TLS < 1.3 (TLS 1.3 uses session tickets rather than
-     * application session caches).
-     *
-     * <p/>Looks up the session by ID in the application's session cache. If a valid session
-     * is returned, this callback is responsible for incrementing the reference count (and any
-     * required synchronization).
-     *
-     * @param id the ID of the session to find.
-     * @return the cached session or {@code 0} if no session was found matching the given ID.
-     */
-    
-    long serverSessionRequested(byte[] id);
-}     
-
 
 struct AppData
 {
@@ -3106,4 +3110,5 @@ version(Windows) {
             applicationProtocolSelector = null;
         }
     }    
+}
 }

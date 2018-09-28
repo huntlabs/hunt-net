@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.ConscryptALPNSelector;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.Conscrypt;

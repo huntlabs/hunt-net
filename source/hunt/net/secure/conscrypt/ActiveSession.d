@@ -1,5 +1,13 @@
 module hunt.net.secure.conscrypt.ActiveSession;
 
+
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.conscrypt.AbstractSessionContext;
 import hunt.net.secure.conscrypt.ConscryptSession;
 import hunt.net.secure.conscrypt.NativeSsl;

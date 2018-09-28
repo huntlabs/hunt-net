@@ -1,5 +1,12 @@
 module hunt.net.ssl.SSLContext;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;
 import hunt.net.ssl.SSLEngine;

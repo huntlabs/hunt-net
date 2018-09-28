@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.ConscryptEngine;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.AbstractConscryptEngine;
@@ -41,6 +48,7 @@ import hunt.util.exception;
 import hunt.string;
 
 import hunt.logging;
+
 import deimos.openssl.ssl;
 
 import std.algorithm;

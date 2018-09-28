@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.ConscryptSecureSessionFactory;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptSSLSession;

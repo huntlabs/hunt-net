@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.SSLUtils;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
 
@@ -10,12 +17,12 @@ import hunt.net.exception;
 
 import hunt.container;
 import hunt.io.ByteArrayInputStream;
+import hunt.logging;
 import hunt.util.exception;
 import hunt.string;
 
 import deimos.openssl.ssl3;
 
-import hunt.logging;
 import std.algorithm;
 import std.conv;
 

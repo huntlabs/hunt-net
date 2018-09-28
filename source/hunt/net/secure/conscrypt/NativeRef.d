@@ -1,7 +1,14 @@
 module hunt.net.secure.conscrypt.NativeRef;
 
-import hunt.net.secure.conscrypt.NativeCrypto;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
+import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.util.exception;
 
 /**

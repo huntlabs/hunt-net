@@ -1,5 +1,12 @@
 module hunt.net.secure.conscrypt.NativeSsl;
 
+version(BoringSSL) {
+    version=WithSSL;
+} else version(OpenSSL) {
+    version=WithSSL;
+}
+version(WithSSL):
+
 import hunt.net.exception;
 import hunt.net.secure.conscrypt.AbstractSessionContext;
 import hunt.net.secure.conscrypt.AddressUtils;
@@ -18,9 +25,10 @@ import hunt.container;
 import hunt.logging;
 import hunt.util.exception;
 
-import deimos.openssl.ssl;
 import std.array;
 import std.container.array;
+
+import deimos.openssl.ssl;
 
 
 /**
