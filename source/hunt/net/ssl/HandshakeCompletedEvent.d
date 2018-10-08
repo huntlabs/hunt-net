@@ -5,7 +5,7 @@ import hunt.net.ssl.common;
 import hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSocket;
 
-import hunt.util.common;
+import hunt.util.EventObject;
 
 /**
  * This event indicates that an SSL handshake completed on a given
@@ -26,8 +26,6 @@ import hunt.util.common;
  */
 class HandshakeCompletedEvent : EventObject
 {
-    // private static final long serialVersionUID = 7914963744257769778L;
-
     private SSLSession session;
 
     /**
