@@ -1,14 +1,11 @@
 module hunt.net.ConnectionEvent;
 
 import hunt.net.Connection;
-// import hunt.http.utils.function.Action1;
-// import hunt.http.utils.function.Action2;
-import hunt.logging;
-
-import hunt.util.functional;
 
 import hunt.container.LinkedList;
 import hunt.container.List;
+import hunt.lang.common;
+import hunt.logging;
 
 /**
  * 
