@@ -1,6 +1,6 @@
 module hunt.net.Connection;
 
-import hunt.util.common;
+import hunt.lang.common;
 import hunt.net.ConnectionType;
 
 import std.socket;

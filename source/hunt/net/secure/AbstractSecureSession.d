@@ -10,7 +10,7 @@ import hunt.net.ssl;
 import hunt.container;
 import hunt.io.common;
 
-import hunt.util.common;
+import hunt.lang.common;
 import hunt.util.concurrent.CountingCallback;
 import hunt.util.exception;
 import hunt.util.functional;

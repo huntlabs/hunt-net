@@ -1,7 +1,7 @@
 module hunt.net.ssl.common;
 
 import hunt.net.ssl.HandshakeCompletedEvent;
-import hunt.util.common;
+import hunt.lang.common;
 
 /**
  * This interface is implemented by any class which wants to receive
