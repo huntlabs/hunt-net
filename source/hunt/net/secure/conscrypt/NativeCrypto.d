@@ -98,7 +98,7 @@ import deimos.openssl.err;
 
 
 import hunt.container;
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.string;
 
 import hunt.logging;

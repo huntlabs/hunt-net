@@ -21,7 +21,7 @@ import hunt.security.Principal;
 import hunt.security.cert.Certificate;
 import hunt.security.cert.X509Certificate;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.container;
 import hunt.logging;

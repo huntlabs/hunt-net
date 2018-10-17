@@ -7,9 +7,9 @@ import hunt.net.ssl.SSLContext;
 // import hunt.net.ssl.SSLParameters;
 
 import std.socket;
-import hunt.util.exception;
+import hunt.lang.exception;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * <code>SSLServerSocketFactory</code>s create

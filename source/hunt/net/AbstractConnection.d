@@ -8,7 +8,7 @@ import hunt.net.Session;
 import hunt.container.ByteBuffer;
 import hunt.lang.common;
 import hunt.util.functional;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.logging;
 import std.socket;

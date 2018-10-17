@@ -22,7 +22,7 @@ import hunt.net.ssl.SSLSocketFactory;
 
 import hunt.security.key;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * OpenSSL-backed SSLContext service provider interface.

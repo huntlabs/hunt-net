@@ -27,7 +27,7 @@ import hunt.net.exception;
 import hunt.container;
 
 import hunt.datetime;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.logging;
 

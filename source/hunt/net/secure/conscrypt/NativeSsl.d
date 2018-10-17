@@ -23,7 +23,7 @@ import hunt.security.x500.X500Principal;
 
 import hunt.container;
 import hunt.logging;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import std.array;
 import std.container.array;

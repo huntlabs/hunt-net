@@ -15,7 +15,7 @@ import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeSslSession;
 
 import hunt.container;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.logging;
 /**

@@ -24,7 +24,7 @@ import hunt.security.cert.X509Certificate;
 import hunt.security.x500.X500Principal;
 // import hunt.net.ssl.TrustManager;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.logging;
 
 /**

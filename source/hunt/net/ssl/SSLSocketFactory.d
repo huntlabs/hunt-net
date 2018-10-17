@@ -3,7 +3,7 @@ module hunt.net.ssl.SSLSocketFactory;
 import hunt.net.SocketFactory;
 import hunt.io.common;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.logging;
 import std.socket;

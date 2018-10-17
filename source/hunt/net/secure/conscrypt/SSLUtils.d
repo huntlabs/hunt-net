@@ -18,7 +18,7 @@ import hunt.net.exception;
 import hunt.container;
 import hunt.io.ByteArrayInputStream;
 import hunt.logging;
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.string;
 
 import deimos.openssl.ssl3;

@@ -2,7 +2,7 @@ module hunt.security.OpenSSLRandom;
 
 import hunt.security.SecureRandomSpi;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * Implements {@link java.security.SecureRandom} using BoringSSL's RAND interface.

@@ -13,7 +13,7 @@ import hunt.net.secure.conscrypt.OpenSSLKeyHolder;
 
 import hunt.security.key;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.string;
 
 /**

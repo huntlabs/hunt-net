@@ -5,7 +5,7 @@ import hunt.net.ssl.SSLSession;
 
 import hunt.container.ByteBuffer;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * A class which enables secure communications using protocols such as

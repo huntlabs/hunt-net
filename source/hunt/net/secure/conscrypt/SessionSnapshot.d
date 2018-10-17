@@ -22,7 +22,7 @@ import hunt.security.cert.Certificate;
 import hunt.container;
 
 import hunt.net.exception;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * A snapshot of the content of another {@link ConscryptSession}. This copies everything over

@@ -5,7 +5,7 @@ import hunt.net.ssl.common;
 import hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSocket;
 
-import hunt.lang.object;
+import hunt.util.ObjectUtils;
 
 /**
  * This event indicates that an SSL handshake completed on a given

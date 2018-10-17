@@ -3,7 +3,7 @@ module hunt.net.ssl.SSLParameters;
 import hunt.net.ssl.SNIMatcher;
 import hunt.net.ssl.SNIServerName;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import hunt.container;
 

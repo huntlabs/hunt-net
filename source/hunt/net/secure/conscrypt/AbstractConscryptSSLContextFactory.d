@@ -16,7 +16,7 @@ import hunt.net.ssl;
 import hunt.io.ByteArrayInputStream;
 import hunt.io.common;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.datetime;
 import hunt.util.TypeUtils;
 

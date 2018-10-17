@@ -19,7 +19,7 @@ import hunt.net.secure.SSLContextFactory;
 import hunt.net.Session;
 import hunt.net.ssl;
 
-import hunt.util.exception;
+import hunt.lang.exception;
 import hunt.util.TypeUtils;
 
 import hunt.logging;

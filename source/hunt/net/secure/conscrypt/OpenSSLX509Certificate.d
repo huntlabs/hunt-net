@@ -10,7 +10,7 @@ import hunt.security.x509;
 import hunt.security.key;
 
 import hunt.container;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 import std.bigint;
 import std.datetime;

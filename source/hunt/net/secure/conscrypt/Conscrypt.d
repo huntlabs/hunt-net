@@ -15,7 +15,7 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSocket;
 
 import hunt.net.exception;
-import hunt.util.exception;
+import hunt.lang.exception;
 
 /**
  * Core API for creating and configuring all Conscrypt types.
