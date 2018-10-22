@@ -10,6 +10,8 @@ import hunt.net.NetSocket;
 import hunt.net.Result;
 import hunt.net.Client;
 
+import hunt.logging;
+
 ///
 class NetClient : Client
 {
@@ -34,8 +36,16 @@ class NetClient : Client
         TcpStream client = new TcpStream(_loop);
 
         AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId, _config, netEvent, client); 
-        client.onClosed( () {netEvent.notifySessionClosed(session); });
-        client.onError( (string message) {netEvent.notifyExceptionCaught(session, new Exception(message)); });
+        client.onClosed( () {
+            if(netEvent !is null)
+                netEvent.notifySessionClosed(session); 
+        });
+
+        client.onError( (string message) {
+            if(netEvent !is null)
+                netEvent.notifyExceptionCaught(session, new Exception(message)); 
+        });
+
         client.onConnected(
             (bool suc){
                 Result!NetSocket result = null;
@@ -45,7 +55,8 @@ class NetClient : Client
                         _handler(session);
                     result = new Result!NetSocket(session);
                     _isStarted = true;
-                    netEvent.notifySessionOpened(session);
+                    if(netEvent !is null)
+                        netEvent.notifySessionOpened(session);
                 }
                 else
                 {
@@ -130,8 +141,7 @@ class NetClient : Client
     }
 
 package:
-    this(EventLoop loop)
-    {
+    this(EventLoop loop) {
         _loop = loop;
     }
 

@@ -3,6 +3,7 @@ import hunt.event;
 
 import hunt.net.NetClient;
 import hunt.net.NetServer;
+import hunt.net.Config;
 
 
 /**

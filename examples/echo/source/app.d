@@ -9,7 +9,7 @@
  *
  */
 
- import hunt.net;
+import hunt.net;
 
 void main() 
 {   
@@ -29,10 +29,10 @@ void main()
         );
     });
 
+
     auto client = NetUtil.createNetClient();
     client.connect(3003 , "127.0.0.1" , 0, (Result!NetSocket result)
     {
-      
         if(result.failed())
         {
             logDebug(result.cause().toString());

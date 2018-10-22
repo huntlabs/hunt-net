@@ -64,7 +64,8 @@ class NetServer : Server
                 _sessionId++;
                 AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId,
                     _config, netEvent, stream); 
-                netEvent.notifySessionOpened(session);
+                if(_config !is null)
+                    netEvent.notifySessionOpened(session);
                 if (_handler !is null)
                     _handler(session);
             });
@@ -75,8 +76,10 @@ class NetServer : Server
         }
         catch (Exception e)
         {
+            warning(e.message);
             result = new Result!NetServer(e);
-            _config.getHandler().failedOpeningSession(0, e);
+            if(_config !is null) 
+                _config.getHandler().failedOpeningSession(0, e);
         }
 
         if (handler !is null)
