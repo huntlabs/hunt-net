@@ -18,7 +18,7 @@ void main()
     alias logInfo = writeln;
     alias logDebug= writeln;
     
-    auto server = Net.createNetServer();
+    auto server = NetUtil.createNetServer();
     server.listen(3003).connectHandler((NetSocket sock){
         logInfo("server have accepted a connection...");
         sock.handler(
@@ -29,8 +29,8 @@ void main()
         );
     });
 
-    auto client = Net.createNetClient();
-    client.connect(3003 , "127.0.0.1" , (Result!NetSocket result)
+    auto client = NetUtil.createNetClient();
+    client.connect(3003 , "127.0.0.1" , 0, (Result!NetSocket result)
     {
       
         if(result.failed())
