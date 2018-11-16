@@ -8,8 +8,8 @@
     ],
     "license": "Apache-2.0",
     "dependencies":{        
-        "hunt" : "~>1.0.0-beta.7",
-        "hunt-security" : "~>0.0.3"
+        "hunt" : "~>1.0.0-rc.1",
+        "hunt-security" : "~>0.0.4"
     },
     "configurations":[
         {

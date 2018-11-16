@@ -7,15 +7,14 @@ import hunt.net.NetSocket;
 import hunt.net.Server;
 import hunt.net.Config;
 
-import hunt.logging;
-import hunt.io;
 import hunt.event.EventLoop;
+import hunt.io;
+import hunt.logging;
 import std.conv;
 
 alias ListenHandler = void delegate(Result!NetServer);
 
-class NetServer : AbstractServer
-{
+class NetServer : AbstractServer {
     private string _host = "0.0.0.0";
     private int _port = 8080;
     private int _sessionId;
@@ -28,25 +27,21 @@ class NetServer : AbstractServer
 
     protected bool _isStarted;
 
-    int actualPort()
-    {
+    int actualPort() {
         return to!int(_listener.localAddress.toPortString());
     }
 
-    void close()
-    {
+    void close() {
         stop();
     }
 
-    NetServer connectHandler(Handler handler)
-    {
+    NetServer connectHandler(Handler handler) {
         _handler = handler;
 
         return this;
     }
 
-    NetServer listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null)
-    {
+    NetServer listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null) {
         // if (config == null)
         //     throw new NetException("server configuration is null");
 
@@ -54,8 +49,7 @@ class NetServer : AbstractServer
         _port = port;
         bool suc = true;
         Result!NetServer result = null;
-        try
-        {
+        try {
             _listener = new TcpListener(_loop);
             _listener.bind(_host, cast(ushort) _port);
             _listener.listen(1024);
@@ -63,8 +57,8 @@ class NetServer : AbstractServer
             _listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
                 _sessionId++;
                 AsynchronousTcpSession session = new AsynchronousTcpSession(_sessionId,
-                    _config, netEvent, stream); 
-                if(_config !is null)
+                    _config, netEvent, stream);
+                if (_config !is null)
                     netEvent.notifySessionOpened(session);
                 if (_handler !is null)
                     _handler(session);
@@ -74,11 +68,10 @@ class NetServer : AbstractServer
             _isStarted = true;
             result = new Result!NetServer(this);
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             warning(e.message);
             result = new Result!NetServer(e);
-            if(_config !is null) 
+            if (_config !is null)
                 _config.getHandler().failedOpeningSession(0, e);
         }
 
@@ -88,77 +81,30 @@ class NetServer : AbstractServer
         return this;
     }
 
-    void setConfig(Config config)
-    {
+    void setConfig(Config config) {
         _config = config;
         netEvent = new DefaultNetEvent(config);
     }
 
-    void listen(string host, int port)
-    {
+    void listen(string host, int port) {
         listen(port, host);
     }
-
-    // override bool isStarted()
-    // {
-    //     return _isStarted;
-    // }
-
-    // override bool isStopped()
-    // {
-    //     return !_isStarted;
-    // }
-
-    // override void start()
-    // {
-    //     if (isStarted())
-    //         return;
-
-    //     synchronized (this)
-    //     {
-    //         if (isStarted())
-    //             return;
-
-    //         // init();
-    //         listen(_port, _host);
-    //         _isStarted = true;
-    //     }
-    // }
-
-    // override void stop()
-    // {
-    //     if (isStopped())
-    //         return;
-
-    //     synchronized (this)
-    //     {
-    //         if (isStopped())
-    //             return;
-
-    //         // destroy();
-    //         _listener.close();
-
-    //         _isStarted = false;
-    //     }
-    // }
 
     override protected void initilize() {
         listen(_port, _host);
     }
 
     override protected void destroy() {
-        if(_listener !is null)
+        if (_listener !is null)
             _listener.close();
-    }    
+    }
 
-    EventLoop eventLoop()
-    {
+    EventLoop eventLoop() {
         return _loop;
     }
 
 package:
-    this(EventLoop loop)
-    {
+    this(EventLoop loop) {
         _loop = loop;
     }
 
