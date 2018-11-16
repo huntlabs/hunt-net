@@ -1,9 +1,9 @@
 module hunt.net.Client;
 
 import hunt.net.Config;
-import hunt.util.LifeCycle;
+import hunt.util.Lifecycle;
 
-public interface Client : LifeCycle {
+interface Client {
 
     void setConfig(Config config);
 
@@ -13,4 +13,7 @@ public interface Client : LifeCycle {
 
     // ExecutorService getNetExecutorService();
 
+}
+
+abstract class AbstractClient : AbstractLifecycle, Client {
 }

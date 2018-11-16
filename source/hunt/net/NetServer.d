@@ -14,7 +14,7 @@ import std.conv;
 
 alias ListenHandler = void delegate(Result!NetServer);
 
-class NetServer : Server
+class NetServer : AbstractServer
 {
     private string _host = "0.0.0.0";
     private int _port = 8080;
@@ -99,48 +99,57 @@ class NetServer : Server
         listen(port, host);
     }
 
-    override bool isStarted()
-    {
-        return _isStarted;
+    // override bool isStarted()
+    // {
+    //     return _isStarted;
+    // }
+
+    // override bool isStopped()
+    // {
+    //     return !_isStarted;
+    // }
+
+    // override void start()
+    // {
+    //     if (isStarted())
+    //         return;
+
+    //     synchronized (this)
+    //     {
+    //         if (isStarted())
+    //             return;
+
+    //         // init();
+    //         listen(_port, _host);
+    //         _isStarted = true;
+    //     }
+    // }
+
+    // override void stop()
+    // {
+    //     if (isStopped())
+    //         return;
+
+    //     synchronized (this)
+    //     {
+    //         if (isStopped())
+    //             return;
+
+    //         // destroy();
+    //         _listener.close();
+
+    //         _isStarted = false;
+    //     }
+    // }
+
+    override protected void initilize() {
+        listen(_port, _host);
     }
 
-    override bool isStopped()
-    {
-        return !_isStarted;
-    }
-
-    override void start()
-    {
-        if (isStarted())
-            return;
-
-        synchronized (this)
-        {
-            if (isStarted())
-                return;
-
-            // init();
-            listen(_port, _host);
-            _isStarted = true;
-        }
-    }
-
-    override void stop()
-    {
-        if (isStopped())
-            return;
-
-        synchronized (this)
-        {
-            if (isStopped())
-                return;
-
-            // destroy();
+    override protected void destroy() {
+        if(_listener !is null)
             _listener.close();
-
-            _isStarted = false;
-        }
-    }
+    }    
 
     EventLoop eventLoop()
     {

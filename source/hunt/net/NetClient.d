@@ -13,7 +13,7 @@ import hunt.net.Client;
 import hunt.logging;
 
 ///
-class NetClient : Client
+class NetClient : AbstractClient
 {
     private string _host = "127.0.0.1";
     private int _port = 8080;
@@ -54,7 +54,7 @@ class NetClient : Client
                     if(_handler !is null)
                         _handler(session);
                     result = new Result!NetSocket(session);
-                    _isStarted = true;
+                    _isRunning = true;
                     if(netEvent !is null)
                         netEvent.notifySessionOpened(session);
                 }
@@ -91,51 +91,59 @@ class NetClient : Client
         connect(port, host, sessionId);
     }
 
-    override
-    bool isStarted() {
-        return _isStarted;
+    // override
+    // bool isStarted() {
+    //     return _isStarted;
+    // }
+
+    // override
+    // bool isStopped() {
+    //     return !_isStarted;
+    // }
+
+    // override
+    // void start() {
+    //     if (isStarted())
+    //         return;
+
+    //     synchronized (this) {
+    //         if (isStarted())
+    //             return;
+
+    //         // init();
+    //         connect(_port, _host);
+    //         _isStarted = true;
+    //     }
+    // }
+
+    // override
+    // void stop() {
+    //     if (isStopped())
+    //         return;
+
+    //     synchronized (this) {
+    //         if (isStopped())
+    //             return;
+
+    //         // destroy();
+    //         if(_sock !is null)
+    //             _sock.close();
+
+    //         _isStarted = false;
+    //     }
+    // }
+
+
+    override protected void initilize() {
+        connect(_port, _host);
     }
 
-    override
-    bool isStopped() {
-        return !_isStarted;
+    override protected void destroy() {
+        if(_sock !is null)
+            _sock.close();
     }
 
-    override
-    void start() {
-        if (isStarted())
-            return;
-
-        synchronized (this) {
-            if (isStarted())
-                return;
-
-            // init();
-            connect(_port, _host);
-            _isStarted = true;
-        }
-    }
-
-    override
-    void stop() {
-        if (isStopped())
-            return;
-
-        synchronized (this) {
-            if (isStopped())
-                return;
-
-            // destroy();
-            if(_sock !is null)
-                _sock.close();
-
-            _isStarted = false;
-        }
-    }
-
-
-    void setConfig(Config config)
-    {
+    void setConfig(Config config) {
         _config = config;
         netEvent = new DefaultNetEvent(config);
     }
@@ -146,7 +154,7 @@ package:
     }
 
 
-    protected bool _isStarted;
+    // protected bool _isStarted;
 
 private:
     ///
