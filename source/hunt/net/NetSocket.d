@@ -41,19 +41,22 @@ class NetSocket {
         return _tcp.remoteAddress;
     }
     ////
-    NetSocket write(in ubyte[] data) {
+    NetSocket write(in ubyte[] data , VoidHandler finish = null) {
         version (HUNT_DEBUG) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. 32]);
         }
-        _tcp.write(data);
+        _tcp.write(data , (in ubyte[] , size_t){
+            if( finish !is null)
+                finish();
+        });
         return this;
     }
     ////
-    NetSocket write(string str) {
-        return write(cast(ubyte[]) str);
+    NetSocket write(string str , VoidHandler finish = null) {
+        return write(cast(ubyte[]) str , finish);
     }
 
     protected {
