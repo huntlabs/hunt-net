@@ -12,7 +12,7 @@ class NetUtil
 {
     static NetServer createNetServer()
     {
-        return new NetServer(loop);
+        return new NetServer(defaultEventLoopGroup);
     }
 
     static NetClient createNetClient()
@@ -24,7 +24,7 @@ class NetUtil
 
     shared static this() {
         _loop = new EventLoopGroup();
-        _loop.start();
+        // _loop.start();  // 
     }
 
 private:
@@ -38,6 +38,6 @@ private:
         //     _loop = new EventLoopGroup();
         //     _loop.start();
         // }
-        return _loop.at(++index);
+        return _loop[++index];
     }
 }

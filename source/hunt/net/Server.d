@@ -1,14 +1,17 @@
 module hunt.net.Server;
 
 import hunt.net.Config;
+import hunt.net.Result;
 import hunt.util.Lifecycle;
 
 
-public interface Server {
+alias ListenHandler = void delegate(Result!Server);
+
+interface Server {
 
     void setConfig(Config config);
 
-    void listen(string host, int port);
+    void listen(string host, int port, ListenHandler handler);
 
     // ExecutorService getNetExecutorService();
 }
