@@ -19,7 +19,7 @@ void main()
     alias logDebug= writeln;
     
     auto server = NetUtil.createNetServer();
-    server.listen(3003).connectHandler((NetSocket sock){
+    server.connectionHandler((NetSocket sock){
         logInfo("server have accepted a connection...");
         sock.handler(
             ( in ubyte[] data){      
@@ -27,7 +27,7 @@ void main()
                 sock.write(data);
             }
         );
-    });
+    }).listen(3003);
 
 
     auto client = NetUtil.createNetClient();

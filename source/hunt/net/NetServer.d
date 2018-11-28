@@ -48,6 +48,10 @@ class NetServer : AbstractServer {
         netEvent = new DefaultNetEvent(config);
     }
 
+    void listen(int port = 0, string host = "0.0.0.0") {
+        listen(host, port);
+    }
+
     void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
 
         listeners = new TcpListener[_group.length];
