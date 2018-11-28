@@ -48,8 +48,8 @@ class NetServer : AbstractServer {
         netEvent = new DefaultNetEvent(config);
     }
 
-    void listen(int port = 0, string host = "0.0.0.0") {
-        listen(host, port);
+    void listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null) {
+        listen(host, port, handler);
     }
 
     void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
@@ -74,6 +74,7 @@ class NetServer : AbstractServer {
             version(HUNT_DEBUG) infof("All the servers are listening on %s.", _address.toString());
             _group.start();
             _isStarted = true;
+            result = new Result!Server(this);
         } catch (Exception e) {
             warning(e.message);
             result = new Result!Server(e);

@@ -20,14 +20,17 @@ void main()
     
     auto server = NetUtil.createNetServer();
     server.connectionHandler((NetSocket sock){
-        logInfo("server have accepted a connection...");
+        logInfo("accepted a connection...");
         sock.handler(
             ( in ubyte[] data){      
-                logInfo("server recved data from client");      
+                logInfo("recved data from client");      
                 sock.write(data);
             }
         );
-    }).listen(3003);
+    }).listen("0.0.0.0", 3003, (Result!Server result){
+        if(result.failed())
+            throw result.cause();
+    });
 
 
     auto client = NetUtil.createNetClient();
