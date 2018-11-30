@@ -54,7 +54,7 @@ class NetServer : AbstractServer {
 
     void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
 
-        listeners = new TcpListener[_group.length];
+        listeners = new TcpListener[_group.size];
        
         _host = host;
         _port = port;
@@ -67,7 +67,7 @@ class NetServer : AbstractServer {
 
         Result!Server result = null;
         try {
-            for (size_t i = 0; i < _group.length; ++i) {
+            for (size_t i = 0; i < _group.size; ++i) {
                 listeners[i] = createServer(_group[i]);
                 version(HUNT_DEBUG) infof("lister[%d] created", i);
             }
