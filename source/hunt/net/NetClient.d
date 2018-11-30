@@ -22,7 +22,7 @@ class NetClient : AbstractClient {
     private AsynchronousTcpSession tcpSession;
 
     void close() {
-        _sock.close();
+        this.stop();
     }
 
     NetClient connect(int port, string host, int sessionId = 0, ConnectHandler handler = null) {
@@ -32,37 +32,46 @@ class NetClient : AbstractClient {
 
         TcpStream client = new TcpStream(_loop);
 
-        AsynchronousTcpSession session = new AsynchronousTcpSession(sessionId,
+        tcpSession = new AsynchronousTcpSession(sessionId,
                 _config, netEvent, client);
         client.onClosed(() {
             if (netEvent !is null)
-                netEvent.notifySessionClosed(session);
+                netEvent.notifySessionClosed(tcpSession);
         });
 
         client.onError((string message) {
             if (netEvent !is null)
-                netEvent.notifyExceptionCaught(session, new Exception(message));
+                netEvent.notifyExceptionCaught(tcpSession, new Exception(message));
         });
 
         client.onConnected((bool suc) {
             Result!NetSocket result = null;
             if (suc) {
+			    version (HUNT_DEBUG) 
+                trace("connected with: ", client.remoteAddress.toString()); 
+
                 if (_handler !is null)
-                    _handler(session);
-                result = new Result!NetSocket(session);
+                    _handler(tcpSession);
+                result = new Result!NetSocket(tcpSession);
                 _isRunning = true;
                 if (netEvent !is null)
-                    netEvent.notifySessionOpened(session);
+                    netEvent.notifySessionOpened(tcpSession);
             }
             else {
-                result = new Result!NetSocket(new Exception("can't connect the address"));
+			    version (HUNT_DEBUG) 
+                    warning("connection failed!"); 
+                import std.format;
+                string msg = format("Can't connect to %s:%d", host, port);
+                result = new Result!NetSocket(new Exception(msg));
                 _config.getHandler().failedOpeningSession(sessionId,
-                    new Exception("can't connect the address"));
+                    new Exception(msg));
             }
 
             if (handler !is null)
                 handler(result);
         }).connect(host, cast(ushort) port);
+
+        // _loop.run();
 
         return this;
     }
@@ -87,8 +96,8 @@ class NetClient : AbstractClient {
     }
 
     override protected void destroy() {
-        if (_sock !is null)
-            _sock.close();
+        if (tcpSession !is null)
+            tcpSession.close();
     }
 
     void setConfig(Config config) {
@@ -104,6 +113,5 @@ package:
 private:
     ///
     EventLoop _loop;
-    NetSocket _sock;
     Handler _handler;
 }

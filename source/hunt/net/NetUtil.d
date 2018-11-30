@@ -5,39 +5,48 @@ import hunt.net.NetClient;
 import hunt.net.NetServer;
 import hunt.net.Config;
 
-
 /**
 */
-class NetUtil
-{
-    static NetServer createNetServer()
-    {
-        return new NetServer(defaultEventLoopGroup);
+class NetUtil {
+    static NetServer createNetServer() {
+        return new NetServer(_loopGroup);
     }
 
-    static NetClient createNetClient()
-    {
+    static NetClient createNetClient() {
         return new NetClient(loop);
     }
 
-    static EventLoopGroup defaultEventLoopGroup() { return _loop; }
+    static void startEventLoop(long timeout = -1) {
+        _loopGroup.start(timeout);
+    }
+
+    static void stopEventLoop() {
+        _loopGroup.stop();
+    }
+
+    static EventLoopGroup defaultEventLoopGroup() {
+        return _loopGroup;
+    }
+
+    static void eventLoopGroup(EventLoopGroup g) {
+        this._loopGroup = g;
+    }    
 
     shared static this() {
-        _loop = new EventLoopGroup();
-        // _loop.start();  // 
+        _loopGroup = new EventLoopGroup();
+        // _loopGroup.start();  // 
     }
 
 private:
-    __gshared EventLoopGroup _loop = null;
+    __gshared EventLoopGroup _loopGroup = null;
 
-    static EventLoop loop() @property 
-    {
+    static EventLoop loop() @property {
         static size_t index = 0;
-        // if (_loop is null)
+        // if (_loopGroup is null)
         // {
-        //     _loop = new EventLoopGroup();
-        //     _loop.start();
+        //     _loopGroup = new EventLoopGroup();
+        //     _loopGroup.start();
         // }
-        return _loop[++index];
+        return _loopGroup[++index];
     }
 }
