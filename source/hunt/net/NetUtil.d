@@ -1,19 +1,20 @@
 module hunt.net.NetUtil;
 import hunt.event;
 
+import hunt.net.Config;
 import hunt.net.NetClient;
 import hunt.net.NetServer;
-import hunt.net.Config;
+import hunt.net.Server;
 
 /**
 */
 class NetUtil {
-    static NetServer createNetServer() {
-        return new NetServer(_loopGroup);
+    static AbstractServer createNetServer(ServerThreadMode threadModel = ServerThreadMode.Single)() {
+        return new NetServer!(threadModel)(_loopGroup);
     }
 
     static NetClient createNetClient() {
-        return new NetClient(loop);
+        return new NetClient(_loopGroup.nextLoop());
     }
 
     static void startEventLoop(long timeout = -1) {
@@ -39,14 +40,4 @@ class NetUtil {
 
 private:
     __gshared EventLoopGroup _loopGroup = null;
-
-    static EventLoop loop() @property {
-        static size_t index = 0;
-        // if (_loopGroup is null)
-        // {
-        //     _loopGroup = new EventLoopGroup();
-        //     _loopGroup.start();
-        // }
-        return _loopGroup[++index];
-    }
 }

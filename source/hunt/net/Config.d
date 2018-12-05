@@ -3,6 +3,7 @@ module hunt.net.Config;
 import hunt.net.Decoder;
 import hunt.net.Encoder;
 import hunt.net.Handler;
+import hunt.io.TcpStream;
 
 /**
 */
@@ -22,9 +23,17 @@ class Config {
     private Decoder decoder;
     private Encoder encoder;
     private Handler handler;
+    private TcpStreamOption _tcpStreamOption;
 
     private bool monitorEnable = true;
-    // private MetricReporterFactory metricReporterFactory = ServiceUtils.loadService(MetricReporterFactory.class, new DefaultMetricReporterFactory());
+
+    this() {
+		_tcpStreamOption = TcpStreamOption.createOption();
+    }
+
+    TcpStreamOption tcpStreamOption() {
+        return _tcpStreamOption;
+    }
 
     /**
      * Get the max I/O idle time, the default value is 10 seconds.

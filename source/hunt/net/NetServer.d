@@ -15,47 +15,35 @@ import core.atomic;
 import std.conv;
 import std.socket;
 
+enum ServerThreadMode {
+    Single,
+    Multi
+}
 
-class NetServer : AbstractServer {
+/**
+*/
+class NetServer(ServerThreadMode threadModel = ServerThreadMode.Single) : AbstractServer {
     private string _host = "0.0.0.0";
     private int _port = 8080;
     protected bool _isStarted;
     private shared int _sessionId;
     private Config _config;
     private NetEvent netEvent;
-    private AsynchronousTcpSession tcpSession;
+    // private AsynchronousTcpSession tcpSession;
     protected EventLoopGroup _group = null;
-    private TcpListener[] listeners;
-    private Handler _handler;
 
-	protected Address _address;
-    
-    @property Address bindingAddress() {
-		return _address;
-	}
 
-    void close() {
-        stop();
+    this(EventLoopGroup loopGroup) {
+        this._group = loopGroup;
+        _config = new Config();
     }
 
-    NetServer connectionHandler(Handler handler) {
-        _handler = handler;
-        return this;
-    }
-
-    void setConfig(Config config) {
+    override void setConfig(Config config) {
         _config = config;
         netEvent = new DefaultNetEvent(config);
     }
 
-    void listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null) {
-        listen(host, port, handler);
-    }
-
-    void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
-
-        listeners = new TcpListener[_group.size];
-       
+    override void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
         _host = host;
         _port = port;
 
@@ -64,17 +52,30 @@ class NetServer : AbstractServer {
         _address = new InternetAddress(host, cast(ushort)port);
 
 		version(HUNT_DEBUG) info("start to listen:");
+        _group.start();
 
         Result!Server result = null;
+
         try {
+
+        static if(threadModel == ServerThreadMode.Multi) {   
+            listeners = new TcpListener[_group.size];         
             for (size_t i = 0; i < _group.size; ++i) {
                 listeners[i] = createServer(_group[i]);
                 version(HUNT_DEBUG) infof("lister[%d] created", i);
             }
             version(HUNT_DEBUG) infof("All the servers are listening on %s.", _address.toString());
-            _group.start();
-            _isStarted = true;
+        } else {
+            tcpListener = new TcpSocket();
+            tcpListener.setOption(SocketOptionLevel.SOCKET, SocketOption.REUSEADDR, true);
+            tcpListener.bind(_address);
+            tcpListener.listen(1000);
+            version(HUNT_DEBUG) infof("Servers is listening on %s.", _address.toString());
+        }     
+
+		    _isStarted = true;
             result = new Result!Server(this);
+            
         } catch (Exception e) {
             warning(e.message);
             result = new Result!Server(e);
@@ -84,7 +85,29 @@ class NetServer : AbstractServer {
 
         if (handler !is null)
             handler(result);
+
+    static if(threadModel == ServerThreadMode.Single) {
+		while (_isStarted) {
+			try {
+				version (HUNT_DEBUG)
+					trace("Waiting for tcpListener.accept()");
+				Socket client = tcpListener.accept();
+				// debug writeln("New client accepted");
+				processClient(client);
+			} catch (Exception e) {
+				warningf("Failure on accept %s", e);
+				_isStarted = false;
+			}
+		}
     }
+    }
+
+    override protected void initilize() {
+        listen(_host, _port);
+    }
+
+static if(threadModel == ServerThreadMode.Multi){
+    private TcpListener[] listeners;
 
     protected TcpListener createServer(EventLoop loop) {
 		TcpListener listener = new TcpListener(loop, _address.addressFamily);
@@ -93,10 +116,10 @@ class NetServer : AbstractServer {
 		listener.bind(_address).listen(1024);
         listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
                 auto currentId = atomicOp!("+=")(_sessionId, 1);
-                version(HUNT_DEBUG) tracef("new session: %d", currentId);
+                version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
                 AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
                     _config, netEvent, stream);
-                if (_config !is null)
+                if (netEvent !is null)
                     netEvent.notifySessionOpened(session);
                 if (_handler !is null)
                     _handler(session);
@@ -105,10 +128,6 @@ class NetServer : AbstractServer {
 
         return listener;
 	}
-
-    override protected void initilize() {
-        listen(_host, _port);
-    }
 
     override protected void destroy() {
         if(_isStarted) {
@@ -119,9 +138,32 @@ class NetServer : AbstractServer {
         }
     }
 
-package:
-    this(EventLoopGroup loopGroup) {
-        this._group = loopGroup;
-    }
+} else {
+    private Socket tcpListener;
+    
+	private void processClient(Socket socket) {
+		version (HUNT_DEBUG) {
+			infof("new connection from %s, fd=%d", socket.remoteAddress.toString(), socket.handle());
+		}
+		EventLoop loop = _group.nextLoop();
+		TcpStream stream;
+		stream = new TcpStream(loop, socket, _config.tcpStreamOption());
+		stream.start();
 
+        auto currentId = atomicOp!("+=")(_sessionId, 1);
+        version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
+        AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
+            _config, netEvent, stream);
+        if (netEvent !is null)
+            netEvent.notifySessionOpened(session);
+        if (_handler !is null)
+            _handler(session);        
+	}
+
+    override protected void destroy() {
+        if(_isStarted && tcpListener !is null) {
+            tcpListener.close();
+        }
+    }
+}    
 }
