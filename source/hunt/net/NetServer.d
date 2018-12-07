@@ -29,9 +29,7 @@ class NetServer(ServerThreadMode threadModel = ServerThreadMode.Single) : Abstra
     private shared int _sessionId;
     private Config _config;
     private NetEvent netEvent;
-    // private AsynchronousTcpSession tcpSession;
     protected EventLoopGroup _group = null;
-
 
     this(EventLoopGroup loopGroup) {
         this._group = loopGroup;
@@ -86,20 +84,11 @@ class NetServer(ServerThreadMode threadModel = ServerThreadMode.Single) : Abstra
         if (handler !is null)
             handler(result);
 
-    static if(threadModel == ServerThreadMode.Single) {
-		while (_isStarted) {
-			try {
-				version (HUNT_DEBUG)
-					trace("Waiting for tcpListener.accept()");
-				Socket client = tcpListener.accept();
-				// debug writeln("New client accepted");
-				processClient(client);
-			} catch (Exception e) {
-				warningf("Failure on accept %s", e);
-				_isStarted = false;
-			}
-		}
-    }
+        static if(threadModel == ServerThreadMode.Single) {
+            import std.parallelism;
+            auto theTask = task(&waitingForAccept);
+            taskPool.put(theTask);
+        }
     }
 
     override protected void initilize() {
@@ -140,6 +129,21 @@ static if(threadModel == ServerThreadMode.Multi){
 
 } else {
     private Socket tcpListener;
+
+    private void waitingForAccept() {
+        while (_isStarted) {
+			try {
+				version (HUNT_DEBUG)
+					trace("Waiting for tcpListener.accept()");
+				Socket client = tcpListener.accept();
+				// debug writeln("New client accepted");
+				processClient(client);
+			} catch (Exception e) {
+				warningf("Failure on accept %s", e);
+				_isStarted = false;
+			}
+		}
+    }
     
 	private void processClient(Socket socket) {
 		version (HUNT_DEBUG) {
