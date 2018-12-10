@@ -13,6 +13,7 @@ interface Connection : Closeable {
 
     int getSessionId();
 
+version (HUNT_METRIC) {
     long getOpenTime();
 
     long getCloseTime();
@@ -30,6 +31,7 @@ interface Connection : Closeable {
     long getWrittenBytes();
 
     long getIdleTimeout();
+}
 
     long getMaxIdleTimeout();
 

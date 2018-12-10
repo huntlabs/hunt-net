@@ -16,8 +16,7 @@ import std.socket;
 /**
  * 
  */
-abstract class AbstractConnection  : Connection
-{
+abstract class AbstractConnection : Connection {
     // static Scheduler scheduler = Schedulers.createScheduler();
 
     protected SecureSession secureSession;
@@ -29,97 +28,82 @@ abstract class AbstractConnection  : Connection
         this.tcpSession = tcpSession;
     }
 
-    
     int getSessionId() {
         return tcpSession.getSessionId();
     }
 
-    
+version (HUNT_METRIC) {
     long getOpenTime() {
         return tcpSession.getOpenTime();
     }
 
-    
     long getCloseTime() {
         return tcpSession.getCloseTime();
     }
 
-    
     long getDuration() {
         return tcpSession.getDuration();
     }
 
-    
     long getLastReadTime() {
         return tcpSession.getLastReadTime();
     }
 
-    
     long getLastWrittenTime() {
         return tcpSession.getLastWrittenTime();
     }
 
-    
     long getLastActiveTime() {
         return tcpSession.getLastActiveTime();
     }
 
-    
     long getReadBytes() {
         return tcpSession.getReadBytes();
     }
 
-    
     long getWrittenBytes() {
         return tcpSession.getWrittenBytes();
     }
 
-    
-    bool isOpen() {
-        return tcpSession.isOpen();
-    }
-
-    
-    bool isClosed() {
-        return tcpSession.isClosed();
-    }
-
-    
-    Address getLocalAddress() {
-        return tcpSession.getLocalAddress();
-    }
-
-    
-    Address getRemoteAddress() {
-        return tcpSession.getRemoteAddress();
-    }
-
-    
     long getIdleTimeout() {
         return tcpSession.getIdleTimeout();
     }
 
-    
+}
+
+    bool isOpen() {
+        return tcpSession.isOpen();
+    }
+
+    bool isClosed() {
+        return tcpSession.isClosed();
+    }
+
+    Address getLocalAddress() {
+        return tcpSession.getLocalAddress();
+    }
+
+    Address getRemoteAddress() {
+        return tcpSession.getRemoteAddress();
+    }
+
     long getMaxIdleTimeout() {
         return tcpSession.getMaxIdleTimeout();
     }
 
-    
     Object getAttachment() {
         return attachment;
     }
 
-    
     void setAttachment(Object attachment) {
         this.attachment = attachment;
     }
 
-    
     void close() {
         // if(secureSession !is null && secureSession.isOpen)
         //     secureSession.close();           
-        if(tcpSession !is null && tcpSession.isOpen)
-            tcpSession.close();   
+        if (tcpSession !is null && tcpSession.isOpen)
+            tcpSession.close();
         attachment = null;
     }
 
@@ -131,7 +115,6 @@ abstract class AbstractConnection  : Connection
         return tcpSession;
     }
 
-    
     bool isEncrypted() {
         return secureSession !is null;
     }

@@ -41,6 +41,7 @@ interface Session {
 
     int getSessionId();
 
+version(HUNT_METRIC) {
     long getOpenTime();
 
     long getCloseTime();
@@ -53,9 +54,14 @@ interface Session {
 
     long getLastActiveTime();
 
-    long getReadBytes();
+    size_t getReadBytes();
 
-    long getWrittenBytes();
+    size_t getWrittenBytes();
+
+    long getIdleTimeout();
+
+    string toString();
+}    
 
     void close();
 
@@ -78,8 +84,6 @@ interface Session {
     Address getLocalAddress();
 
     Address getRemoteAddress();
-
-    long getIdleTimeout();
 
     long getMaxIdleTimeout();
 }

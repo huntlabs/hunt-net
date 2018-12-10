@@ -1,61 +1,93 @@
 module hunt.net.NetSocket;
 
+import hunt.net.Result;
+import hunt.event.core;
+
+import hunt.lang.common;
 import hunt.logging;
 import hunt.io.TcpStream;
 
-import hunt.net.Result;
 import std.socket;
 
 alias ConnectHandler = void delegate(Result!NetSocket);
 
 alias Handler = void delegate(NetSocket sock);
-alias VoidHandler = void delegate();
-alias DataHandler = void delegate(in ubyte[] data);
+// alias DataHandler = void delegate(in ubyte[] data);
 
 ///
 class NetSocket {
+    private SimpleEventHandler _closeHandler;
+    private DataReceivedHandler _dataReceivedHandler;
+
     ///
     this(TcpStream tcp) {
         _tcp = tcp;
+        _tcp.closeHandler = &onClosed;
+        _tcp.dataReceivedHandler = &onDataReceived;
     }
+
+    ///
+    NetSocket handler(DataReceivedHandler handler) {
+        _dataReceivedHandler = handler;
+        return this;
+    }
+
+    protected void onDataReceived(const ubyte[] data) {
+        version(HUNT_DEBUG) { 
+            infof("data received (%d bytes): ", data.length); 
+            if(data.length<=64)
+                infof("%(%02X %)", data[0 .. $]);
+            else
+                infof("%(%02X %) ...", data[0 .. 64]);
+            // infof(cast(string) data); 
+        }      
+        if(_dataReceivedHandler !is null) 
+            _dataReceivedHandler(data);
+    }
+
     ///
     void close() {
         _tcp.close();
     }
     ////
-    NetSocket closeHandler(VoidHandler handler) {
-        _tcp.closeHandler = handler;
+    NetSocket closeHandler(SimpleEventHandler handler) {
+        _closeHandler = handler;
         return this;
     }
-    ///
-    NetSocket handler(DataHandler handler) {
-        _tcp.dataReceivedHandler = handler;
-        return this;
+
+    protected void onClosed() {
+        if(_closeHandler !is null)
+            _closeHandler();
     }
+    
+
     ///
     @property Address localAddress() {
         return _tcp.localAddress;
     }
+    
     ////
     @property Address remoteAddress() {
         return _tcp.remoteAddress;
     }
+
     ////
-    NetSocket write(in ubyte[] data , VoidHandler finish = null) {
+    NetSocket write(const ubyte[] data , SimpleEventHandler finish = null) {
         version (HUNT_DEBUG) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. 32]);
         }
-        _tcp.write(data , (in ubyte[] , size_t){
+        _tcp.write(data , (const ubyte[] , size_t) {
             if( finish !is null)
                 finish();
         });
         return this;
     }
+
     ////
-    NetSocket write(string str , VoidHandler finish = null) {
+    NetSocket write(string str , SimpleEventHandler finish = null) {
         return write(cast(ubyte[]) str , finish);
     }
 

@@ -7,41 +7,49 @@ import hunt.net.OutputEntry;
 import hunt.net.Session;
 
 import hunt.container;
+import hunt.datetime;
+import hunt.io.TcpStream;
 import hunt.lang.exception;
+import hunt.lang.common;
+import hunt.logging;
 import hunt.util.functional;
 
-import hunt.logging;
-import hunt.io.TcpStream;
-
+import core.atomic;
 import std.socket;
 
-
-class AsynchronousTcpSession : NetSocket, Session
-{
+class AsynchronousTcpSession : NetSocket, Session {
     protected int sessionId;
+
+version(HUNT_METRIC) {
+    private long openTime;
+    private long closeTime;
+    private long lastReadTime;
+    private long lastWrittenTime;
+    private size_t readBytes = 0;
+    private size_t writtenBytes = 0;
+} 
+
     protected Config _config;
     protected NetEvent _netEvent;
     protected Object attachment;
-    protected bool _isShutdownOutput = false;
-    protected bool _isShutdownInput = false;
-    protected bool _isWaitingForClose = false;
+    protected shared bool _isClosed = false;
+    protected shared bool _isShutdownOutput = false;
+    protected shared bool _isShutdownInput = false;
+    protected shared bool _isWaitingForClose = false;
 
     this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
         this.sessionId = sessionId;
         this._config = config;
         this._netEvent = netEvent;
-        
         super(tcp);
-    }
+        version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
+    }  
 
-
-    override
-    void attachObject(Object attachment) {
+    override void attachObject(Object attachment) {
         this.attachment = attachment;
     }
 
-    override
-    Object getAttachment() {
+    override Object getAttachment() {
         return attachment;
     }
 
@@ -61,10 +69,9 @@ class AsynchronousTcpSession : NetSocket, Session
     //     }
     // }
 
-    void encode(ByteBuffer[] messages){ 
+    void encode(ByteBuffer[] messages) {
         try {
-            foreach(ByteBuffer message; messages)
-            {
+            foreach (ByteBuffer message; messages) {
                 _config.getEncoder().encode(message, this);
             }
         } catch (Exception t) {
@@ -72,19 +79,17 @@ class AsynchronousTcpSession : NetSocket, Session
         }
     }
 
-    override
-    void write(ByteBuffer buffer, Callback callback) {
-        version(HUNT_DEBUG)
-        tracef("writting buffer: %s", buffer.toString());
+    override void write(ByteBuffer buffer, Callback callback) {
+        version (HUNT_DEBUG)
+            tracef("writting buffer: %s", buffer.toString());
 
         byte[] data = buffer.array;
         int start = buffer.position();
         int end = buffer.limit();
 
-        super.write(cast(ubyte[])data[start .. end]);
+        write(cast(ubyte[]) data[start .. end]);
         callback.succeeded();
     }
-
 
     // override
     // void write(ByteBufferOutputEntry entry) {
@@ -102,67 +107,141 @@ class AsynchronousTcpSession : NetSocket, Session
     //     // callback.succeeded();
     // }
 
-    override
-    void write(ByteBuffer[] buffers, Callback callback) {
-        foreach (ByteBuffer buffer ; buffers) { 
-            version(HUNT_DEBUG)
-            tracef("writting buffer: %s", buffer.toString());
+    override void write(ByteBuffer[] buffers, Callback callback) {
+        foreach (ByteBuffer buffer; buffers) {
+            version (HUNT_DEBUG)
+                tracef("writting buffer: %s", buffer.toString());
 
             byte[] data = buffer.array;
             int start = buffer.position();
             int end = buffer.limit();
 
-            super.write(cast(ubyte[])data[start .. end]);
+            write(cast(ubyte[]) data[start .. end]);
         }
         callback.succeeded();
     }
 
-    override
-    void write(Collection!(ByteBuffer) buffers, Callback callback) {
+    override void write(Collection!(ByteBuffer) buffers, Callback callback) {
         write(buffers.toArray(), callback); // BufferUtils.EMPTY_BYTE_BUFFER_ARRAY
     }
 
     alias write = NetSocket.write;
 
-    override
-    void closeNow() {
-        close();
+    void notifyMessageReceived(Object message) {
+        implementationMissing(false);
     }
 
-
-    void notifyMessageReceived(Object message){ implementationMissing(false); }
-
-
-    int getSessionId(){ return sessionId; }
-
-    long getOpenTime(){ implementationMissing(false); return 0; }
-
-    long getCloseTime(){ implementationMissing(false); return 0; }
-
-    long getDuration(){ implementationMissing(false); return 0; }
-
-    long getLastReadTime(){ implementationMissing(false); return 0; }
-
-    long getLastWrittenTime(){ implementationMissing(false); return 0; }
-
-    long getLastActiveTime(){ implementationMissing(false); return 0; }
-
-    long getReadBytes(){ implementationMissing(false); return 0; }
-
-    long getWrittenBytes(){ implementationMissing(false); return 0; }
-
-    override
-    void close(){ 
-        super.close(); 
+    int getSessionId() {
+        return sessionId;
     }
 
+version(HUNT_METRIC) {
+
+    override protected void onDataReceived(const ubyte[] data) {
+        readBytes += data.length;
+        super.onDataReceived(data);
+    }
+
+    override NetSocket write(const ubyte[] data , SimpleEventHandler finish = null) {
+        writtenBytes += data.length;
+        super.write(data);
+        return this;
+    }
+
+    long getOpenTime() {
+        return openTime;
+    }
+
+    long getCloseTime() {
+        return closeTime;
+    }
+
+    long getDuration() {
+        if (closeTime > 0) {
+            return closeTime - openTime;
+        } else {
+            return DateTimeHelper.currentTimeMillis - openTime;
+        }
+    }
+
+    long getLastReadTime() {
+        return lastReadTime;
+    }
+
+    long getLastWrittenTime() {
+        return lastWrittenTime;
+    }
+
+    long getLastActiveTime() {
+        import std.algorithm;
+        return max(max(lastReadTime, lastWrittenTime), openTime);
+    }
+
+    size_t getReadBytes() {
+        return readBytes;
+    }
+
+    size_t getWrittenBytes() {
+        return writtenBytes;
+    }
+
+    long getIdleTimeout() {
+        return DateTimeHelper.currentTimeMillis - getLastActiveTime();
+    }
+
+    void reset() {
+        readBytes = 0;
+        writtenBytes = 0;
+    }
+
+    override string toString() {
+        import std.conv;
+        return "[sessionId=" ~ sessionId.to!string() ~ ", openTime="
+                ~ openTime.to!string() ~ ", closeTime="
+                ~ closeTime.to!string() ~ ", duration=" ~ getDuration().to!string()
+                ~ ", readBytes=" ~ readBytes.to!string() ~ ", writtenBytes=" ~ writtenBytes.to!string() ~ "]";
+    }
+}
+
+    override void close() {
+        if(cas(&_isClosed, false, true)) {
+            try {
+                super.close();                
+            } catch (AsynchronousCloseException e) {
+                warningf("The session %d asynchronously close exception", sessionId);
+            } catch (IOException e) {
+                errorf("The session %d close exception: %s", sessionId, e.msg);
+            } 
+            // finally {
+            //     _netEvent.notifySessionClosed(this);
+            // }
+        } else {
+            infof("The session %d already closed", sessionId);
+        }
+    }
+
+    override void closeNow() {
+        this.close();
+    }
+
+    override protected void onClosed() {
+        super.onClosed();
+        version(HUNT_METRIC) {
+            closeTime = DateTimeHelper.currentTimeMillis();
+            // version(HUNT_DEBUG) 
+            tracef("The session %d closed: %s", sessionId, this.toString());
+        } else {
+            version(HUNT_DEBUG) tracef("The session %d closed", sessionId);
+        }
+        _netEvent.notifySessionClosed(this);
+    }
 
     private void shutdownSocketChannel() {
         shutdownOutput();
         shutdownInput();
     }
 
-    void shutdownOutput(){ 
+    void shutdownOutput() {
         if (_isShutdownOutput) {
             tracef("The session %d is already shutdown output", sessionId);
         } else {
@@ -178,7 +257,7 @@ class AsynchronousTcpSession : NetSocket, Session
         }
     }
 
-    void shutdownInput(){ 
+    void shutdownInput() {
         if (_isShutdownInput) {
             tracef("The session %d is already shutdown input", sessionId);
         } else {
@@ -192,28 +271,38 @@ class AsynchronousTcpSession : NetSocket, Session
                 errorf("The session %d shutdown input I/O exception. %s", sessionId, e.message);
             }
         }
-     }
+    }
 
-
-    override
-    bool isOpen() {
+    override bool isOpen() {
         return _tcp.isConnected();
     }
 
-    bool isClosed(){ return _tcp.isClosed(); }
+    bool isClosed() {
+        return _tcp.isClosed();
+    }
 
-    bool isShutdownOutput(){ return _isShutdownOutput; }
+    bool isShutdownOutput() {
+        return _isShutdownOutput;
+    }
 
-    bool isShutdownInput(){ return _isShutdownInput; }
+    bool isShutdownInput() {
+        return _isShutdownInput;
+    }
 
-    bool isWaitingForClose(){ return _isWaitingForClose; }
+    bool isWaitingForClose() {
+        return _isWaitingForClose;
+    }
 
-    Address getLocalAddress(){ return localAddress(); }
+    Address getLocalAddress() {
+        return localAddress();
+    }
 
-    Address getRemoteAddress(){ return remoteAddress(); }
+    Address getRemoteAddress() {
+        return remoteAddress();
+    }
 
-    long getIdleTimeout() { implementationMissing(false); return 0; }
-
-    long getMaxIdleTimeout() { implementationMissing(false); return 0; }
+    long getMaxIdleTimeout() {
+        return _config.getTimeout();
+    }
 
 }
