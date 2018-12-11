@@ -134,10 +134,21 @@ static if(threadModel == ServerThreadMode.Multi){
         while (_isStarted) {
 			try {
 				version (HUNT_DEBUG)
-					trace("Waiting for tcpListener.accept()");
+					trace("Waiting for accept...");
 				Socket client = tcpListener.accept();
 				// debug writeln("New client accepted");
+                version(HUNT_METRIC) {
+                    import core.time;
+                    debug trace("processing client...");
+                    MonoTime startTime = MonoTime.currTime;
+                }
 				processClient(client);
+                version(HUNT_METRIC) {
+                    import hunt.datetime;
+                    Duration timeElapsed = MonoTime.currTime - startTime;
+                    warningf("processClient done in: %d microseconds",
+                        timeElapsed.total!(TimeUnit.Microsecond)());
+                }
 			} catch (Exception e) {
 				warningf("Failure on accept %s", e);
 				_isStarted = false;
@@ -152,16 +163,16 @@ static if(threadModel == ServerThreadMode.Multi){
 		EventLoop loop = _group.nextLoop();
 		TcpStream stream;
 		stream = new TcpStream(loop, socket, _config.tcpStreamOption());
-		stream.start();
 
         auto currentId = atomicOp!("+=")(_sessionId, 1);
         version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
         AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
             _config, netEvent, stream);
-        if (netEvent !is null)
-            netEvent.notifySessionOpened(session);
+        // if (netEvent !is null)
+        //     netEvent.notifySessionOpened(session);
         if (_handler !is null)
-            _handler(session);        
+            _handler(session);
+		stream.start();
 	}
 
     override protected void destroy() {

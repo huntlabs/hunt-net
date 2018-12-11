@@ -38,11 +38,13 @@ version(HUNT_METRIC) {
     protected shared bool _isWaitingForClose = false;
 
     this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
+        assert(netEvent !is null);
         this.sessionId = sessionId;
         this._config = config;
         this._netEvent = netEvent;
         super(tcp);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
+        netEvent.notifySessionOpened(this);
     }  
 
     override void attachObject(Object attachment) {
@@ -142,9 +144,9 @@ version(HUNT_METRIC) {
         super.onDataReceived(data);
     }
 
-    override NetSocket write(const ubyte[] data , SimpleEventHandler finish = null) {
+    override NetSocket write(const ubyte[] data , SimpleEventHandler handler = null) {
         writtenBytes += data.length;
-        super.write(data);
+        super.write(data, handler);
         return this;
     }
 
