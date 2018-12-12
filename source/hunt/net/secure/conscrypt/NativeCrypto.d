@@ -2966,7 +2966,7 @@ struct AppData
      */
     static AppData* create() {
         AppData* appData = new AppData();
-        appData.initilize();
+        appData.initialize();
 
 version(Windows) {
         HANDLE interruptEvent = CreateEvent(null, FALSE, FALSE, null);
@@ -3082,7 +3082,7 @@ version(Windows) {
 
 private:
 
-    void initilize() {
+    void initialize() {
         name = "default";
         aliveAndKicking = true;
         waitingThreads = 0;

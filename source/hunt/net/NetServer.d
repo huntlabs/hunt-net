@@ -91,7 +91,7 @@ class NetServer(ServerThreadMode threadModel = ServerThreadMode.Single) : Abstra
         }
     }
 
-    override protected void initilize() {
+    override protected void initialize() {
         listen(_host, _port);
     }
 
@@ -159,7 +159,7 @@ static if(threadModel == ServerThreadMode.Multi){
             MonoTime startTime = MonoTime.currTime;
             scope(exit) {
                 Duration timeElapsed = MonoTime.currTime - startTime;
-                warningf("processClient done in: %d microseconds",
+                warningf("client processing done in: %d microseconds",
                     timeElapsed.total!(TimeUnit.Microsecond)());
             }
         }

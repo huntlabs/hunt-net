@@ -91,7 +91,7 @@ class NetClient : AbstractClient {
         connect(port, host, sessionId);
     }
 
-    override protected void initilize() {
+    override protected void initialize() {
         connect(_port, _host);
     }
 
