@@ -136,18 +136,13 @@ static if(threadModel == ServerThreadMode.Multi){
 				version (HUNT_DEBUG)
 					trace("Waiting for accept...");
 				Socket client = tcpListener.accept();
-				// debug writeln("New client accepted");
-                version(HUNT_METRIC) {
-                    import core.time;
-                    debug trace("processing client...");
-                    MonoTime startTime = MonoTime.currTime;
-                }
-				processClient(client);
-                version(HUNT_METRIC) {
-                    import hunt.datetime;
-                    Duration timeElapsed = MonoTime.currTime - startTime;
-                    warningf("processClient done in: %d microseconds",
-                        timeElapsed.total!(TimeUnit.Microsecond)());
+
+                version(HUNT_THREADPOOL) {
+                    import std.parallelism;
+                    auto decodingTask = task(&processClient, client);
+                    taskPool.put(decodingTask);
+                } else {
+                    processClient(client);
                 }
 			} catch (Exception e) {
 				warningf("Failure on accept %s", e);
@@ -157,21 +152,31 @@ static if(threadModel == ServerThreadMode.Multi){
     }
     
 	private void processClient(Socket socket) {
+        version(HUNT_METRIC) {
+            import core.time;
+            import hunt.datetime;
+            debug trace("processing client...");
+            MonoTime startTime = MonoTime.currTime;
+            scope(exit) {
+                Duration timeElapsed = MonoTime.currTime - startTime;
+                warningf("processClient done in: %d microseconds",
+                    timeElapsed.total!(TimeUnit.Microsecond)());
+            }
+        }
+        
 		version (HUNT_DEBUG) {
 			infof("new connection from %s, fd=%d", socket.remoteAddress.toString(), socket.handle());
 		}
 		EventLoop loop = _group.nextLoop();
-		TcpStream stream;
-		stream = new TcpStream(loop, socket, _config.tcpStreamOption());
+		TcpStream stream = new TcpStream(loop, socket, _config.tcpStreamOption());
 
-        auto currentId = atomicOp!("+=")(_sessionId, 1);
-        version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
-        AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
-            _config, netEvent, stream);
-        // if (netEvent !is null)
-        //     netEvent.notifySessionOpened(session);
-        if (_handler !is null)
+        if (_handler !is null) {
+            auto currentId = atomicOp!("+=")(_sessionId, 1);
+            version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
+            AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
+                _config, netEvent, stream);
             _handler(session);
+        }
 		stream.start();
 	}
 

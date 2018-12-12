@@ -41,8 +41,16 @@ class NetSocket {
                 infof("%(%02X %) ...", data[0 .. 64]);
             // infof(cast(string) data); 
         }      
-        if(_dataReceivedHandler !is null) 
-            _dataReceivedHandler(data);
+
+        if(_dataReceivedHandler !is null) {
+            version(HUNT_THREADPOOL) {
+                import std.parallelism;
+                auto connectionTask = task(_dataReceivedHandler, data);
+                taskPool.put(connectionTask);
+            } else {
+                _dataReceivedHandler(data);
+            }
+        }
     }
 
     ///
