@@ -44,7 +44,7 @@ version(HUNT_METRIC) {
         this._netEvent = netEvent;
         super(tcp);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
-        version (HUNT_DEBUG) trace("initilizing AsynchronousTcpSession");
+        version (HUNT_DEBUG) trace("initializing AsynchronousTcpSession");
         netEvent.notifySessionOpened(this);
     }  
 

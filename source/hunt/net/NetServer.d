@@ -157,11 +157,6 @@ static if(threadModel == ServerThreadMode.Multi){
             import hunt.datetime;
             debug trace("processing client...");
             MonoTime startTime = MonoTime.currTime;
-            scope(exit) {
-                Duration timeElapsed = MonoTime.currTime - startTime;
-                warningf("client processing done in: %d microseconds",
-                    timeElapsed.total!(TimeUnit.Microsecond)());
-            }
         }
         
 		version (HUNT_DEBUG) {
@@ -178,6 +173,12 @@ static if(threadModel == ServerThreadMode.Multi){
             _handler(session);
         }
 		stream.start();
+
+        version(HUNT_METRIC) { 
+            Duration timeElapsed = MonoTime.currTime - startTime;
+            warningf("client processing done in: %d microseconds",
+                timeElapsed.total!(TimeUnit.Microsecond)());
+        }
 	}
 
     override protected void destroy() {
