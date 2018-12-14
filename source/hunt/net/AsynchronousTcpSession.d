@@ -38,14 +38,15 @@ version(HUNT_METRIC) {
     protected shared bool _isWaitingForClose = false;
 
     this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
-        assert(netEvent !is null);
+        // assert(netEvent !is null);
         this.sessionId = sessionId;
         this._config = config;
         this._netEvent = netEvent;
         super(tcp);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version (HUNT_DEBUG) trace("initializing AsynchronousTcpSession");
-        netEvent.notifySessionOpened(this);
+        if(netEvent !is null)
+            netEvent.notifySessionOpened(this);
     }  
 
     override void attachObject(Object attachment) {

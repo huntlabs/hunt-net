@@ -159,7 +159,7 @@ final class ActiveSession : ConscryptSession {
         synchronized (ssl) {
             long creationTimeMillis = ssl.getTime();
             long timeoutMillis = ssl.getTimeout();
-            long now = convert!(TimeUnits.HectoNanosecond, TimeUnits.Millisecond)(Clock.currStdTime);
+            long now = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(Clock.currStdTime);
             return (now - timeoutMillis) < creationTimeMillis;
         }
     }

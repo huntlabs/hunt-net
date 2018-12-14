@@ -55,7 +55,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
         version(HUNT_DEBUG) {
             long end = Clock.currStdTime;
-            long d = convert!(TimeUnits.HectoNanosecond, TimeUnits.Millisecond)(end - start);
+            long d = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(end - start);
             tracef("creating Conscrypt SSL context spends %d ms", d);
         }
         return sslContext;
