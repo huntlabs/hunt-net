@@ -237,7 +237,8 @@ version(HUNT_METRIC) {
         } else {
             version(HUNT_DEBUG) tracef("The session %d closed", sessionId);
         }
-        _netEvent.notifySessionClosed(this);
+        if(_netEvent !is null)
+            _netEvent.notifySessionClosed(this);
     }
 
     private void shutdownSocketChannel() {
