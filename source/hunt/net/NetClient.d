@@ -63,8 +63,9 @@ class NetClient : AbstractClient {
                 import std.format;
                 string msg = format("Can't connect to %s:%d", host, port);
                 result = new Result!NetSocket(new Exception(msg));
-                _config.getHandler().failedOpeningSession(sessionId,
-                    new Exception(msg));
+                if(_config !is null && _config.getHandler() !is null)
+                    _config.getHandler().failedOpeningSession(sessionId,
+                        new Exception(msg));
             }
 
             if (handler !is null)
