@@ -170,6 +170,8 @@ static if(threadModel == ServerThreadMode.Multi){
             version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
             AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
                 _config, netEvent, stream);
+            if (netEvent !is null)
+                    netEvent.notifySessionOpened(session);
             _handler(session);
         }
 		stream.start();

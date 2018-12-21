@@ -45,8 +45,8 @@ version(HUNT_METRIC) {
         super(tcp);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version (HUNT_DEBUG) trace("initializing AsynchronousTcpSession");
-        if(netEvent !is null)
-            netEvent.notifySessionOpened(this);
+        // if(netEvent !is null)
+        //     netEvent.notifySessionOpened(this);
     }  
 
     override void attachObject(Object attachment) {
