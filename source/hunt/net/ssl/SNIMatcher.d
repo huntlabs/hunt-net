@@ -1,7 +1,7 @@
 module hunt.net.ssl.SNIMatcher;
 
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 import hunt.net.ssl.SNIServerName;
 
 /**

@@ -9,7 +9,7 @@ version(BoringSSL) {
 version(WithSSL):
 
 import hunt.net.secure.conscrypt.NativeCrypto;
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * Used to hold onto native OpenSSL references and run finalization on those

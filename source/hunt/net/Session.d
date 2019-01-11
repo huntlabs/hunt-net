@@ -4,10 +4,10 @@ import hunt.net.OutputEntry;
 import hunt.net.OutputEntryType;
 
 import std.socket;
-import hunt.util.functional;
+import hunt.util.Common;
 
-import hunt.container.ByteBuffer;
-import hunt.container.Collection;
+import hunt.collection.ByteBuffer;
+import hunt.collection.Collection;
 
 
 alias TcpSession = Session;

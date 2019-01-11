@@ -1,6 +1,6 @@
 module hunt.net.Decoder;
 
-import hunt.container.ByteBuffer;
+import hunt.collection.ByteBuffer;
 import hunt.net.Session;
 
 interface Decoder {

@@ -4,7 +4,7 @@ import hunt.net.ssl.common;
 import hunt.net.ssl.SSLParameters;
 import hunt.net.ssl.SSLSession;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 import std.socket;
 

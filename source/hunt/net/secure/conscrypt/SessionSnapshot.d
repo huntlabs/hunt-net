@@ -19,10 +19,10 @@ import hunt.net.ssl.SSLSessionContext;
 import hunt.security.Principal;
 import hunt.security.cert.Certificate;
 
-import hunt.container;
+import hunt.collection;
 
 import hunt.net.exception;
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * A snapshot of the content of another {@link ConscryptSession}. This copies everything over

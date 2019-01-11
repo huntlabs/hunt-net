@@ -14,7 +14,7 @@ import hunt.net.secure.conscrypt.Conscrypt;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSocket;
 
-import hunt.string;
+import hunt.text.Common;
 import hunt.logging;
 
 

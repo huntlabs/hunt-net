@@ -2,9 +2,9 @@ module hunt.net.DecoderChain;
 
 import hunt.net.Decoder;
 import hunt.net.Session;
-import hunt.container.ByteBuffer;
+import hunt.collection.ByteBuffer;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 abstract class DecoderChain : Decoder {
 

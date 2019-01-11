@@ -7,7 +7,7 @@ import hunt.net.ssl.SSLSocket;
 import hunt.net.ssl.SSLParameters;
 import hunt.net.ssl.SSLSocketFactory;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * This class defines the <i>Service Provider Interface</i> (<b>SPI</b>)

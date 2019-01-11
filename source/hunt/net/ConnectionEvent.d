@@ -2,9 +2,9 @@ module hunt.net.ConnectionEvent;
 
 import hunt.net.Connection;
 
-import hunt.container.LinkedList;
-import hunt.container.List;
-import hunt.lang.common;
+import hunt.collection.LinkedList;
+import hunt.collection.List;
+import hunt.util.Common;
 import hunt.logging;
 
 /**

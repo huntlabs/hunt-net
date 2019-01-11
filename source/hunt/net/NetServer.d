@@ -154,7 +154,7 @@ static if(threadModel == ServerThreadMode.Multi){
 	private void processClient(Socket socket) {
         version(HUNT_METRIC) {
             import core.time;
-            import hunt.datetime;
+            import hunt.util.DateTime;
             debug trace("processing client...");
             MonoTime startTime = MonoTime.currTime;
         }

@@ -15,7 +15,7 @@ import hunt.net.secure.conscrypt.SSLServerSessionCache;
 
 import hunt.net.ssl.SSLSessionContext;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * Caches server sessions. Indexes by session ID. Users typically look up

@@ -3,9 +3,9 @@ module hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLEngineResult;
 import hunt.net.ssl.SSLSession;
 
-import hunt.container.ByteBuffer;
+import hunt.collection.ByteBuffer;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * A class which enables secure communications using protocols such as

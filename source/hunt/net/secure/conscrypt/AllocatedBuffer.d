@@ -1,6 +1,6 @@
 module hunt.net.secure.conscrypt.AllocatedBuffer;
 
-import hunt.container;
+import hunt.collection;
 
 /**
  * A buffer that was allocated by a {@link BufferAllocator}.

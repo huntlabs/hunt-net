@@ -9,7 +9,7 @@ import hunt.net.ssl;
 
 import hunt.security.key;
 
-import hunt.container.ByteBuffer;
+import hunt.collection.ByteBuffer;
 
 /**
  * Abstract base class for all Conscrypt {@link SSLEngine} classes.

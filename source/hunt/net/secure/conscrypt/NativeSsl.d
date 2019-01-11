@@ -21,9 +21,9 @@ import hunt.security.cert.X509Certificate;
 import hunt.security.key;
 import hunt.security.x500.X500Principal;
 
-import hunt.container;
+import hunt.collection;
 import hunt.logging;
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 import std.array;
 import std.container.array;

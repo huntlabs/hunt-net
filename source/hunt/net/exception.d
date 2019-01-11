@@ -1,6 +1,6 @@
 module hunt.net.exception;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 import std.exception;
 

@@ -1,6 +1,6 @@
 module hunt.net.SocketFactory;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 import std.socket;
 

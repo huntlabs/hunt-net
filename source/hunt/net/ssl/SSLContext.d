@@ -16,7 +16,7 @@ import hunt.net.ssl.SSLSessionContext;
 import hunt.net.secure.conscrypt.OpenSSLContextImpl;
 import hunt.security.Provider;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 /**
  * Instances of this class represent a secure socket protocol

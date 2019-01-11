@@ -1,7 +1,9 @@
 module hunt.net.OutputEntry;
 
 import hunt.net.OutputEntryType;
-import hunt.util.functional;
+
+import hunt.collection.ByteBuffer;
+import hunt.util.Common;
 
 interface OutputEntry(T) {
 
@@ -35,9 +37,6 @@ abstract class AbstractOutputEntry(T) : OutputEntry!T {
 	}
 
 }
-
-
-import hunt.container.ByteBuffer;
 
 /**
 */

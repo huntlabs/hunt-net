@@ -3,7 +3,7 @@ module hunt.net.secure.conscrypt.ConscryptSession;
 import hunt.security.cert.Certificate;
 import hunt.security.cert.X509Certificate;
 import hunt.net.ssl.SSLSession;
-import hunt.container.List;
+import hunt.collection.List;
 
 /**
  * Extends the default interface for {@link SSLSession} to provide additional properties exposed

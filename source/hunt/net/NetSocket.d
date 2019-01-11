@@ -1,11 +1,12 @@
 module hunt.net.NetSocket;
 
 import hunt.net.Result;
-import hunt.event.core;
+import hunt.io.socket.Common;
 
-import hunt.lang.common;
-import hunt.logging;
+import hunt.Functions;
 import hunt.io.TcpStream;
+import hunt.logging;
+import hunt.util.Common;
 
 import std.socket;
 

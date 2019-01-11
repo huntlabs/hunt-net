@@ -1,6 +1,6 @@
 module hunt.net.ssl.SSLEngineResult;
 
-import hunt.lang.exception;
+import hunt.Exceptions;
 
 import std.conv;
 
