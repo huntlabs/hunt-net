@@ -4,7 +4,7 @@ import hunt.net.Connection;
 
 import hunt.collection.LinkedList;
 import hunt.collection.List;
-import hunt.util.Common;
+import hunt.Functions;
 import hunt.logging;
 
 /**

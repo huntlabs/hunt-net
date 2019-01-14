@@ -10,7 +10,7 @@ import hunt.collection;
 import hunt.util.DateTime;
 import hunt.io.TcpStream;
 import hunt.Exceptions;
-import hunt.util.Common;
+import hunt.Functions;
 import hunt.logging;
 import hunt.util.Common;
 
