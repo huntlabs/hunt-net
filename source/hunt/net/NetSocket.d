@@ -60,6 +60,7 @@ class NetSocket {
     }
     ////
     NetSocket closeHandler(SimpleEventHandler handler) {
+        _tcp.closeHandler = &onClosed;
         _closeHandler = handler;
         return this;
     }
