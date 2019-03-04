@@ -2,19 +2,17 @@ module hunt.net.secure.AbstractSecureSession;
 
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.SecureSession;
-
 import hunt.net.exception;
 import hunt.net.Session;
 import hunt.net.ssl;
 
-import hunt.collection;
-import hunt.io.Common;
 
-import hunt.util.Common;
+import hunt.collection;
 import hunt.concurrency.CountingCallback;
 import hunt.Exceptions;
-import hunt.util.Common;
+import hunt.io.Common;
 import hunt.text.Common;
+import hunt.util.Common;
 
 import hunt.logging;
 
@@ -414,7 +412,7 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected ByteBuffer newBuffer(int size) {
-        return ByteBuffer.allocate(size);
+        return BufferUtils.allocate(size);
     }
 
     protected SSLEngineResult unwrap() {

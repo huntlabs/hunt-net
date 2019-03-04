@@ -10,6 +10,10 @@
  */
 
 import hunt.net;
+import hunt.collection.ByteBuffer;
+
+import core.time;
+import core.thread;
 
 void main() {
     import std.stdio;
@@ -20,9 +24,9 @@ void main() {
     auto server = NetUtil.createNetServer!(ServerThreadMode.Single)();
     server.connectionHandler((NetSocket sock) {
         logInfo("accepted a connection...");
-        sock.handler((in ubyte[] data) {
+        sock.handler((ByteBuffer buffer) {
             logInfo("received from client");
-            sock.write(data);
+            sock.write(buffer);
         });
     }).listen("0.0.0.0", 8080, (Result!Server result) {
         if (result.failed())
@@ -39,12 +43,11 @@ void main() {
         logDebug("client have connected to server...");
         logDebug("client send data to server");
         sock.write("hello world");
-        sock.handler((in ubyte[] data) {
-            import core.thread;
-
-            Thread.sleep(dur!"seconds"(1));
+        
+        sock.handler((ByteBuffer buffer) {
+            Thread.sleep(2.seconds);
             logDebug("client send data to server");
-            sock.write(data);
+            sock.write(buffer);
 
         });
     });

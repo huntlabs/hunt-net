@@ -1,9 +1,10 @@
 module hunt.net.NetSocket;
 
 import hunt.net.Result;
-import hunt.io.socket.Common;
 
+import hunt.collection.ByteBuffer;
 import hunt.Functions;
+import hunt.io.channel;
 import hunt.io.TcpStream;
 import hunt.logging;
 import hunt.util.Common;
@@ -13,7 +14,6 @@ import std.socket;
 alias ConnectHandler = void delegate(Result!NetSocket);
 
 alias Handler = void delegate(NetSocket sock);
-// alias DataHandler = void delegate(in ubyte[] data);
 
 ///
 class NetSocket {
@@ -33,8 +33,9 @@ class NetSocket {
         return this;
     }
 
-    protected void onDataReceived(const ubyte[] data) {
+    protected void onDataReceived(ByteBuffer buffer) {
         version(HUNT_DEBUG) { 
+            auto data = cast(ubyte[]) buffer.getRemaining();
             infof("data received (%d bytes): ", data.length); 
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
@@ -44,13 +45,7 @@ class NetSocket {
         }      
 
         if(_dataReceivedHandler !is null) {
-            version(HUNT_THREADPOOL) {
-                import std.parallelism;
-                auto connectionTask = task(_dataReceivedHandler, data);
-                taskPool.put(connectionTask);
-            } else {
-                _dataReceivedHandler(data);
-            }
+            _dataReceivedHandler(buffer);
         }
     }
 
@@ -58,6 +53,7 @@ class NetSocket {
     void close() {
         _tcp.close();
     }
+    
     ////
     NetSocket closeHandler(SimpleEventHandler handler) {
         _tcp.closeHandler = &onClosed;
@@ -82,23 +78,25 @@ class NetSocket {
     }
 
     ////
-    NetSocket write(const ubyte[] data , SimpleEventHandler finish = null) {
+    NetSocket write(const(ubyte)[] data) {
         version (HUNT_DEBUG) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. 32]);
         }
-        _tcp.write(data , (const ubyte[] , size_t) {
-            if( finish !is null)
-                finish();
-        });
+        _tcp.write(data);
         return this;
     }
 
     ////
-    NetSocket write(string str , SimpleEventHandler finish = null) {
-        return write(cast(ubyte[]) str , finish);
+    NetSocket write(string str) {
+        return write(cast(ubyte[]) str);
+    }
+
+    NetSocket write(ByteBuffer buffer) {
+        _tcp.write(buffer);
+        return this;
     }
 
     protected {

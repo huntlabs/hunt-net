@@ -136,14 +136,7 @@ static if(threadModel == ServerThreadMode.Multi){
 				version (HUNT_DEBUG)
 					trace("Waiting for accept...");
 				Socket client = tcpListener.accept();
-
-                version(HUNT_THREADPOOL) {
-                    import std.parallelism;
-                    auto decodingTask = task(&processClient, client);
-                    taskPool.put(decodingTask);
-                } else {
-                    processClient(client);
-                }
+                processClient(client);
 			} catch (Exception e) {
 				warningf("Failure on accept %s", e);
 				_isStarted = false;

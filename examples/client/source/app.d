@@ -10,18 +10,24 @@
  */
 
 import hunt.net;
+import hunt.logging;
 
-int main()
-{
+void main() {
     import std.stdio;
-    auto client = NetUtil.createNetClient();
-    client.connectHandler((NetSocket sock){
-        writeln("connected-------------------------------------------");
-        sock.closeHandler((){
-            writeln("disconnected-------------------------------------");
+
+    NetClient client = NetUtil.createNetClient();
+    client.connectHandler((NetSocket sock) {
+        trace("connected-------------------------------------------");
+        sock.closeHandler(() {
+            trace("disconnected-------------------------------------");
         });
     });
-    client.connect(3003, "127.0.0.1");
+    client.connect(3003, "127.0.0.1", 0, (Result!NetSocket result) {
+        if (result.failed()) {
+            trace(result.cause().toString());
+        } else {
+            trace("client have connected to server...");
+        }
+    });
     NetUtil.startEventLoop();
-    while(1){}
 }
