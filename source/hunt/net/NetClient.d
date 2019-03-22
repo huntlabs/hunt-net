@@ -61,8 +61,9 @@ class NetClient : AbstractClient {
 			    version (HUNT_DEBUG) 
                     warning("connection failed!"); 
                 import std.format;
-                string msg = format("Can't connect to %s:%d", host, port);
+                string msg = format("Failed to connect with %s:%d", host, port);
                 result = new Result!NetSocket(new Exception(msg));
+                
                 if(_config !is null && _config.getHandler() !is null)
                     _config.getHandler().failedOpeningSession(sessionId,
                         new Exception(msg));

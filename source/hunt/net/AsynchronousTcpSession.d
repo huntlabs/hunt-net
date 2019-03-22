@@ -141,14 +141,14 @@ version(HUNT_METRIC) {
 
 version(HUNT_METRIC) {
 
-    override protected void onDataReceived(const ubyte[] data) {
-        readBytes += data.length;
-        super.onDataReceived(data);
+    override protected void onDataReceived(ByteBuffer buffer) {
+        readBytes += buffer.limit();
+        super.onDataReceived(buffer);
     }
 
-    override NetSocket write(const ubyte[] data , SimpleEventHandler handler = null) {
+    override NetSocket write(const ubyte[] data) {
         writtenBytes += data.length;
-        super.write(data, handler);
+        super.write(data);
         return this;
     }
 
