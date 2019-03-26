@@ -23,8 +23,8 @@ class NetSocket {
     ///
     this(TcpStream tcp) {
         _tcp = tcp;
-        _tcp.closeHandler = &onClosed;
-        _tcp.dataReceivedHandler = &onDataReceived;
+        _tcp.onClosed(&onClosed);
+        _tcp.onDataReceived(&onDataReceived);
     }
 
     ///
