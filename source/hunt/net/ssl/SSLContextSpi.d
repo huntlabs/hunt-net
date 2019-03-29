@@ -1,5 +1,9 @@
 module hunt.net.ssl.SSLContextSpi;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSessionContext;

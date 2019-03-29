@@ -1,8 +1,12 @@
 module hunt.net.secure.AbstractSecureSession;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.SecureSession;
-import hunt.net.exception;
+import hunt.net.Exceptions;
 import hunt.net.Session;
 import hunt.net.ssl;
 

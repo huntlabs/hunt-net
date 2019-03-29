@@ -1,5 +1,9 @@
 module hunt.net.secure.SSLContextFactory;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.ssl.SSLEngine;
 

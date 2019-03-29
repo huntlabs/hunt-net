@@ -5,43 +5,7 @@
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "dependencies":{        
-        "hunt" : "~>1.2.0-rc.1",
-        "hunt-security" : "~>0.2.0"
-    },
-    "configurations":[
-        {
-            "name": "default",
-            "versions": [
-                "NoSSL"
-            ]
-        },
-        {
-            "name": "boringssl",
-            "versions": [
-                "BoringSSL"
-            ],
-            "dependencies": {                
-                "boringssl": "~>0.0.1"
-            }
-        },
-        {
-            "name": "openssl",
-            "versions": [
-                "OpenSSL"
-            ],
-            "dependencies": {                
-                "openssl": "~>1.1.6+1.0.1g"
-            }
-        },
-        {
-            "name": "opensslv11",
-            "versions": [
-                "OpenSSL",
-                "DeimosOpenSSLv1_1"
-            ],
-            "dependencies": {                
-                "openssl": "~>1.1.6+1.0.1g"
-            }
-        }
-    ]
+        "hunt": "~>1.2.0-rc.4"
+    }
+    
 }

@@ -1,4 +1,4 @@
-module hunt.net.exception;
+module hunt.net.Exceptions;
 
 import hunt.Exceptions;
 

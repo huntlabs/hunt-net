@@ -1,5 +1,9 @@
 module hunt.net.ssl.KeyManagerFactory;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.KeyManagerFactorySpi;
 

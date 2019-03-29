@@ -1,5 +1,9 @@
 module hunt.net.secure.SecureSessionFactory;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.secure.SecureSession;
 import hunt.net.secure.SSLContextFactory;
 import hunt.net.Session;

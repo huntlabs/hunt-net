@@ -1,5 +1,9 @@
 module hunt.net.ssl.X509TrustManager;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.KeyManager;
 
 import hunt.security.cert.X509Certificate;

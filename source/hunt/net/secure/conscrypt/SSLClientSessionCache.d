@@ -1,5 +1,9 @@
 module hunt.net.secure.conscrypt.SSLClientSessionCache;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.SSLSession;
 
 /**

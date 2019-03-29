@@ -21,7 +21,7 @@ import hunt.security.cert.Certificate;
 
 import hunt.collection;
 
-import hunt.net.exception;
+import hunt.net.Exceptions;
 import hunt.Exceptions;
 
 /**

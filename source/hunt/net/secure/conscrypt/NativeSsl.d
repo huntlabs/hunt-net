@@ -7,7 +7,7 @@ version(BoringSSL) {
 }
 version(WithSSL):
 
-import hunt.net.exception;
+import hunt.net.Exceptions;
 import hunt.net.secure.conscrypt.AbstractSessionContext;
 import hunt.net.secure.conscrypt.AddressUtils;
 import hunt.net.secure.conscrypt.NativeCrypto;

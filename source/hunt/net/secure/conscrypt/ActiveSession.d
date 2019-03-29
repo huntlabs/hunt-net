@@ -22,7 +22,7 @@ import hunt.security.cert.X509Certificate;
 import hunt.security.Principal;
 
 import hunt.net.ssl.SSLSession;
-import hunt.net.exception;
+import hunt.net.Exceptions;
 
 import hunt.collection;
 

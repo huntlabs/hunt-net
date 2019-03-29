@@ -86,7 +86,14 @@ interface SSLHandshakeCallbacks {
     long serverSessionRequested(byte[] id);
 }     
 
-version(NoSSL) {} else {
+import hunt.net.VersionUtil;
+
+mixin(checkVersions());
+
+// dfmt off
+version(WITH_HUNT_SECURITY) :
+// dfmt on
+
 
 import hunt.net.secure.conscrypt.ApplicationProtocolSelectorAdapter;
 import hunt.net.secure.conscrypt.NativeConstants;
@@ -3110,5 +3117,4 @@ version(Windows) {
             applicationProtocolSelector = null;
         }
     }    
-}
 }

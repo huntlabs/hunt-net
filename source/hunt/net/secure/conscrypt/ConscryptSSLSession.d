@@ -1,5 +1,9 @@
 module hunt.net.secure.conscrypt.ConscryptSSLSession;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.Session;
 
 import hunt.net.ssl.common;

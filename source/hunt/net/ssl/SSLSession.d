@@ -2,6 +2,10 @@ module hunt.net.ssl.SSLSession;
 
 import hunt.net.ssl.SSLSessionContext;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.security.cert.Certificate;
 import hunt.security.cert.X509Certificate;
 import hunt.security.Principal;

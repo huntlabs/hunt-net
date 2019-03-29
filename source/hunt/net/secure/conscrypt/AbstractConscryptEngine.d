@@ -1,5 +1,9 @@
 module hunt.net.secure.conscrypt.AbstractConscryptEngine;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.secure.conscrypt.AllocatedBuffer;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.common;

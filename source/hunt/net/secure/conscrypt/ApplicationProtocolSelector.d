@@ -1,5 +1,9 @@
 module hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.SSLSocket;
 import hunt.net.ssl.SSLEngine;
 

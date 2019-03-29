@@ -1,5 +1,10 @@
 module hunt.security.OpenSSLRandom;
 
+
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.security.SecureRandomSpi;
 
 import hunt.Exceptions;

@@ -13,7 +13,7 @@ import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
 import hunt.security.cert.CertificateFactory;
 import hunt.security.cert.X509Certificate;
 
-import hunt.net.exception;
+import hunt.net.Exceptions;
 
 import hunt.collection;
 import hunt.io.ByteArrayInputStream;

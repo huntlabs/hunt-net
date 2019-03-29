@@ -16,7 +16,7 @@ import hunt.security.cert.Certificate;
 import hunt.security.cert.X509Certificate;
 import hunt.security.Principal;
 
-import hunt.net.exception;
+import hunt.net.Exceptions;
 
 import hunt.collection;
 

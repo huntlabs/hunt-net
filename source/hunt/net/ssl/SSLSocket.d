@@ -1,5 +1,9 @@
 module hunt.net.ssl.SSLSocket;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.common;
 import hunt.net.ssl.SSLParameters;
 import hunt.net.ssl.SSLSession;

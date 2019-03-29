@@ -1,5 +1,9 @@
 module hunt.net.ssl.SSLEngine;
 
+// dfmt off
+version(Have_hunt_security):
+// dfmt on
+
 import hunt.net.ssl.SSLEngineResult;
 import hunt.net.ssl.SSLSession;
 
