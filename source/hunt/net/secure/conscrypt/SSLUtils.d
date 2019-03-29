@@ -1,11 +1,10 @@
 module hunt.net.secure.conscrypt.SSLUtils;
 
-version(BoringSSL) {
-    version=WithSSL;
-} else version(OpenSSL) {
-    version=WithSSL;
-}
-version(WithSSL):
+// dfmt off
+import hunt.net.VersionUtil;
+mixin(checkVersions());
+version(WITH_HUNT_SECURITY) :
+// dfmt on
 
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
@@ -152,11 +151,11 @@ final class SSLUtils {
      * do not use X.509 for server authentication.
      */
     static string getServerX509KeyType(long sslCipherNative) {
-        version(OpenSSL) {
+        version(Have_openssl) {
             implementationMissing(false);
             string kx_name = null;
         }
-        version(BoringSSL) string kx_name = NativeCrypto.SSL_CIPHER_get_kx_name(sslCipherNative);
+        version(Have_boringssl) string kx_name = NativeCrypto.SSL_CIPHER_get_kx_name(sslCipherNative);
 
         if (kx_name.equals("RSA") || kx_name.equals("DHE_RSA") || kx_name.equals("ECDHE_RSA")) {
             return KEY_TYPE_RSA;

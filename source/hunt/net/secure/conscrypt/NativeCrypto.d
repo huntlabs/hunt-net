@@ -372,8 +372,8 @@ final class NativeCrypto {
         // It doesn't work wiht TLS Server
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
-        version(BoringSSL) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
-        version(OpenSSL) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+        version(Have_boringssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
+        version(Have_openssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
         version(HUNT_DEBUG) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
@@ -480,7 +480,7 @@ final class NativeCrypto {
         appData.name = "<<SSL_new>>";
         deimos.openssl.ssl.SSL_set_app_data(ssl, cast(char*)(appData));
 
-        version(BoringSSL) SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
+        version(Have_boringssl) SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
         version(HUNT_DEBUG) 
             tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
@@ -813,10 +813,10 @@ return null;
             return null;
         }
 
-        version(BoringSSL) 
+        version(Have_boringssl) 
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
-        version(OpenSSL)
+        version(Have_openssl)
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
         SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
@@ -833,12 +833,12 @@ return null;
         // Return an array of standard and OpenSSL name pairs.
         for (int i = 0; i < size; i++) {
             const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
-            version(BoringSSL) {
+            version(Have_boringssl) {
                 string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
                 string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
                 cipherNamesArray[2 * i] = cipherName;
                 cipherNamesArray[2 * i + 1] = opensslName;
-            } else version(OpenSSL) {
+            } else version(Have_openssl) {
                 string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
                 cipherNamesArray[2 * i] = opensslName;
                 cipherNamesArray[2 * i + 1] = opensslName;
@@ -939,9 +939,9 @@ return null;
 
         if (client_mode) {
             const(ubyte)* tmp = cast(const(ubyte)*)protocols.ptr;
-            version(BoringSSL) 
+            version(Have_boringssl) 
             int ret = deimos.openssl.ssl.SSL_set_alpn_protos(ssl, tmp, cast(uint)(protocols.length));
-            version(OpenSSL) {
+            version(Have_openssl) {
                 implementationMissing(false);
                 int ret=0;
             }
@@ -981,9 +981,9 @@ return null;
 
         appData.setApplicationProtocolSelector(cast(void*)selector);
         if (selector !is null) {
-            version(BoringSSL) SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
+            version(Have_boringssl) SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
 
-            version(OpenSSL) implementationMissing(false);
+            version(Have_openssl) implementationMissing(false);
         }
     }
 
@@ -2375,7 +2375,7 @@ implementationMissing(false);
             return;
         }
 
-        version(BoringSSL)
+        version(Have_boringssl)
         deimos.openssl.ssl.SSL_set_renegotiate_mode(ssl, ssl_renegotiate_mode_t.ssl_renegotiate_freely);        
     }
 
@@ -2718,7 +2718,7 @@ return null;
 
 
 
-version(BoringSSL) {
+version(Have_boringssl) {
 
     static void SSL_enable_signed_cert_timestamps(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
@@ -2932,7 +2932,7 @@ version(BoringSSL) {
 
 }
 
-version(BoringSSL)
+version(Have_boringssl)
 CRYPTO_BUFFER* ByteArrayToCryptoBuffer(byte[] array, CRYPTO_BUFFER_POOL* pool) {
     if (array is null) {
         warning("array is null");

@@ -6,7 +6,7 @@ version(WITH_HUNT_SECURITY) {
     } else version (Have_boringssl) {
 
     } else {
-        static assert(false, "Please add package boringssl into the current project in dub.json!");
+        static assert(false, "Please add package boringssl or openssl into the current project in dub.json!");
     }
 
     version(Have_hunt_security) {} else {
@@ -20,7 +20,7 @@ version(WITH_HUNT_SECURITY) {
 //     } else {
 //         version (Have_boringssl) {
 //             version = WITH_HUNT_SECURITY;
-//         } else version(Have_boringssl) {
+//         } else version(Have_openssl) {
 //             version = WITH_HUNT_SECURITY;
 //         }   
 //     }
@@ -34,12 +34,11 @@ string checkVersions() {
         } else {
             version (Have_boringssl) {
                 version = WITH_HUNT_SECURITY;
-            } else version(Have_boringssl) {
+            } else version(Have_openssl) {
                 version = WITH_HUNT_SECURITY;
             }   
         } 
     `;
 
-    return r;
-    
+    return r;    
 }

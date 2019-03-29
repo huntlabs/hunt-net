@@ -1,11 +1,10 @@
 module hunt.net.ssl.SSLContext;
 
-version(BoringSSL) {
-    version=WithSSL;
-} else version(OpenSSL) {
-    version=WithSSL;
-}
-version(WithSSL):
+// dfmt off
+import hunt.net.VersionUtil;
+mixin(checkVersions());
+version(WITH_HUNT_SECURITY) :
+// dfmt on
 
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;

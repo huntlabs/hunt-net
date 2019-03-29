@@ -1,11 +1,10 @@
 module hunt.net.secure.conscrypt.OpenSSLKey;
 
-version(BoringSSL) {
-    version=WithSSL;
-} else version(OpenSSL) {
-    version=WithSSL;
-}
-version(WithSSL):
+// dfmt off
+import hunt.net.VersionUtil;
+mixin(checkVersions());
+version(WITH_HUNT_SECURITY) :
+// dfmt on
 
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeRef;
@@ -172,8 +171,8 @@ final class OpenSSLKey {
             return null;
         }
         try {
-            version(BoringSSL) return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
-            version(OpenSSL) {
+            version(Have_boringssl) return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
+            version(Have_boringssl) {
                 implementationMissing(false);
                 return null;
             }

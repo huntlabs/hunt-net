@@ -1,11 +1,10 @@
 module hunt.net.secure.conscrypt.ConscryptSecureSessionFactory;
 
-version(BoringSSL) {
-    version=WithSSL;
-} else version(OpenSSL) {
-    version=WithSSL;
-}
-version(WithSSL):
+// dfmt off
+import hunt.net.VersionUtil;
+mixin(checkVersions());
+version(WITH_HUNT_SECURITY) :
+// dfmt on
 
 import hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;

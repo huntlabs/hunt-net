@@ -1,11 +1,10 @@
 module hunt.net.secure.conscrypt.NativeSsl;
 
-version(BoringSSL) {
-    version=WithSSL;
-} else version(OpenSSL) {
-    version=WithSSL;
-}
-version(WithSSL):
+// dfmt off
+import hunt.net.VersionUtil;
+mixin(checkVersions());
+version(WITH_HUNT_SECURITY) :
+// dfmt on
 
 import hunt.net.Exceptions;
 import hunt.net.secure.conscrypt.AbstractSessionContext;
@@ -102,7 +101,7 @@ final class NativeSsl {
 
     X509Certificate[] getPeerCertificates() {
         ubyte[][] encoded = null;
-        version(BoringSSL) encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
+        version(Have_boringssl) encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
 
         return encoded is null ? null : SSLUtils.decodeX509CertificateChain(encoded);
     }
@@ -269,8 +268,8 @@ return 0;
         }
 
         // Set the local certs and private key.
-        version(BoringSSL) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
-        version(OpenSSL) {
+        version(Have_boringssl) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
+        version(Have_openssl) {
             implementationMissing(false);
         }
     }
@@ -302,7 +301,7 @@ return 0;
             NativeCrypto.SSL_set_connect_state(ssl);
 
             // Configure OCSP and CT extensions for client
-            version(BoringSSL) {
+            version(Have_boringssl) {
                 NativeCrypto.SSL_enable_ocsp_stapling(ssl);
                 if (parameters.isCTVerificationEnabled(hostname))
                     NativeCrypto.SSL_enable_signed_cert_timestamps(ssl);
@@ -312,7 +311,7 @@ return 0;
 
             // Configure OCSP for server
             if (parameters.getOCSPResponse() != null) {
-                version(BoringSSL) NativeCrypto.SSL_enable_ocsp_stapling(ssl);
+                version(Have_boringssl) NativeCrypto.SSL_enable_ocsp_stapling(ssl);
             }
         }
 
@@ -382,7 +381,7 @@ return 0;
 
         // BEAST attack mitigation (1/n-1 record splitting for CBC cipher suites
         // with TLSv1 and SSLv3).
-        version(BoringSSL) NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
+        version(Have_boringssl) NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
 
         setCertificateValidation();
         setTlsChannelId(channelIdPrivateKey);
@@ -574,8 +573,8 @@ return 0;
     }
 
     int getMaxSealOverhead() {
-        version(BoringSSL) return NativeCrypto.SSL_max_seal_overhead(ssl);
-        version(OpenSSL) {
+        version(Have_boringssl) return NativeCrypto.SSL_max_seal_overhead(ssl);
+        version(Have_openssl) {
             implementationMissing(false);
             return 0;
         }
