@@ -11,7 +11,7 @@ A net library for dlang, hunt library based.
 | hunt-security |  0.2.0    |  Some core APIs for security  |
 
 **Note:**
-To support SSL, the project must add these packages:
+To support SSL, you must add these packages to your project:
 1. hunt-security
 1. boringssl or openssl
 
