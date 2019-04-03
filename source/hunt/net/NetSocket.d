@@ -24,7 +24,7 @@ class NetSocket {
     this(TcpStream tcp) {
         _tcp = tcp;
         _tcp.onClosed(&onClosed);
-        _tcp.onDataReceived(&onDataReceived);
+        _tcp.onReceived(&onDataReceived);
     }
 
     ///
