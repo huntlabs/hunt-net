@@ -1,5 +1,6 @@
 {
     "name": "hunt-net",
+    "targetType": "sourceLibrary",
     "description": "A network library for hunt.",
     "copyright": "Copyright (C) 2018-2019, HuntLabs",
     "homepage": "https://www.huntlabs.net",
