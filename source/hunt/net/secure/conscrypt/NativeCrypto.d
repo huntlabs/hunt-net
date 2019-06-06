@@ -1,6 +1,9 @@
 module hunt.net.secure.conscrypt.NativeCrypto;
 
 
+import std.array;
+import std.concurrency : initOnce;
+
 /**
 * A collection of callbacks from the native OpenSSL code that are
  * related to the SSL handshake initiated by SSL_do_handshake.
@@ -102,6 +105,7 @@ import hunt.net.secure.conscrypt.NativeRef;
 import deimos.openssl.evp;
 import deimos.openssl.ssl;
 import deimos.openssl.err;
+import deimos.openssl.opensslv;
 
 
 import hunt.collection;
@@ -135,9 +139,9 @@ final class NativeCrypto {
     // --- SSL handling --------------------------------------------------------
 
     enum string OBSOLETE_PROTOCOL_SSLV3 = "SSLv3";
-    private enum string SUPPORTED_PROTOCOL_TLSV1 = "TLSv1";
-    private enum string SUPPORTED_PROTOCOL_TLSV1_1 = "TLSv1.1";
-    private enum string SUPPORTED_PROTOCOL_TLSV1_2 = "TLSv1.2";
+    enum string SUPPORTED_PROTOCOL_TLSV1 = "TLSv1";
+    enum string SUPPORTED_PROTOCOL_TLSV1_1 = "TLSv1.1";
+    enum string SUPPORTED_PROTOCOL_TLSV1_2 = "TLSv1.2";
 
     /** Protocols to enable by default when "TLSv1.2" is requested. */
     enum string[] TLSV12_PROTOCOLS = [
@@ -155,6 +159,15 @@ final class NativeCrypto {
     enum string[] DEFAULT_PROTOCOLS = TLSV12_PROTOCOLS;
     private enum string[] SUPPORTED_PROTOCOLS = DEFAULT_PROTOCOLS;
 
+    /**
+     * TLS_FALLBACK_SCSV is from
+     * https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
+     * to indicate to the server that this is a fallback protocol
+     * request.
+     */
+    private enum string TLS_FALLBACK_SCSV = "TLS_FALLBACK_SCSV";
+
+    private __gshared string[] SUPPORTED_CIPHER_SUITES;
 
     // SUPPORTED_CIPHER_SUITES_SET contains all the supported cipher suites, using their Java names.
     __gshared Set!string SUPPORTED_CIPHER_SUITES_SET;
@@ -200,15 +213,6 @@ final class NativeCrypto {
         return javaCipherSuite;
     }
 
-    /**
-     * TLS_FALLBACK_SCSV is from
-     * https://tools.ietf.org/html/draft-ietf-tls-downgrade-scsv-00
-     * to indicate to the server that this is a fallback protocol
-     * request.
-     */
-    private enum string TLS_FALLBACK_SCSV = "TLS_FALLBACK_SCSV";
-
-    private __gshared string[] SUPPORTED_CIPHER_SUITES;
 
     shared static this() {
         SUPPORTED_CIPHER_SUITES_SET = new HashSet!string();
@@ -845,17 +849,22 @@ return null;
                 cipherNamesArray[2 * i + 1] = opensslName;
             } else version(Have_openssl) {
                 string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
+                // trace("cipherName=%s, opensslName=%s", cipherName, opensslName);
+
                 cipherNamesArray[2 * i] = opensslName;
                 cipherNamesArray[2 * i + 1] = opensslName;
             }
         }
 
-        // version(HUNT_DEBUG)
-        // tracef("get_cipher_names(%s) => success (%d entries)", selector, 2 * size);
+        version(HUNT_DEBUG_MORE)
+            tracef("get_cipher_names(%s) => success (%d entries)", selector, cipherNamesArray.length);
         return cipherNamesArray;     
         
     }
 
+static if (OPENSSL_VERSION_AT_LEAST(1, 1, 1)) {
+
+}
     // static byte[] get_ocsp_single_extension(
     //         byte[] ocspResponse, string oid, long x509Ref, OpenSSLX509Certificate holder, long issuerX509Ref, OpenSSLX509Certificate holder2);
 
@@ -2281,6 +2290,7 @@ implementationMissing(false);
             }
             opensslSuites ~= cipherSuiteFromJava(cipherSuite);
         }
+        trace(opensslSuites);
         SSL_set_cipher_lists(ssl_address, opensslSuites);
     }
 
@@ -2293,7 +2303,7 @@ implementationMissing(false);
 
         // makes sure all suites are valid, throwing on error
         for (size_t i = 0; i < cipherSuites.length; i++) {
-            if (cipherSuites[i] is null) {
+            if (cipherSuites[i].empty()) {
                 throw new IllegalArgumentException("cipherSuites[" ~ i.to!string() ~ "] is null");
             }
             if (cipherSuites[i] == TLS_EMPTY_RENEGOTIATION_INFO_SCSV
