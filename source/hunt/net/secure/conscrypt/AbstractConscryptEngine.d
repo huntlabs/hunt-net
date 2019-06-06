@@ -1,7 +1,7 @@
 module hunt.net.secure.conscrypt.AbstractConscryptEngine;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.secure.conscrypt.AllocatedBuffer;
@@ -11,7 +11,7 @@ import hunt.net.secure.conscrypt.common;
 
 import hunt.net.ssl;
 
-import hunt.security.key;
+import hunt.security.Key;
 
 import hunt.collection.ByteBuffer;
 

@@ -10,7 +10,7 @@ import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeRef;
 import hunt.net.secure.conscrypt.OpenSSLKeyHolder;
 
-import hunt.security.key;
+import hunt.security.Key;
 
 import hunt.Exceptions;
 import hunt.text.Common;
@@ -172,7 +172,7 @@ final class OpenSSLKey {
         }
         try {
             version(Have_boringssl) return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
-            version(Have_boringssl) {
+            version(Have_openssl) {
                 implementationMissing(false);
                 return null;
             }

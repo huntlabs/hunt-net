@@ -408,7 +408,7 @@ return null;
 
         // We need to copy 5 bytes into a temporary buffer so we can parse out the packet length
         // easily.
-        ByteBuffer tmp = ByteBuffer.allocate(SSL3_RT_HEADER_LENGTH);
+        ByteBuffer tmp = BufferUtils.allocate(SSL3_RT_HEADER_LENGTH);
         do {
             buffer = buffers[offset++];
             int pos = buffer.position();

@@ -1,12 +1,12 @@
 module hunt.net.ssl.X509KeyManager;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.ssl.KeyManager;
 import hunt.security.Principal;
-import hunt.security.key;
+import hunt.security.Key;
 import hunt.security.cert.X509Certificate;
 
 import std.socket;

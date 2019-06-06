@@ -37,11 +37,12 @@ class NetSocket {
         version(HUNT_DEBUG) { 
             auto data = cast(ubyte[]) buffer.getRemaining();
             infof("data received (%d bytes): ", data.length); 
+            version(HUNT_DEBUG_MORE) {
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
             else
                 infof("%(%02X %) ...", data[0 .. 64]);
-            // infof(cast(string) data); 
+            }
         }      
 
         if(_dataReceivedHandler !is null) {
@@ -79,7 +80,7 @@ class NetSocket {
 
     ////
     NetSocket write(const(ubyte)[] data) {
-        version (HUNT_DEBUG) {
+        version (HUNT_DEBUG_MORE) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else

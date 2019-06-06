@@ -19,9 +19,9 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLServerSocketFactory;
 import hunt.net.ssl.SSLSocketFactory;
 
-import hunt.security.key;
-
 import hunt.Exceptions;
+import hunt.logging.ConsoleLogger;
+import hunt.security.Key;
 
 /**
  * OpenSSL-backed SSLContext service provider interface.
@@ -103,8 +103,8 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
         }
         // return Platform.wrapSocketFactoryIfNeeded(new OpenSSLSocketFactoryImpl(sslParameters));
 
-implementationMissing();
-return null;
+        implementationMissing();
+        return null;
     }
 
     // override
@@ -209,8 +209,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * creating the state shared between all default SSLContexts.
      */
     this() {
-        import hunt.logging;
-        error(false, "no certificate provided");
+        warning("No certificates provided!");
         super("cert/server.crt", "cert/server.key");
     }
 

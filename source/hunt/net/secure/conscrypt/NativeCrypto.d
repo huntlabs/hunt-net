@@ -157,11 +157,11 @@ final class NativeCrypto {
 
 
     // SUPPORTED_CIPHER_SUITES_SET contains all the supported cipher suites, using their Java names.
-    __gshared static Set!string SUPPORTED_CIPHER_SUITES_SET;
+    __gshared Set!string SUPPORTED_CIPHER_SUITES_SET;
 
     // SUPPORTED_LEGACY_CIPHER_SUITES_SET contains all the supported cipher suites using the legacy
     // OpenSSL-style names.
-    private __gshared static Set!string SUPPORTED_LEGACY_CIPHER_SUITES_SET;
+    private __gshared Set!string SUPPORTED_LEGACY_CIPHER_SUITES_SET;
 
 
     /**
@@ -187,14 +187,14 @@ final class NativeCrypto {
 
     static string cipherSuiteToJava(string cipherSuite) {
         // For historical reasons, Java uses a different name for TLS_RSA_WITH_3DES_EDE_CBC_SHA.
-        if ("TLS_RSA_WITH_3DES_EDE_CBC_SHA".equals(cipherSuite)) {
+        if ("TLS_RSA_WITH_3DES_EDE_CBC_SHA" == cipherSuite) {
             return "SSL_RSA_WITH_3DES_EDE_CBC_SHA";
         }
         return cipherSuite;
     }
 
     static string cipherSuiteFromJava(string javaCipherSuite) {
-        if ("SSL_RSA_WITH_3DES_EDE_CBC_SHA".equals(javaCipherSuite)) {
+        if ("SSL_RSA_WITH_3DES_EDE_CBC_SHA" == javaCipherSuite) {
             return "TLS_RSA_WITH_3DES_EDE_CBC_SHA";
         }
         return javaCipherSuite;
@@ -216,6 +216,8 @@ final class NativeCrypto {
 
         string[] allCipherSuites = get_cipher_names("ALL:!DHE");
 
+        trace(allCipherSuites);
+
         // get_cipher_names returns an array where even indices are the standard name and odd
         // indices are the OpenSSL name.
         int size = cast(int)allCipherSuites.length;
@@ -232,6 +234,9 @@ final class NativeCrypto {
         }
         SUPPORTED_CIPHER_SUITES[size / 2] = TLS_EMPTY_RENEGOTIATION_INFO_SCSV;
         SUPPORTED_CIPHER_SUITES[size / 2 + 1] = TLS_FALLBACK_SCSV;
+
+
+        trace(SUPPORTED_CIPHER_SUITES);
     }
 
     static SSL* to_SSL(long ssl_address) {
@@ -2283,6 +2288,9 @@ implementationMissing(false);
         if (cipherSuites is null) {
             throw new IllegalArgumentException("cipherSuites is null");
         }
+
+        info(cipherSuites);
+
         // makes sure all suites are valid, throwing on error
         for (size_t i = 0; i < cipherSuites.length; i++) {
             if (cipherSuites[i] is null) {
@@ -2686,7 +2694,7 @@ return null;
         }
 
         SSL_SESSION* ssl_session = deimos.openssl.ssl.SSL_get_session(ssl);
-        tracef("ssl_session=%s SSL_session_id", ssl_session);
+        tracef("ssl_session=%s", ssl_session);
         if (ssl_session is null) {
             return null;
         }

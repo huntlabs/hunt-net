@@ -1,7 +1,7 @@
 module hunt.net.secure.AbstractSecureSession;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.secure.ProtocolSelector;
@@ -401,11 +401,11 @@ abstract class AbstractSecureSession : SecureSession {
         // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
         // 
         receivedAppBuf.clear();  // why?
-        warningf("xxxx=>receivedAppBuf=%s", receivedAppBuf.toString());
+        warningf("receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
         if (input !is receivedPacketBuf) {
             int consumed = result.bytesConsumed();
-            warningf("yyyyyy=>receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
+            warningf("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
             receivedPacketBuf.position(receivedPacketBuf.position() + consumed);
         }
         return result;

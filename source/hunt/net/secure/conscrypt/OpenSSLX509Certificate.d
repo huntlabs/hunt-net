@@ -1,7 +1,7 @@
 module hunt.net.secure.conscrypt.OpenSSLX509Certificate;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.security.cert.X509Certificate;
@@ -11,7 +11,7 @@ import hunt.security.Principal;
 import hunt.security.Provider;
 import hunt.security.x500.X500Principal;
 import hunt.security.x509;
-import hunt.security.key;
+import hunt.security.Key;
 
 import hunt.collection;
 import hunt.Exceptions;

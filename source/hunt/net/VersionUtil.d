@@ -9,7 +9,7 @@ version(WITH_HUNT_SECURITY) {
         static assert(false, "Please add package boringssl or openssl into the current project in dub.json!");
     }
 
-    version(Have_hunt_security) {} else {
+    version(WITH_HUNT_SECURITY) {} else {
         static assert(false, "Please add package hunt-security into the current project in dub.json!");
     }
 } 

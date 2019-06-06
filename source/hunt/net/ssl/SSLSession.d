@@ -3,7 +3,7 @@ module hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSessionContext;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.security.cert.Certificate;

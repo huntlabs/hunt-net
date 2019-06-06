@@ -2,7 +2,7 @@
 module hunt.net.ssl.HandshakeCompletedEvent;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.ssl.common;

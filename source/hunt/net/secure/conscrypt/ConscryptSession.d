@@ -1,7 +1,7 @@
 module hunt.net.secure.conscrypt.ConscryptSession;
 
 // dfmt off
-version(Have_hunt_security):
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.security.cert.Certificate;
