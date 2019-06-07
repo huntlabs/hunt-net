@@ -298,6 +298,7 @@ return 0;
         NativeCrypto.SSL_accept_renegotiations(ssl);
 
         if (isClient()) {
+            version(HUNT_DEBUG) trace("It's a client.");
             NativeCrypto.SSL_set_connect_state(ssl);
 
             // Configure OCSP and CT extensions for client
@@ -320,8 +321,8 @@ return 0;
                     ~ NativeCrypto.OBSOLETE_PROTOCOL_SSLV3
                     ~ " is no longer supported and was filtered from the list");
         }
-        NativeCrypto.setEnabledProtocols(ssl, parameters.enabledProtocols);
-        NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
+        // NativeCrypto.setEnabledProtocols(ssl, parameters.enabledProtocols);
+        // NativeCrypto.setEnabledCipherSuites(ssl, parameters.enabledCipherSuites);
 
         if (parameters.applicationProtocols.length > 0) {
             NativeCrypto.setApplicationProtocols(ssl, isClient(), parameters.applicationProtocols);
@@ -405,8 +406,12 @@ return 0;
         // lock.readLock().lock();
         try {
             return NativeCrypto.ENGINE_SSL_do_handshake(ssl, handshakeCallbacks);
+        } catch(Exception ex) {
+            warning(ex.msg);
+            return 0;
         } finally {
             // lock.readLock().unlock();
+            
         }
     }
 
@@ -575,7 +580,7 @@ return 0;
     int getMaxSealOverhead() {
         version(Have_boringssl) return NativeCrypto.SSL_max_seal_overhead(ssl);
         version(Have_openssl) {
-            implementationMissing(false);
+            // implementationMissing(false);
             return 0;
         }
     }

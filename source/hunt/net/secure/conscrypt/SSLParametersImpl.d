@@ -109,6 +109,7 @@ final class SSLParametersImpl  {
         this.serverSessionContext = serverSessionContext;
         this.clientSessionContext = clientSessionContext;
 
+version(Have_boringssl) {
         // initialize key managers
         if (kms is null) {
             x509KeyManager = getDefaultX509KeyManager();
@@ -133,7 +134,7 @@ final class SSLParametersImpl  {
         bool pskCipherSuitesNeeded = false; // pskKeyManager !is null;
         enabledCipherSuites = getDefaultCipherSuites(
                 x509CipherSuitesNeeded, pskCipherSuitesNeeded);
-
+}
         // We ignore the SecureRandom passed in by the caller. The native code below
         // directly accesses /dev/urandom, which makes it irrelevant.
     }

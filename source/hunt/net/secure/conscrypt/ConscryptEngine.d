@@ -658,25 +658,25 @@ return null;
 
     override
     SSLEngineResult unwrap(ByteBuffer src, ByteBuffer dst) {
-        synchronized (ssl) {
+        // synchronized (ssl) {
             try {
                 return unwrap(makeSingleSrcBuffer(src), makeSingleDstBuffer(dst));
             } finally {
                 resetSingleSrcBuffer();
                 resetSingleDstBuffer();
             }
-        }
+        // }
     }
 
     override
     SSLEngineResult unwrap(ByteBuffer src, ByteBuffer[] dsts) {
-        synchronized (ssl) {
+        // synchronized (ssl) {
             try {
                 return unwrap(makeSingleSrcBuffer(src), dsts);
             } finally {
                 resetSingleSrcBuffer();
             }
-        }
+        // }
     }
 
     override
@@ -703,6 +703,8 @@ return null;
             ByteBuffer[] dsts, int dstsOffset, int dstsLength) {
         assert(srcs !is null, "srcs is null");
         assert(dsts !is null, "dsts is null");
+        // infof("srcsOffset=%d", srcsOffset);
+        
         checkPositionIndexes(srcsOffset, srcsOffset + srcsLength, cast(int)srcs.length);
         checkPositionIndexes(dstsOffset, dstsOffset + dstsLength, cast(int)dsts.length);
 
@@ -733,6 +735,7 @@ return null;
             HandshakeStatus handshakeStatus = HandshakeStatus.NOT_HANDSHAKING;
             if (!handshakeFinished) {
                 handshakeStatus = handshake();
+                version(HUNT_HTTP_DEBUG) trace("handshakeStatus=", handshakeStatus);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                     return NEED_WRAP_OK;
                 }
@@ -744,6 +747,7 @@ return null;
 
             // Consume any source data. Skip this if there are unread cleartext data.
             bool noCleartextDataAvailable = pendingInboundCleartextBytes() <= 0;
+            // tracef("srcLength=%d, noCleartextDataAvailable=%s", srcLength, noCleartextDataAvailable);
             int lenRemaining = 0;
             if (srcLength > 0 && noCleartextDataAvailable) {
                 if (srcLength < SSL3_RT_HEADER_LENGTH) {
@@ -752,6 +756,9 @@ return null;
                 }
 
                 int packetLength = SSLUtils.getEncryptedPacketLength(srcs, srcsOffset);
+
+                // tracef("srcLength=%d, srcsOffset=%d packetLength=%d", srcLength, srcsOffset, packetLength);
+
                 if (packetLength < 0) {
                     throw new SSLException("Unable to parse TLS packet header");
                 }
@@ -769,6 +776,8 @@ return null;
                 return new SSLEngineResult(SSLEngineResult.Status.BUFFER_UNDERFLOW, getHandshakeStatus(), 0, 0);
             }
 
+            // tracef("lenRemaining=%d, srcsOffset=%d, srcsEndOffset=%d", lenRemaining, srcsOffset, srcsEndOffset);
+
             // Write all of the encrypted source data to the networkBio
             int bytesConsumed = 0;
             if (lenRemaining > 0 && srcsOffset < srcsEndOffset) {
@@ -781,6 +790,7 @@ return null;
                         srcsOffset++;
                         continue;
                     }
+                    
                     // Write the source encrypted data to the networkBio.
                     int written = writeEncryptedData(src, min(lenRemaining, remaining));
                     if (written > 0) {
@@ -822,9 +832,7 @@ return null;
                             continue;
                         }
 
-                // tracef("eeeeee, dst=> %s", dst.toString());
                         int bytesRead = readPlaintextData(dst);
-                // tracef("ffffffffff, dst=> %s", dst.toString());
                         if (bytesRead > 0) {
                             bytesProduced += bytesRead;
                             if (dst.hasRemaining()) {
@@ -1165,6 +1173,7 @@ return null;
                 bytesWritten = writeEncryptedDataHeap(src, pos, len);
             }
 
+tracef("bytesWritten=%d", bytesWritten);
             if (bytesWritten > 0) {
                 src.position(pos + bytesWritten);
             }

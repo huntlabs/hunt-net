@@ -292,9 +292,12 @@ final class ActiveSession : ConscryptSession {
         this.peerHost = peerHost;
         this.peerPort = peerPort;
         this.peerCertificates = peerCertificates;
+
+        version(Have_boringssl) {
         synchronized (ssl) {
             this.peerCertificateOcspData = ssl.getPeerCertificateOcspData();
             this.peerTlsSctData = ssl.getPeerTlsSctData();
+        }
         }
     }
 

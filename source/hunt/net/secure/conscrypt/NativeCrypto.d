@@ -220,7 +220,7 @@ final class NativeCrypto {
 
         string[] allCipherSuites = get_cipher_names("ALL:!DHE");
 
-        trace(allCipherSuites);
+        // trace(allCipherSuites);
 
         // get_cipher_names returns an array where even indices are the standard name and odd
         // indices are the OpenSSL name.
@@ -239,8 +239,7 @@ final class NativeCrypto {
         SUPPORTED_CIPHER_SUITES[size / 2] = TLS_EMPTY_RENEGOTIATION_INFO_SCSV;
         SUPPORTED_CIPHER_SUITES[size / 2 + 1] = TLS_FALLBACK_SCSV;
 
-
-        trace(SUPPORTED_CIPHER_SUITES);
+        // trace(SUPPORTED_CIPHER_SUITES);
     }
 
     static SSL* to_SSL(long ssl_address) {
@@ -842,18 +841,20 @@ return null;
         // Return an array of standard and OpenSSL name pairs.
         for (int i = 0; i < size; i++) {
             const SSL_CIPHER* cipher = sk_SSL_CIPHER_value(ciphers, i);
+            string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
+
             version(Have_boringssl) {
                 string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
-                string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
-                cipherNamesArray[2 * i] = cipherName;
-                cipherNamesArray[2 * i + 1] = opensslName;
             } else version(Have_openssl) {
-                string opensslName = cast(string)fromStringz(SSL_CIPHER_get_name(cipher));
-                // trace("cipherName=%s, opensslName=%s", cipherName, opensslName);
+                static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) { 
+                    string cipherName = toTlsCipherName(opensslName);
+                } else {
+                    string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
+                }
 
-                cipherNamesArray[2 * i] = opensslName;
-                cipherNamesArray[2 * i + 1] = opensslName;
             }
+            cipherNamesArray[2 * i] = cipherName;
+            cipherNamesArray[2 * i + 1] = opensslName;
         }
 
         version(HUNT_DEBUG_MORE)
@@ -862,7 +863,19 @@ return null;
         
     }
 
-static if (OPENSSL_VERSION_AT_LEAST(1, 1, 1)) {
+static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
+
+    static string toTlsCipherName(string cipherName) {
+        string name = cipherName;
+        string[] talbe = tls_cipher_name_translation_table;
+        for(int i=0; i<talbe.length; i+=2) {
+            if(talbe[i] == cipherName) {
+                name = talbe[i+1].replace("-", "_");
+            }
+        }
+
+        return name;
+    }
 
 }
     // static byte[] get_ocsp_single_extension(
@@ -1071,7 +1084,7 @@ static if (OPENSSL_VERSION_AT_LEAST(1, 1, 1)) {
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
-            version(HUNT_DEBUG) infof("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
+            version(HUNT_HTTP_DEBUG) tracef("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
             return code;
         }
 
@@ -2159,7 +2172,7 @@ implementationMissing(false);
             return;
         }
 
-implementationMissing(false);
+        implementationMissing(false);
         if (cipherSuites is null) {
             warning("cipherSuites is null");
             return;
@@ -2290,7 +2303,7 @@ implementationMissing(false);
             }
             opensslSuites ~= cipherSuiteFromJava(cipherSuite);
         }
-        trace(opensslSuites);
+        // trace(opensslSuites);
         SSL_set_cipher_lists(ssl_address, opensslSuites);
     }
 
@@ -2299,7 +2312,7 @@ implementationMissing(false);
             throw new IllegalArgumentException("cipherSuites is null");
         }
 
-        info(cipherSuites);
+        // info(cipherSuites);
 
         // makes sure all suites are valid, throwing on error
         for (size_t i = 0; i < cipherSuites.length; i++) {
@@ -3135,4 +3148,138 @@ version(Windows) {
             applicationProtocolSelector = null;
         }
     }    
+}
+
+
+static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
+
+/**
+ * SSL/TLS Cipher suite name translation table
+ */
+string[] tls_cipher_name_translation_table = [
+    "ADH-SEED-SHA", "TLS-DH-anon-WITH-SEED-CBC-SHA",
+    "AES128-GCM-SHA256", "TLS-RSA-WITH-AES-128-GCM-SHA256",
+    "AES128-SHA256", "TLS-RSA-WITH-AES-128-CBC-SHA256",
+    "AES128-SHA", "TLS-RSA-WITH-AES-128-CBC-SHA",
+    "AES256-GCM-SHA384", "TLS-RSA-WITH-AES-256-GCM-SHA384",
+    "AES256-SHA256", "TLS-RSA-WITH-AES-256-CBC-SHA256",
+    "AES256-SHA", "TLS-RSA-WITH-AES-256-CBC-SHA",
+    "CAMELLIA128-SHA256", "TLS-RSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "CAMELLIA128-SHA", "TLS-RSA-WITH-CAMELLIA-128-CBC-SHA",
+    "CAMELLIA256-SHA256", "TLS-RSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "CAMELLIA256-SHA", "TLS-RSA-WITH-CAMELLIA-256-CBC-SHA",
+    "DES-CBC3-SHA", "TLS-RSA-WITH-3DES-EDE-CBC-SHA",
+    "DES-CBC-SHA", "TLS-RSA-WITH-DES-CBC-SHA",
+    "DH-DSS-SEED-SHA", "TLS-DH-DSS-WITH-SEED-CBC-SHA",
+    "DHE-DSS-AES128-GCM-SHA256", "TLS-DHE-DSS-WITH-AES-128-GCM-SHA256",
+    "DHE-DSS-AES128-SHA256", "TLS-DHE-DSS-WITH-AES-128-CBC-SHA256",
+    "DHE-DSS-AES128-SHA", "TLS-DHE-DSS-WITH-AES-128-CBC-SHA",
+    "DHE-DSS-AES256-GCM-SHA384", "TLS-DHE-DSS-WITH-AES-256-GCM-SHA384",
+    "DHE-DSS-AES256-SHA256", "TLS-DHE-DSS-WITH-AES-256-CBC-SHA256",
+    "DHE-DSS-AES256-SHA", "TLS-DHE-DSS-WITH-AES-256-CBC-SHA",
+    "DHE-DSS-CAMELLIA128-SHA256", "TLS-DHE-DSS-WITH-CAMELLIA-128-CBC-SHA256",
+    "DHE-DSS-CAMELLIA128-SHA", "TLS-DHE-DSS-WITH-CAMELLIA-128-CBC-SHA",
+    "DHE-DSS-CAMELLIA256-SHA256", "TLS-DHE-DSS-WITH-CAMELLIA-256-CBC-SHA256",
+    "DHE-DSS-CAMELLIA256-SHA", "TLS-DHE-DSS-WITH-CAMELLIA-256-CBC-SHA",
+    "DHE-DSS-SEED-SHA", "TLS-DHE-DSS-WITH-SEED-CBC-SHA",
+    "DHE-RSA-AES128-GCM-SHA256", "TLS-DHE-RSA-WITH-AES-128-GCM-SHA256",
+    "DHE-RSA-AES128-SHA256", "TLS-DHE-RSA-WITH-AES-128-CBC-SHA256",
+    "DHE-RSA-AES128-SHA", "TLS-DHE-RSA-WITH-AES-128-CBC-SHA",
+    "DHE-RSA-AES256-GCM-SHA384", "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
+    "DHE-RSA-AES256-SHA256", "TLS-DHE-RSA-WITH-AES-256-CBC-SHA256",
+    "DHE-RSA-AES256-SHA", "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
+    "DHE-RSA-CAMELLIA128-SHA256", "TLS-DHE-RSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "DHE-RSA-CAMELLIA128-SHA", "TLS-DHE-RSA-WITH-CAMELLIA-128-CBC-SHA",
+    "DHE-RSA-CAMELLIA256-SHA256", "TLS-DHE-RSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "DHE-RSA-CAMELLIA256-SHA", "TLS-DHE-RSA-WITH-CAMELLIA-256-CBC-SHA",
+    "DHE-RSA-CHACHA20-POLY1305", "TLS-DHE-RSA-WITH-CHACHA20-POLY1305-SHA256",
+    "DHE-RSA-SEED-SHA", "TLS-DHE-RSA-WITH-SEED-CBC-SHA",
+    "DH-RSA-SEED-SHA", "TLS-DH-RSA-WITH-SEED-CBC-SHA",
+    "ECDH-ECDSA-AES128-GCM-SHA256", "TLS-ECDH-ECDSA-WITH-AES-128-GCM-SHA256",
+    "ECDH-ECDSA-AES128-SHA256", "TLS-ECDH-ECDSA-WITH-AES-128-CBC-SHA256",
+    "ECDH-ECDSA-AES128-SHA", "TLS-ECDH-ECDSA-WITH-AES-128-CBC-SHA",
+    "ECDH-ECDSA-AES256-GCM-SHA384", "TLS-ECDH-ECDSA-WITH-AES-256-GCM-SHA384",
+    "ECDH-ECDSA-AES256-SHA256", "TLS-ECDH-ECDSA-WITH-AES-256-CBC-SHA256",
+    "ECDH-ECDSA-AES256-SHA384", "TLS-ECDH-ECDSA-WITH-AES-256-CBC-SHA384",
+    "ECDH-ECDSA-AES256-SHA", "TLS-ECDH-ECDSA-WITH-AES-256-CBC-SHA",
+    "ECDH-ECDSA-CAMELLIA128-SHA256", "TLS-ECDH-ECDSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "ECDH-ECDSA-CAMELLIA128-SHA", "TLS-ECDH-ECDSA-WITH-CAMELLIA-128-CBC-SHA",
+    "ECDH-ECDSA-CAMELLIA256-SHA256", "TLS-ECDH-ECDSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "ECDH-ECDSA-CAMELLIA256-SHA", "TLS-ECDH-ECDSA-WITH-CAMELLIA-256-CBC-SHA",
+    "ECDH-ECDSA-DES-CBC3-SHA", "TLS-ECDH-ECDSA-WITH-3DES-EDE-CBC-SHA",
+    "ECDH-ECDSA-DES-CBC-SHA", "TLS-ECDH-ECDSA-WITH-DES-CBC-SHA",
+    "ECDH-ECDSA-RC4-SHA", "TLS-ECDH-ECDSA-WITH-RC4-128-SHA",
+    "ECDHE-ECDSA-AES128-GCM-SHA256", "TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256",
+    "ECDHE-ECDSA-AES128-SHA256", "TLS-ECDHE-ECDSA-WITH-AES-128-CBC-SHA256",
+    "ECDHE-ECDSA-AES128-SHA384", "TLS-ECDHE-ECDSA-WITH-AES-128-CBC-SHA384",
+    "ECDHE-ECDSA-AES128-SHA", "TLS-ECDHE-ECDSA-WITH-AES-128-CBC-SHA",
+    "ECDHE-ECDSA-AES256-GCM-SHA384", "TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384",
+    "ECDHE-ECDSA-AES256-SHA256", "TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA256",
+    "ECDHE-ECDSA-AES256-SHA384", "TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA384",
+    "ECDHE-ECDSA-AES256-SHA", "TLS-ECDHE-ECDSA-WITH-AES-256-CBC-SHA",
+    "ECDHE-ECDSA-CAMELLIA128-SHA256", "TLS-ECDHE-ECDSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "ECDHE-ECDSA-CAMELLIA128-SHA", "TLS-ECDHE-ECDSA-WITH-CAMELLIA-128-CBC-SHA",
+    "ECDHE-ECDSA-CAMELLIA256-SHA256", "TLS-ECDHE-ECDSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "ECDHE-ECDSA-CAMELLIA256-SHA", "TLS-ECDHE-ECDSA-WITH-CAMELLIA-256-CBC-SHA",
+    "ECDHE-ECDSA-CHACHA20-POLY1305", "TLS-ECDHE-ECDSA-WITH-CHACHA20-POLY1305-SHA256",
+    "ECDHE-ECDSA-DES-CBC3-SHA", "TLS-ECDHE-ECDSA-WITH-3DES-EDE-CBC-SHA",
+    "ECDHE-ECDSA-DES-CBC-SHA", "TLS-ECDHE-ECDSA-WITH-DES-CBC-SHA",
+    "ECDHE-ECDSA-RC4-SHA", "TLS-ECDHE-ECDSA-WITH-RC4-128-SHA",
+    "ECDHE-RSA-AES128-GCM-SHA256", "TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256",
+    "ECDHE-RSA-AES128-SHA256", "TLS-ECDHE-RSA-WITH-AES-128-CBC-SHA256",
+    "ECDHE-RSA-AES128-SHA384", "TLS-ECDHE-RSA-WITH-AES-128-CBC-SHA384",
+    "ECDHE-RSA-AES128-SHA", "TLS-ECDHE-RSA-WITH-AES-128-CBC-SHA",
+    "ECDHE-RSA-AES256-GCM-SHA384", "TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384",
+    "ECDHE-RSA-AES256-SHA256", "TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA256",
+    "ECDHE-RSA-AES256-SHA384", "TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA384",
+    "ECDHE-RSA-AES256-SHA", "TLS-ECDHE-RSA-WITH-AES-256-CBC-SHA",
+    "ECDHE-RSA-CAMELLIA128-SHA256", "TLS-ECDHE-RSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "ECDHE-RSA-CAMELLIA128-SHA", "TLS-ECDHE-RSA-WITH-CAMELLIA-128-CBC-SHA",
+    "ECDHE-RSA-CAMELLIA256-SHA256", "TLS-ECDHE-RSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "ECDHE-RSA-CAMELLIA256-SHA", "TLS-ECDHE-RSA-WITH-CAMELLIA-256-CBC-SHA",
+    "ECDHE-RSA-CHACHA20-POLY1305", "TLS-ECDHE-RSA-WITH-CHACHA20-POLY1305-SHA256",
+    "ECDHE-RSA-DES-CBC3-SHA", "TLS-ECDHE-RSA-WITH-3DES-EDE-CBC-SHA",
+    "ECDHE-RSA-DES-CBC-SHA", "TLS-ECDHE-RSA-WITH-DES-CBC-SHA",
+    "ECDHE-RSA-RC4-SHA", "TLS-ECDHE-RSA-WITH-RC4-128-SHA",
+    "ECDH-RSA-AES128-GCM-SHA256", "TLS-ECDH-RSA-WITH-AES-128-GCM-SHA256",
+    "ECDH-RSA-AES128-SHA256", "TLS-ECDH-RSA-WITH-AES-128-CBC-SHA256",
+    "ECDH-RSA-AES128-SHA384", "TLS-ECDH-RSA-WITH-AES-128-CBC-SHA384",
+    "ECDH-RSA-AES128-SHA", "TLS-ECDH-RSA-WITH-AES-128-CBC-SHA",
+    "ECDH-RSA-AES256-GCM-SHA384", "TLS-ECDH-RSA-WITH-AES-256-GCM-SHA384",
+    "ECDH-RSA-AES256-SHA256", "TLS-ECDH-RSA-WITH-AES-256-CBC-SHA256",
+    "ECDH-RSA-AES256-SHA384", "TLS-ECDH-RSA-WITH-AES-256-CBC-SHA384",
+    "ECDH-RSA-AES256-SHA", "TLS-ECDH-RSA-WITH-AES-256-CBC-SHA",
+    "ECDH-RSA-CAMELLIA128-SHA256", "TLS-ECDH-RSA-WITH-CAMELLIA-128-CBC-SHA256",
+    "ECDH-RSA-CAMELLIA128-SHA", "TLS-ECDH-RSA-WITH-CAMELLIA-128-CBC-SHA",
+    "ECDH-RSA-CAMELLIA256-SHA256", "TLS-ECDH-RSA-WITH-CAMELLIA-256-CBC-SHA256",
+    "ECDH-RSA-CAMELLIA256-SHA", "TLS-ECDH-RSA-WITH-CAMELLIA-256-CBC-SHA",
+    "ECDH-RSA-DES-CBC3-SHA", "TLS-ECDH-RSA-WITH-3DES-EDE-CBC-SHA",
+    "ECDH-RSA-DES-CBC-SHA", "TLS-ECDH-RSA-WITH-DES-CBC-SHA",
+    "ECDH-RSA-RC4-SHA", "TLS-ECDH-RSA-WITH-RC4-128-SHA",
+    "EDH-DSS-DES-CBC3-SHA", "TLS-DHE-DSS-WITH-3DES-EDE-CBC-SHA",
+    "EDH-DSS-DES-CBC-SHA", "TLS-DHE-DSS-WITH-DES-CBC-SHA",
+    "EDH-RSA-DES-CBC3-SHA", "TLS-DHE-RSA-WITH-3DES-EDE-CBC-SHA",
+    "EDH-RSA-DES-CBC-SHA", "TLS-DHE-RSA-WITH-DES-CBC-SHA",
+    "EXP-DES-CBC-SHA", "TLS-RSA-EXPORT-WITH-DES40-CBC-SHA",
+    "EXP-EDH-DSS-DES-CBC-SHA", "TLS-DH-DSS-EXPORT-WITH-DES40-CBC-SHA",
+    "EXP-EDH-RSA-DES-CBC-SHA", "TLS-DH-RSA-EXPORT-WITH-DES40-CBC-SHA",
+    "EXP-RC2-CBC-MD5", "TLS-RSA-EXPORT-WITH-RC2-CBC-40-MD5",
+    "EXP-RC4-MD5", "TLS-RSA-EXPORT-WITH-RC4-40-MD5",
+    "NULL-MD5", "TLS-RSA-WITH-NULL-MD5",
+    "NULL-SHA256", "TLS-RSA-WITH-NULL-SHA256",
+    "NULL-SHA", "TLS-RSA-WITH-NULL-SHA",
+    "PSK-3DES-EDE-CBC-SHA", "TLS-PSK-WITH-3DES-EDE-CBC-SHA",
+    "PSK-AES128-CBC-SHA", "TLS-PSK-WITH-AES-128-CBC-SHA",
+    "PSK-AES256-CBC-SHA", "TLS-PSK-WITH-AES-256-CBC-SHA",
+    "PSK-RC4-SHA", "TLS-PSK-WITH-RC4-128-SHA",
+    "RC4-MD5", "TLS-RSA-WITH-RC4-128-MD5",
+    "RC4-SHA", "TLS-RSA-WITH-RC4-128-SHA",
+    "SEED-SHA", "TLS-RSA-WITH-SEED-CBC-SHA",
+    "SRP-DSS-3DES-EDE-CBC-SHA", "TLS-SRP-SHA-DSS-WITH-3DES-EDE-CBC-SHA",
+    "SRP-DSS-AES-128-CBC-SHA", "TLS-SRP-SHA-DSS-WITH-AES-128-CBC-SHA",
+    "SRP-DSS-AES-256-CBC-SHA", "TLS-SRP-SHA-DSS-WITH-AES-256-CBC-SHA",
+    "SRP-RSA-3DES-EDE-CBC-SHA", "TLS-SRP-SHA-RSA-WITH-3DES-EDE-CBC-SHA",
+    "SRP-RSA-AES-128-CBC-SHA", "TLS-SRP-SHA-RSA-WITH-AES-128-CBC-SHA",
+    "SRP-RSA-AES-256-CBC-SHA", "TLS-SRP-SHA-RSA-WITH-AES-256-CBC-SHA"
+];
 }

@@ -444,8 +444,12 @@ return null;
                 return -1;
         }
 
+        // tracef("%02X %02X %02X %02X", buffer.get(pos + 1), 
+        //     buffer.get(pos + 2), buffer.get(pos + 3), buffer.get(pos + 4));
+
         // SSLv3 or TLS - Check ProtocolVersion
         int majorVersion = unsignedByte(buffer.get(pos + 1));
+        // tracef("majorVersion=%d", majorVersion);
         if (majorVersion != 3) {
             // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
             return -1;
@@ -453,6 +457,7 @@ return null;
 
         // SSLv3 or TLS
         int packetLength = unsignedShort(buffer.getShort(pos + 3)) + SSL3_RT_HEADER_LENGTH;
+        // tracef("packetLength=%d", packetLength);
         if (packetLength <= SSL3_RT_HEADER_LENGTH) {
             // Neither SSLv3 or TLSv1 (i.e. SSLv2 or bad data)
             return -1;

@@ -192,7 +192,8 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected void handshakeFinish() {
-        infof("Session %s handshake success. The application protocol is %s", session.getSessionId(), getApplicationProtocol());
+        version(HUNT_DEBUG) infof("Session %s handshake success. The application protocol is %s", 
+            session.getSessionId(), getApplicationProtocol());
         initialHSComplete = true;
         if(handshakeListener !is null)
             handshakeListener(this);
@@ -211,7 +212,7 @@ abstract class AbstractSecureSession : SecureSession {
                 result = sslEngine.wrap(hsBuffer, packetBuffer);
                 initialHSStatus = result.getHandshakeStatus();
                 version(HUNT_DEBUG) {
-                    tracef("session %s handshake response, init: %s | ret: %s | complete: %s ",
+                    infof("session %s handshake response, init: %s | ret: %s | complete: %s ",
                             session.getSessionId(), initialHSStatus, result.getStatus(), initialHSComplete);
                 }
 
@@ -219,7 +220,8 @@ abstract class AbstractSecureSession : SecureSession {
                     case SSLEngineResult.Status.OK: {
                         packetBuffer.flip();
                         version(HUNT_DEBUG) {
-                            tracef("session %s handshake response %s bytes", session.getSessionId(), packetBuffer.remaining());
+                            tracef("session %s handshake response %s bytes", 
+                                session.getSessionId(), packetBuffer.remaining());
                         }
                         switch (initialHSStatus) {
                             case HandshakeStatus.NEED_TASK: {
@@ -258,7 +260,7 @@ abstract class AbstractSecureSession : SecureSession {
                         break;
 
                     case SSLEngineResult.Status.CLOSED:
-                        infof("Session %s handshake failure. SSLEngine will close inbound", session.getSessionId());
+                        warningf("Session %s handshake failure. SSLEngine will close inbound", session.getSessionId());
                         packetBuffer.flip();
                         if (packetBuffer.hasRemaining()) {
                             session.write(packetBuffer, Callback.NOOP);
@@ -267,7 +269,8 @@ abstract class AbstractSecureSession : SecureSession {
                         break outer;
 
                     default: // BUFFER_UNDERFLOW
-                        throw new SecureNetException(format("Session %s handshake exception. status -> %s", session.getSessionId(), result.getStatus()));
+                        throw new SecureNetException(format("Session %s handshake exception. status -> %s", 
+                            session.getSessionId(), result.getStatus()));
                 }
             }
         }
@@ -396,16 +399,17 @@ abstract class AbstractSecureSession : SecureSession {
 
     protected SSLEngineResult unwrap(ByteBuffer input) {
         version(HUNT_DEBUG) {
-            tracef("Session %d read data, src -> %s, dst -> %s", session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
+            tracef("Session %d read data, src -> %s, dst -> %s", 
+                session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
         }
         // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
-        // 
-        receivedAppBuf.clear();  // why?
-        warningf("receivedAppBuf=%s", receivedAppBuf.toString());
+        // to check this
+        receivedAppBuf.clear(); 
+        version(HUNT_HTTP_DEBUG) infof("receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
         if (input !is receivedPacketBuf) {
             int consumed = result.bytesConsumed();
-            warningf("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
+            version(HUNT_HTTP_DEBUG) infof("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
             receivedPacketBuf.position(receivedPacketBuf.position() + consumed);
         }
         return result;
