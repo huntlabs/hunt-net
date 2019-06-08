@@ -6,8 +6,12 @@
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "dependencies": {
-        "hunt": "~>1.3.0-rc.2",
-        "hunt-security": "~>0.3.2"
+        "hunt": {
+            "path": "../hunt"
+        },
+        "hunt-security": {
+            "path": "../hunt-security"
+        }
     },
     "configurations": [
         {
@@ -16,7 +20,9 @@
         {
             "name": "ssl",
             "dependencies": {
-                "openssl": "~>2.0.0+1.1.0h"
+                "openssl": {
+                    "path": "../openssl"
+                }
             },
             "versions": ["WITH_HUNT_SECURITY"]
         }
