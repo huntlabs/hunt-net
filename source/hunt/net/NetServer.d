@@ -20,6 +20,17 @@ enum ServerThreadMode {
     Multi
 }
 
+import hunt.util.DateTime;
+
+shared static this() {
+    DateTimeHelper.startClock();
+}
+
+shared static ~this() {
+    DateTimeHelper.stopClock();
+}
+
+
 /**
 */
 class NetServer(ServerThreadMode threadModel = ServerThreadMode.Single) : AbstractServer {
