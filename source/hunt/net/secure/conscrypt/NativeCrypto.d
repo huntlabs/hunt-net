@@ -89,12 +89,12 @@ interface SSLHandshakeCallbacks {
     long serverSessionRequested(byte[] id);
 }     
 
-import hunt.net.VersionUtil;
 
-mixin(checkVersions());
+
+
 
 // dfmt off
-version(WITH_HUNT_SECURITY) :
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 

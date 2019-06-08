@@ -1,9 +1,7 @@
 module hunt.net.secure.conscrypt.ConscryptALPNSelector;
 
 // dfmt off
-import hunt.net.VersionUtil;
-mixin(checkVersions());
-version(WITH_HUNT_SECURITY) :
+version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.secure.ProtocolSelector;
