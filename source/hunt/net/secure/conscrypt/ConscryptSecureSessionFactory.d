@@ -59,6 +59,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
 
     SecureSession create(Session session, bool clientMode, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
+
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
@@ -72,6 +73,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
 
     SecureSession create(Session session, bool clientMode, string peerHost, int peerPort, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
+            
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode, peerHost, peerPort);

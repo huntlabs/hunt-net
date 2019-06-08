@@ -125,8 +125,8 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     //     }
 
     Pair!(SSLEngine, ProtocolSelector) createSSLEngine(bool clientMode) {
-        SSLEngine sslEngine = getSSLContext().createSSLEngine();
-        sslEngine.setUseClientMode(clientMode);
+        SSLEngine sslEngine = getSSLContext().createSSLEngine(clientMode);
+        // sslEngine.setUseClientMode(clientMode);
         return makePair(sslEngine, cast(ProtocolSelector)new ConscryptALPNSelector(sslEngine, supportedProtocols));
     }
 
@@ -139,8 +139,8 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     // }
 
     Pair!(SSLEngine, ProtocolSelector) createSSLEngine(bool clientMode, string peerHost, int peerPort) {
-        SSLEngine sslEngine = getSSLContext().createSSLEngine(peerHost, peerPort);
-        sslEngine.setUseClientMode(clientMode);
+        SSLEngine sslEngine = getSSLContext().createSSLEngine(clientMode, peerHost, peerPort);
+        // sslEngine.setUseClientMode(clientMode);
         return makePair(sslEngine, cast(ProtocolSelector)new ConscryptALPNSelector(sslEngine, supportedProtocols));
     }
 

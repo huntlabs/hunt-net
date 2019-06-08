@@ -150,6 +150,8 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         activeSession = new ActiveSession(ssl, sslParameters.getSessionContext());
         externalSession = this.provideSession();
 
+        setUseClientMode(sslParameters.getUseClientMode());
+
         // externalSession = Platform.wrapSSLSession(new ExternalSession(new Provider() {
         //     override
         //     ConscryptSession provideSession() {

@@ -313,9 +313,9 @@ class SSLContext {
      *          initialization and the <code>init()</code> has not been called
      * @since   1.5
      */
-    final SSLEngine createSSLEngine() {
+    final SSLEngine createSSLEngine(bool clientMode) {
         try {
-            return contextSpi.engineCreateSSLEngine();
+            return contextSpi.engineCreateSSLEngine(clientMode);
         } catch (Exception e) {
             UnsupportedOperationException unsup =
                 new UnsupportedOperationException(
@@ -345,9 +345,9 @@ class SSLContext {
      *          initialization and the <code>init()</code> has not been called
      * @since   1.5
      */
-    final SSLEngine createSSLEngine(string peerHost, int peerPort) {
+    final SSLEngine createSSLEngine(bool clientMode, string peerHost, int peerPort) {
         try {
-            return contextSpi.engineCreateSSLEngine(peerHost, peerPort);
+            return contextSpi.engineCreateSSLEngine(clientMode, peerHost, peerPort);
         } catch (Exception e) {
             UnsupportedOperationException unsup =
                 new UnsupportedOperationException(

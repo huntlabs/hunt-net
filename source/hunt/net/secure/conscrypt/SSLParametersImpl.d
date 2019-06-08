@@ -22,7 +22,7 @@ import hunt.security.x500.X500Principal;
 // import hunt.net.ssl.TrustManager;
 
 import hunt.Exceptions;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 
 /**
  * The instances of this class encapsulate all the info
@@ -156,6 +156,7 @@ version(Have_boringssl) {
      * Returns the appropriate session context.
      */
     AbstractSessionContext getSessionContext() {
+        warningf("client_mode=%s", client_mode);
         return client_mode ? clientSessionContext : serverSessionContext;
     }
 
@@ -249,6 +250,7 @@ version(Have_boringssl) {
      * @param   mode if the peer is configured to work in client mode
      */
     void setUseClientMode(bool mode) {
+        warningf("client_mode=%s", client_mode);
         client_mode = mode;
     }
 

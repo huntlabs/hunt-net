@@ -52,9 +52,26 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
     //     return new TLSv12();
     // }
 
+    this() {
+        // synchronized {
+            this.algorithms = null;
+            if (defaultSslContextImpl is null) {
+                clientSessionContext = new ClientSessionContext();
+                // serverSessionContext = new ServerSessionContext(certificate, privatekey);
+                defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
+            } else {
+                clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
+                // serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
+            }
+            sslParameters = new SSLParametersImpl(defaultSslContextImpl.getKeyManagers(),
+                    defaultSslContextImpl.getTrustManagers(), clientSessionContext,
+                    serverSessionContext, algorithms);
+        // }
+    }
+
     this(string[] algorithms, string certificate, string privatekey) {
         this.algorithms = algorithms;
-        clientSessionContext = new ClientSessionContext();
+        // clientSessionContext = new ClientSessionContext();
         serverSessionContext = new ServerSessionContext(certificate, privatekey);
     }
 
@@ -62,7 +79,7 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
      * Constuctor for the DefaultSSLContextImpl.
      */
     this(string certificate, string privatekey) {
-        synchronized {
+        // synchronized {
             this.algorithms = null;
             if (defaultSslContextImpl is null) {
                 clientSessionContext = new ClientSessionContext();
@@ -75,7 +92,7 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
             sslParameters = new SSLParametersImpl(defaultSslContextImpl.getKeyManagers(),
                     defaultSslContextImpl.getTrustManagers(), clientSessionContext,
                     serverSessionContext, algorithms);
-        }
+        // }
     }
 
     /**
@@ -114,12 +131,12 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
     // }
 
     override
-    SSLEngine engineCreateSSLEngine(string host, int port) {
+    SSLEngine engineCreateSSLEngine(bool clientMode, string host, int port) {
         if (sslParameters is null) {
             throw new IllegalStateException("SSLContext is not initialized.");
         }
         SSLParametersImpl p = cast(SSLParametersImpl) sslParameters; //.clone();
-        p.setUseClientMode(false);
+        // p.setUseClientMode(false);
         // return wrapEngine(new ConscryptEngine(host, port, p));
 
 implementationMissing();
@@ -127,17 +144,15 @@ return null;
     }
 
     override
-    SSLEngine engineCreateSSLEngine() {
+    SSLEngine engineCreateSSLEngine(bool clientMode) {
         if (sslParameters is null) {
             throw new IllegalStateException("SSLContext is not initialized.");
         }
+        // FIXME: Needing refactor or cleanup -@zxp at 6/8/2019, 11:14:18 AM
+        // 
         SSLParametersImpl p = cast(SSLParametersImpl) sslParameters; //.clone();
-        p.setUseClientMode(false);
-        // return wrapEngine(new ConscryptEngine(p));
+        p.setUseClientMode(clientMode);
         return new ConscryptEngine(p);
-
-// implementationMissing();
-// return null;
     }
 
     override
@@ -208,7 +223,8 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      */
     this() {
         warning("No certificates provided!");
-        super("cert/server.crt", "cert/server.key");
+        // super("cert/server.crt", "cert/server.key");
+        super();
     }
 
     this(string certificate, string privatekey) {

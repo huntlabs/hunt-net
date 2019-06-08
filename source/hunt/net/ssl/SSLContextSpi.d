@@ -80,7 +80,7 @@ abstract class SSLContextSpi {
      *
      * @since   1.5
      */
-    abstract SSLEngine engineCreateSSLEngine();
+    abstract SSLEngine engineCreateSSLEngine(bool clientMode);
 
     /**
      * Creates a <code>SSLEngine</code> using this context.
@@ -102,7 +102,7 @@ abstract class SSLContextSpi {
      *
      * @since   1.5
      */
-    abstract SSLEngine engineCreateSSLEngine(string host, int port);
+    abstract SSLEngine engineCreateSSLEngine(bool clientMode, string host, int port);
 
     /**
      * Returns a server <code>SSLSessionContext</code> object for
