@@ -135,12 +135,9 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
         if (sslParameters is null) {
             throw new IllegalStateException("SSLContext is not initialized.");
         }
-        SSLParametersImpl p = cast(SSLParametersImpl) sslParameters; //.clone();
-        // p.setUseClientMode(false);
-        // return wrapEngine(new ConscryptEngine(host, port, p));
-
-implementationMissing();
-return null;
+        SSLParametersImpl p = cast(SSLParametersImpl) sslParameters.clone();
+        p.setUseClientMode(clientMode);
+        return new ConscryptEngine(host, port, p);
     }
 
     override
@@ -148,10 +145,11 @@ return null;
         if (sslParameters is null) {
             throw new IllegalStateException("SSLContext is not initialized.");
         }
-        // FIXME: Needing refactor or cleanup -@zxp at 6/8/2019, 11:14:18 AM
-        // 
-        SSLParametersImpl p = cast(SSLParametersImpl) sslParameters; //.clone();
+
+
+        SSLParametersImpl p = cast(SSLParametersImpl) sslParameters.clone();
         p.setUseClientMode(clientMode);
+
         return new ConscryptEngine(p);
     }
 
@@ -222,7 +220,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * creating the state shared between all default SSLContexts.
      */
     this() {
-        warning("No certificates provided!");
+        // warning("No certificates provided!");
         // super("cert/server.crt", "cert/server.key");
         super();
     }

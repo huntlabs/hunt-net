@@ -160,13 +160,14 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         // }));
     }
 
-    // this(string host, int port, SSLParametersImpl sslParameters) {
-    //     this.sslParameters = sslParameters;
-    //     this.peerInfoProvider = PeerInfoProvider.forHostAndPort(host, port);
-    //     this.ssl = newSsl(sslParameters, this);
-    //     this.networkBio = ssl.newBio();
-    //     activeSession = new ActiveSession(ssl, sslParameters.getSessionContext());
-    // }
+    this(string host, int port, SSLParametersImpl sslParameters) {
+        this.sslParameters = sslParameters;
+        this.peerInfoProvider = PeerInfoProvider.forHostAndPort(host, port);
+        this.ssl = newSsl(sslParameters, this);
+        this.networkBio = ssl.newBio();
+        activeSession = new ActiveSession(ssl, sslParameters.getSessionContext());
+        setUseClientMode(sslParameters.getUseClientMode());
+    }
 
     // this(SSLParametersImpl sslParameters, PeerInfoProvider peerInfoProvider) {
     //     this.sslParameters = sslParameters;
@@ -735,7 +736,7 @@ return null;
             HandshakeStatus handshakeStatus = HandshakeStatus.NOT_HANDSHAKING;
             if (!handshakeFinished) {
                 handshakeStatus = handshake();
-                version(HUNT_HTTP_DEBUG) trace("handshakeStatus=", handshakeStatus);
+                version(HUNT_HTTP_DEBUG_MORE) trace("handshakeStatus=", handshakeStatus);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                     return NEED_WRAP_OK;
                 }
@@ -994,7 +995,7 @@ return null;
         }
 
         // The handshake has completed successfully...
-        version(HUNT_DEBUG) trace("The handshake is completing...");
+        version(HUNT_HTTP_DEBUG_MORE) trace("The handshake is completing...");
 
         // Update the session from the current state of the SSL object.
         activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());
@@ -1173,7 +1174,6 @@ return null;
                 bytesWritten = writeEncryptedDataHeap(src, pos, len);
             }
 
-tracef("bytesWritten=%d", bytesWritten);
             if (bytesWritten > 0) {
                 src.position(pos + bytesWritten);
             }
@@ -1329,14 +1329,14 @@ tracef("bytesWritten=%d", bytesWritten);
                 buffer = getOrCreateLazyDirectBuffer();
             }
 
-            version(HUNT_DEBUG) trace(BufferUtils.toSummaryString(buffer));
+            version(HUNT_HTTP_DEBUG_MORE) trace(BufferUtils.toSummaryString(buffer));
 
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readEncryptedDataDirect(buffer, 0, bytesToRead);
 
             // byte[] temp =  buffer.array();
             // tracef("%(%02X %)", temp[0..len]);
-            version(HUNT_DEBUG) {
+            version(HUNT_HTTP_DEBUG_MORE) {
                 tracef("read encrypted data: %d / %d bytes", bytesRead, bytesToRead);
             }
 
@@ -1344,7 +1344,7 @@ tracef("bytesWritten=%d", bytesWritten);
                 buffer.position(bytesRead);
                 buffer.flip();
                 dst.put(buffer);
-                version(HUNT_DEBUG) trace(BufferUtils.toSummaryString(dst));
+                version(HUNT_HTTP_DEBUG_MORE) trace(BufferUtils.toSummaryString(dst));
             }
 
             return bytesRead;

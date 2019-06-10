@@ -383,7 +383,7 @@ final class NativeCrypto {
         version(Have_boringssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
         version(Have_openssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
-        version(HUNT_DEBUG) tracef("SSL_CTX_new => %s", ctx);
+        version(HUNT_DEBUG_MORE) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
     }
 
@@ -473,7 +473,7 @@ final class NativeCrypto {
             return 0;
         }
 
-        version(HUNT_DEBUG) tracef("SSL_new => %s", ssl);
+        version(HUNT_DEBUG_MORE) tracef("SSL_new => %s", ssl);
 
         /*
         * Create our special application data.
@@ -490,7 +490,7 @@ final class NativeCrypto {
 
         version(Have_boringssl) SSL_set_custom_verify(ssl, SSL_VERIFY_PEER, &cert_verify_callback);
 
-        version(HUNT_DEBUG) 
+        version(HUNT_HTTP_DEBUG_MORE) 
             tracef("ssl_ctx=%s SSL_new => ssl=%s appData=%s", ssl_ctx, ssl, appData);
         return cast(long)ssl;        
     }
@@ -906,7 +906,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             return 0;
         }
 
-        tracef("SSL_BIO_new => %s", network_bio);
+        version(HUNT_HTTP_DEBUG_MORE) tracef("SSL_BIO_new => %s", network_bio);
 
         SSL_set_bio(ssl, internal_bio, internal_bio);
 
@@ -962,14 +962,14 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
         if (protocols is null) 
             return;
 
-        infof("protocols: %(%02X %)", protocols[0 .. $]);
+        version(HUNT_HTTP_DEBUG_MORE) tracef("protocols: %(%02X %)", protocols[0 .. $]);
 
         if (client_mode) {
             const(ubyte)* tmp = cast(const(ubyte)*)protocols.ptr;
             version(Have_boringssl) 
             int ret = deimos.openssl.ssl.SSL_set_alpn_protos(ssl, tmp, cast(uint)(protocols.length));
             version(Have_openssl) {
-                implementationMissing(false);
+                version(HUNT_HTTP_DEBUG_MORE) implementationMissing(false);
                 int ret=0;
             }
             if (ret != 0) {
@@ -984,7 +984,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             }
             SSL_CTX* ctx = SSL_get_SSL_CTX(ssl);
 
-            implementationMissing(false);
+            version(HUNT_HTTP_DEBUG_MORE) implementationMissing(false);
             // SSL_CTX_set_alpn_select_cb(ctx, alpn_select_callback, null);
         }
     }
@@ -1024,7 +1024,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             return null;
         }
 
-        implementationMissing(false);
+        version(HUNT_HTTP_DEBUG_MORE) implementationMissing(false);
         return null;
         // const jbyte* protocol;
         // unsigned int protocolLength;
@@ -1084,7 +1084,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         if (ret > 0 || code == SSL_ERROR_WANT_READ || code == SSL_ERROR_WANT_WRITE) {
             // Non-exceptional case.
-            version(HUNT_HTTP_DEBUG) tracef("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
+            version(HUNT_HTTP_DEBUG_MORE) tracef("ssl=%s ENGINE_SSL_do_handshake => ret=%d", ssl, code);
             return code;
         }
 
@@ -1358,7 +1358,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         int result = BIO_read(bio, destPtr, outputSize);
         appData.clearCallbackState();
-        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
+        version(HUNT_HTTP_DEBUG_MORE) tracef("ssl=%s ENGINE_SSL_read_BIO_direct bio=%s destPtr=%s outputSize=%d shc=%s => ret=%d",
                 ssl, bio, destPtr, outputSize, shc, result);
         return result;
     }
@@ -3155,6 +3155,8 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
 /**
  * SSL/TLS Cipher suite name translation table
+ * See_also:
+ *  https://testssl.sh/openssl-iana.mapping.html
  */
 string[] tls_cipher_name_translation_table = [
     "ADH-SEED-SHA", "TLS-DH-anon-WITH-SEED-CBC-SHA",

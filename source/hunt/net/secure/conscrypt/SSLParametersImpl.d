@@ -23,6 +23,8 @@ import hunt.security.x500.X500Principal;
 
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
+import hunt.util.Common;
+import hunt.util.Traits;
 
 /**
  * The instances of this class encapsulate all the info
@@ -32,7 +34,7 @@ import hunt.logging.ConsoleLogger;
  * and controls whether new SSL sessions may be established by this
  * socket or not.
  */
-final class SSLParametersImpl  {
+final class SSLParametersImpl : Cloneable {
 
     // // default source of X.509 certificate based authentication keys
     private static X509KeyManager defaultX509KeyManager;
@@ -93,6 +95,10 @@ final class SSLParametersImpl  {
      */
     bool channelIdEnabled;
 
+    private this() {
+        // It's only used for the creation in reflection.
+    }
+
     /**
      * Initializes the parameters. Naturally this constructor is used
      * in SSLContextImpl.engineInit method which directly passes its
@@ -101,8 +107,7 @@ final class SSLParametersImpl  {
      * See {@link javax.net.ssl.SSLContext#init(KeyManager[],TrustManager[],
      * SecureRandom)} for more information
      */
-    this(KeyManager[] kms, TrustManager[] tms,
-            ClientSessionContext clientSessionContext,
+    this(KeyManager[] kms, TrustManager[] tms, ClientSessionContext clientSessionContext,
             ServerSessionContext serverSessionContext, string[] protocols) {
         this.serverSessionContext = serverSessionContext;
         this.clientSessionContext = clientSessionContext;
@@ -149,14 +154,13 @@ version(Have_boringssl) {
                                                                new ServerSessionContext(),
                                                                cast(string[])null);
         }
-        return cast(SSLParametersImpl) result; // .clone();
+        return result.clone();
     }
 
     /**
      * Returns the appropriate session context.
      */
     AbstractSessionContext getSessionContext() {
-        warningf("client_mode=%s", client_mode);
         return client_mode ? clientSessionContext : serverSessionContext;
     }
 
@@ -250,7 +254,6 @@ version(Have_boringssl) {
      * @param   mode if the peer is configured to work in client mode
      */
     void setUseClientMode(bool mode) {
-        warningf("client_mode=%s", client_mode);
         client_mode = mode;
     }
 
@@ -396,18 +399,20 @@ version(Have_boringssl) {
         // }
     }
 
-    // /**
-    //  * Returns the clone of this object.
-    //  * @return the clone.
-    //  */
-    // // override
-    // // protected Object clone() {
-    // //     try {
-    // //         return super.clone();
-    // //     } catch (CloneNotSupportedException e) {
-    // //         throw new AssertionError(e);
-    // //     }
-    // // }
+    /**
+     * Returns the clone of this object.
+     * @return the clone.
+     */
+    mixin CloneMemberTemplate!(typeof(this), (typeof(this) from, typeof(this) to) {
+        // FIXME: Needing refactor or cleanup -@zxp at 6/10/2019, 3:22:38 PM
+        // need to check this
+    });
+
+    // SSLParametersImpl clone() {
+    //     // FIXME: Needing refactor or cleanup -@zxp at 6/8/2019, 11:14:18 AM
+    //     //         
+    //     return this;
+    // }
 
     private static X509KeyManager getDefaultX509KeyManager()  {
         X509KeyManager result = defaultX509KeyManager;

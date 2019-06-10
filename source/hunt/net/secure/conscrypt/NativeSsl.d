@@ -56,10 +56,6 @@ final class NativeSsl {
                 
         AbstractSessionContext ctx = parameters.getSessionContext();
         long ssl_ctx = ctx.sslCtxNativePointer;
-
-        // NativeCrypto.SSL_CTX_set_ecdh_auto(ssl_ctx);
-        // NativeCrypto.SSL_CTX_use_certificate_file(ssl_ctx, "/home/zxp/cert/server.crt");
-        // NativeCrypto.SSL_CTX_use_PrivateKey_file(ssl_ctx, "/home/zxp/cert/server.key");
         long ssl = NativeCrypto.SSL_new(ssl_ctx);
 
         return new NativeSsl(ssl, parameters, handshakeCallbacks, chooser, pskCallbacks);

@@ -27,7 +27,7 @@ import std.format;
 
 abstract class AbstractSecureSession : SecureSession {
 
-    protected __gshared static ByteBuffer hsBuffer;
+    protected __gshared ByteBuffer hsBuffer;
 
     protected Session session;
     protected SSLEngine sslEngine;
@@ -41,9 +41,8 @@ abstract class AbstractSecureSession : SecureSession {
     protected HandshakeStatus initialHSStatus;
     protected bool initialHSComplete;
 
-    shared static this()
-    {
-        hsBuffer = new HeapByteBuffer(0,0); // ByteBuffer.allocateDirect(0);
+    shared static this() {
+        hsBuffer = new HeapByteBuffer(0,0); 
     }
 
     this(Session session, SSLEngine sslEngine,
@@ -60,7 +59,7 @@ abstract class AbstractSecureSession : SecureSession {
         initialHSComplete = false;
 
         // start tls
-        info("Starting TLS ...");
+        version(HUNT_DEBUG) info("Starting TLS ...");
         this.sslEngine.beginHandshake();
         initialHSStatus = sslEngine.getHandshakeStatus();
         if (sslEngine.getUseClientMode()) {
@@ -133,7 +132,7 @@ abstract class AbstractSecureSession : SecureSession {
                 SSLEngineResult result = unwrap();
                 initialHSStatus = result.getHandshakeStatus();
 
-                version(HUNT_DEBUG) {
+                version(HUNT_HTTP_DEBUG) {
                     tracef("Session %s handshake result -> %s, initialHSStatus -> %s, inNetRemain -> %s", 
                         session.getSessionId(), result.toString(), initialHSStatus, receivedPacketBuf.remaining());
                 }
@@ -211,7 +210,7 @@ abstract class AbstractSecureSession : SecureSession {
             while (true) {
                 result = sslEngine.wrap(hsBuffer, packetBuffer);
                 initialHSStatus = result.getHandshakeStatus();
-                version(HUNT_DEBUG) {
+                version(HUNT_HTTP_DEBUG) {
                     infof("session %s handshake response, init: %s | ret: %s | complete: %s ",
                             session.getSessionId(), initialHSStatus, result.getStatus(), initialHSComplete);
                 }
@@ -219,7 +218,7 @@ abstract class AbstractSecureSession : SecureSession {
                 switch (result.getStatus()) {
                     case SSLEngineResult.Status.OK: {
                         packetBuffer.flip();
-                        version(HUNT_DEBUG) {
+                        version(HUNT_HTTP_DEBUG) {
                             tracef("session %s handshake response %s bytes", 
                                 session.getSessionId(), packetBuffer.remaining());
                         }
@@ -398,18 +397,18 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected SSLEngineResult unwrap(ByteBuffer input) {
-        version(HUNT_DEBUG) {
+        version(HUNT_HTTP_DEBUG) {
             tracef("Session %d read data, src -> %s, dst -> %s", 
                 session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
         }
         // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
         // to check this
         receivedAppBuf.clear(); 
-        version(HUNT_HTTP_DEBUG) infof("receivedAppBuf=%s", receivedAppBuf.toString());
+        version(HUNT_HTTP_DEBUG_MORE) infof("receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
         if (input !is receivedPacketBuf) {
             int consumed = result.bytesConsumed();
-            version(HUNT_HTTP_DEBUG) infof("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
+            version(HUNT_HTTP_DEBUG_MORE) infof("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
             receivedPacketBuf.position(receivedPacketBuf.position() + consumed);
         }
         return result;
