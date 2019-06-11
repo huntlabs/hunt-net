@@ -170,7 +170,7 @@ final class OpenSSLKey {
         }
         try {
             version(Have_boringssl) return new OpenSSLKey(NativeCrypto.EVP_parse_private_key(encoded));
-            version(Have_openssl) {
+            version(Have_hunt_openssl) {
                 implementationMissing(false);
                 return null;
             }

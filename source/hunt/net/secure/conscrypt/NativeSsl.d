@@ -263,7 +263,7 @@ return 0;
 
         // Set the local certs and private key.
         version(Have_boringssl) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
-        version(Have_openssl) {
+        version(Have_hunt_openssl) {
             implementationMissing(false);
         }
     }
@@ -573,7 +573,7 @@ return 0;
 
     int getMaxSealOverhead() {
         version(Have_boringssl) return NativeCrypto.SSL_max_seal_overhead(ssl);
-        version(Have_openssl) {
+        version(Have_hunt_openssl) {
             // implementationMissing(false);
             return 0;
         }

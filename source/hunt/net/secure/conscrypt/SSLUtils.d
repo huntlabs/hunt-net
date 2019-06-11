@@ -149,7 +149,7 @@ final class SSLUtils {
      * do not use X.509 for server authentication.
      */
     static string getServerX509KeyType(long sslCipherNative) {
-        version(Have_openssl) {
+        version(Have_hunt_openssl) {
             implementationMissing(false);
             string kx_name = null;
         }

@@ -381,7 +381,7 @@ final class NativeCrypto {
         // SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
         version(Have_boringssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
-        version(Have_openssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
+        version(Have_hunt_openssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
         version(HUNT_DEBUG_MORE) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
@@ -824,7 +824,7 @@ return null;
         version(Have_boringssl) 
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLS_with_buffers_method());
 
-        version(Have_openssl)
+        version(Have_hunt_openssl)
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
         SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
@@ -845,7 +845,7 @@ return null;
 
             version(Have_boringssl) {
                 string cipherName = cast(string)fromStringz(SSL_CIPHER_standard_name(cipher));
-            } else version(Have_openssl) {
+            } else version(Have_hunt_openssl) {
                 static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) { 
                     string cipherName = toTlsCipherName(opensslName);
                 } else {
@@ -968,7 +968,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             const(ubyte)* tmp = cast(const(ubyte)*)protocols.ptr;
             version(Have_boringssl) 
             int ret = deimos.openssl.ssl.SSL_set_alpn_protos(ssl, tmp, cast(uint)(protocols.length));
-            version(Have_openssl) {
+            version(Have_hunt_openssl) {
                 version(HUNT_HTTP_DEBUG_MORE) implementationMissing(false);
                 int ret=0;
             }
@@ -1010,7 +1010,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
         if (selector !is null) {
             version(Have_boringssl) SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
 
-            version(Have_openssl) implementationMissing(false);
+            version(Have_hunt_openssl) implementationMissing(false);
         }
     }
 
