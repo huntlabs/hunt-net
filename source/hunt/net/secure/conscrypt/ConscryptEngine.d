@@ -758,7 +758,10 @@ return null;
 
                 int packetLength = SSLUtils.getEncryptedPacketLength(srcs, srcsOffset);
 
-                // tracef("srcLength=%d, srcsOffset=%d packetLength=%d", srcLength, srcsOffset, packetLength);
+                version(HUNT_DEBUG_MORE) {
+                    tracef("srcLength=%d, srcsOffset=%d packetLength=%d", srcLength, srcsOffset, packetLength);
+                }
+
 
                 if (packetLength < 0) {
                     throw new SSLException("Unable to parse TLS packet header");

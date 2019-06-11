@@ -298,10 +298,15 @@ abstract class AbstractSecureSession : SecureSession {
                 ret.put(receivedPacketBuf).put(now).flip();
                 receivedPacketBuf = ret;
             } else {
-                receivedPacketBuf = now;
+                version(HUNT_HTTP_DEBUG) trace("buffering data: %d, bytes", now.remaining());
+                receivedPacketBuf.clear();
+                receivedPacketBuf.put(now).flip();
             }
         } else {
-            receivedPacketBuf = now;
+            version(HUNT_HTTP_DEBUG) trace("buffering data: %d, bytes", now.remaining());
+            ByteBuffer ret = newBuffer(now.remaining());
+            ret.put(now).flip();
+            receivedPacketBuf = ret;
         }
     }
 

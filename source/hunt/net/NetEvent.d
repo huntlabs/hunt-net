@@ -20,13 +20,14 @@ interface NetEvent {
     void notifyExceptionCaught(Session session, Exception t);
 }
 
-
+/**
+*/
 class DefaultNetEvent : NetEvent {
 
     private Config config;
 
     this(Config config) {
-        version(HUNT_DEBUG) info("create default event manager");
+        // version(HUNT_DEBUG) trace("create default event manager");
         this.config = config;
     }
 
