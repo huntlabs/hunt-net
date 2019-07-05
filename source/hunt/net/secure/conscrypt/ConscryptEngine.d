@@ -736,7 +736,7 @@ return null;
             HandshakeStatus handshakeStatus = HandshakeStatus.NOT_HANDSHAKING;
             if (!handshakeFinished) {
                 handshakeStatus = handshake();
-                version(HUNT_HTTP_DEBUG_MORE) trace("handshakeStatus=", handshakeStatus);
+                version(HUNT_DEBUG_MORE) trace("handshakeStatus=", handshakeStatus);
                 if (handshakeStatus == HandshakeStatus.NEED_WRAP) {
                     return NEED_WRAP_OK;
                 }
@@ -998,7 +998,7 @@ return null;
         }
 
         // The handshake has completed successfully...
-        version(HUNT_HTTP_DEBUG_MORE) trace("The handshake is completing...");
+        version(HUNT_DEBUG_MORE) trace("The handshake is completing...");
 
         // Update the session from the current state of the SSL object.
         activeSession.onPeerCertificateAvailable(getPeerHost(), getPeerPort());
@@ -1332,14 +1332,14 @@ return null;
                 buffer = getOrCreateLazyDirectBuffer();
             }
 
-            version(HUNT_HTTP_DEBUG_MORE) trace(BufferUtils.toSummaryString(buffer));
+            version(HUNT_DEBUG_MORE) trace(BufferUtils.toSummaryString(buffer));
 
             int bytesToRead = min(len, buffer.remaining());
             int bytesRead = readEncryptedDataDirect(buffer, 0, bytesToRead);
 
             // byte[] temp =  buffer.array();
             // tracef("%(%02X %)", temp[0..len]);
-            version(HUNT_HTTP_DEBUG_MORE) {
+            version(HUNT_DEBUG_MORE) {
                 tracef("read encrypted data: %d / %d bytes", bytesRead, bytesToRead);
             }
 
@@ -1347,7 +1347,7 @@ return null;
                 buffer.position(bytesRead);
                 buffer.flip();
                 dst.put(buffer);
-                version(HUNT_HTTP_DEBUG_MORE) trace(BufferUtils.toSummaryString(dst));
+                version(HUNT_DEBUG_MORE) trace(BufferUtils.toSummaryString(dst));
             }
 
             return bytesRead;

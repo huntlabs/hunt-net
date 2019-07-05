@@ -84,7 +84,7 @@ version(HUNT_METRIC) {
     }
 
     override void write(ByteBuffer buffer, Callback callback) {
-        version (HUNT_HTTP_DEBUG_MORE)
+        version (HUNT_DEBUG_MORE)
             tracef("writting buffer: %s", buffer.toString());
 
         byte[] data = buffer.array;
