@@ -13,6 +13,7 @@ class Config {
     enum int defaultPoolSize = 20; 
 
     private int timeout = defaultTimeout;
+    private int waittingTimeout = defaultTimeout;
 
     // I/O thread pool size
     private int asynchronousCorePoolSize = defaultPoolSize;
@@ -34,6 +35,15 @@ class Config {
     TcpStreamOption tcpStreamOption() {
         return _tcpStreamOption;
     }
+
+    int getWaittingTimeout() {
+        return waittingTimeout;
+    }
+
+    void setWaittingTimeout(int timeout) {
+        this.waittingTimeout = timeout;
+    }
+
 
     /**
      * Get the max I/O idle time, the default value is 10 seconds.
