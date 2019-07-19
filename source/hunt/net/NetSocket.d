@@ -6,7 +6,7 @@ import hunt.collection.ByteBuffer;
 import hunt.Functions;
 import hunt.io.channel;
 import hunt.io.TcpStream;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 import hunt.util.Common;
 
 import std.socket;
@@ -17,6 +17,7 @@ alias Handler = void delegate(NetSocket sock);
 
 ///
 class NetSocket {
+    protected TcpStream _tcp;
     private SimpleEventHandler _closeHandler;
     private DataReceivedHandler _dataReceivedHandler;
 
@@ -37,7 +38,7 @@ class NetSocket {
         version(HUNT_DEBUG) { 
             auto data = cast(ubyte[]) buffer.getRemaining();
             infof("data received (%d bytes): ", data.length); 
-            version(HUNT_DEBUG_MORE) {
+            version(HUNT_IO_MORE) {
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
             else
@@ -80,7 +81,7 @@ class NetSocket {
 
     ////
     NetSocket write(const(ubyte)[] data) {
-        version (HUNT_DEBUG_MORE) {
+        version (HUNT_IO_MORE) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
             else
@@ -100,8 +101,10 @@ class NetSocket {
         return this;
     }
 
-    protected {
-        TcpStream _tcp;
+    TcpStream getTcpStream() {
+        return _tcp;
     }
 
 }
+
+

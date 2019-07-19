@@ -13,7 +13,7 @@ class Config {
     enum int defaultPoolSize = 20; 
 
     private int timeout = defaultTimeout;
-    private int waittingTimeout = defaultTimeout;
+    private int connectionTimeout = defaultTimeout;
 
     // I/O thread pool size
     private int asynchronousCorePoolSize = defaultPoolSize;
@@ -36,12 +36,12 @@ class Config {
         return _tcpStreamOption;
     }
 
-    int getWaittingTimeout() {
-        return waittingTimeout;
+    int getConnectionTimeout() {
+        return connectionTimeout;
     }
 
-    void setWaittingTimeout(int timeout) {
-        this.waittingTimeout = timeout;
+    void setConnectionTimeout(int timeout) {
+        this.connectionTimeout = timeout;
     }
 
 

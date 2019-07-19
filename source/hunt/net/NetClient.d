@@ -20,9 +20,31 @@ class NetClient : AbstractClient {
     private Config _config;
     private NetEvent netEvent;
     private AsynchronousTcpSession tcpSession;
+    private bool _isConnected = false;
+    private TcpStream client;
+
+    string getHost() {
+        return _host;
+    }
+
+    void setHost(string host) {
+        this._host = host;
+    }
+
+    int getPort() {
+        return _port;
+    }
+
+    void setPort(int port) {
+        this._port = port;
+    }
 
     void close() {
         this.stop();
+    }
+
+    NetClient connect(int sessionId = 0, ConnectHandler handler = null) {
+        return connect(_port, _host, sessionId, handler);
     }
 
     NetClient connect(int port, string host, int sessionId = 0, ConnectHandler handler = null) {
@@ -30,38 +52,41 @@ class NetClient : AbstractClient {
         _port = port;
         _sessionId = sessionId;
 
-        TcpStream client = new TcpStream(_loop);
+        client = new TcpStream(_loop);
 
         tcpSession = new AsynchronousTcpSession(sessionId,
                 _config, netEvent, client);
         client.onClosed(() {
-            if (netEvent !is null)
+            _isConnected = false;
+            if (netEvent !is null && _config.getHandler() !is null)
                 netEvent.notifySessionClosed(tcpSession);
         });
 
         client.onError((string message) {
-            if (netEvent !is null)
+            _isConnected = false;
+            if (netEvent !is null && _config.getHandler() !is null)
                 netEvent.notifyExceptionCaught(tcpSession, new Exception(message));
         });
 
         client.onConnected((bool suc) {
             Result!NetSocket result = null;
+            _isConnected = suc;
             if (suc) {
 			    version (HUNT_DEBUG) 
-                trace("connected with: ", client.remoteAddress.toString()); 
+                trace("connected to: ", client.remoteAddress.toString()); 
 
                 if (_handler !is null)
                     _handler(tcpSession);
                 result = new Result!NetSocket(tcpSession);
                 _isRunning = true;
-                if (netEvent !is null)
+                if (netEvent !is null && _config.getHandler() !is null)
                     netEvent.notifySessionOpened(tcpSession);
             }
             else {
 			    version (HUNT_DEBUG) 
                     warning("connection failed!"); 
                 import std.format;
-                string msg = format("Failed to connect with %s:%d", host, port);
+                string msg = format("Failed to connect to %s:%d", host, port);
                 result = new Result!NetSocket(new Exception(msg));
                 
                 if(_config !is null && _config.getHandler() !is null)
@@ -98,13 +123,19 @@ class NetClient : AbstractClient {
     }
 
     override protected void destroy() {
-        if (tcpSession !is null)
+        if (tcpSession !is null) {
+            _isConnected = false;
             tcpSession.close();
+        }
     }
 
     void setConfig(Config config) {
         _config = config;
         netEvent = new DefaultNetEvent(config);
+    }
+
+    bool isConnected() {
+        return _isConnected;
     }
 
 package:

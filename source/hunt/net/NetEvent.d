@@ -27,7 +27,6 @@ class DefaultNetEvent : NetEvent {
     private Config config;
 
     this(Config config) {
-        // version(HUNT_DEBUG) trace("create default event manager");
         this.config = config;
     }
 
