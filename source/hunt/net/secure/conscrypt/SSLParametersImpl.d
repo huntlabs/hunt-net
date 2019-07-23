@@ -24,7 +24,7 @@ import hunt.security.x500.X500Principal;
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
 import hunt.util.Common;
-import hunt.util.Traits;
+import hunt.util.ObjectUtils;
 
 /**
  * The instances of this class encapsulate all the info
@@ -403,16 +403,11 @@ version(Have_boringssl) {
      * Returns the clone of this object.
      * @return the clone.
      */
-    mixin CloneMemberTemplate!(typeof(this), (typeof(this) from, typeof(this) to) {
+    mixin CloneMemberTemplate!(typeof(this), TopLevel.no, (typeof(this) from, typeof(this) to) {
         // FIXME: Needing refactor or cleanup -@zxp at 6/10/2019, 3:22:38 PM
         // need to check this
     });
 
-    // SSLParametersImpl clone() {
-    //     // FIXME: Needing refactor or cleanup -@zxp at 6/8/2019, 11:14:18 AM
-    //     //         
-    //     return this;
-    // }
 
     private static X509KeyManager getDefaultX509KeyManager()  {
         X509KeyManager result = defaultX509KeyManager;
