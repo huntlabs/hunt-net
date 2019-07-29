@@ -2,7 +2,7 @@ module hunt.net.Config;
 
 import hunt.net.Decoder;
 import hunt.net.Encoder;
-import hunt.net.Handler;
+import hunt.net.SessionEventHandler;
 import hunt.io.TcpStream;
 
 /**
@@ -23,7 +23,7 @@ class Config {
 
     private Decoder decoder;
     private Encoder encoder;
-    private Handler handler;
+    private SessionEventHandler handler;
     private TcpStreamOption _tcpStreamOption;
 
     private bool monitorEnable = true;
@@ -143,7 +143,7 @@ class Config {
      *
      * @return Handler
      */
-    Handler getHandler() {
+    SessionEventHandler getHandler() {
         return handler;
     }
 
@@ -151,9 +151,9 @@ class Config {
      * Set the handler. It is the handler of network events.
      * Such as creating a session, closing session, receiving a message and throwing the exception.
      *
-     * @param handler Handler
+     * @param handler SessionEventHandler
      */
-    void setHandler(Handler handler) {
+    void setHandler(SessionEventHandler handler) {
         this.handler = handler;
     }    
 

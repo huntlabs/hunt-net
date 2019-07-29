@@ -1,7 +1,6 @@
 module hunt.net.NetSocket;
 
-import hunt.net.Result;
-
+import hunt.net.AsyncResult;
 import hunt.collection.ByteBuffer;
 import hunt.Functions;
 import hunt.io.channel;
@@ -11,7 +10,9 @@ import hunt.util.Common;
 
 import std.socket;
 
-alias ConnectHandler = void delegate(Result!NetSocket);
+alias ConnectHandler = void delegate(AsyncResult!NetSocket);
+
+alias NetEventHandler(E) = void delegate(E event);
 
 alias Handler = void delegate(NetSocket sock);
 

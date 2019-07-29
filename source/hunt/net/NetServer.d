@@ -2,7 +2,7 @@ module hunt.net.NetServer;
 
 import hunt.net.AsynchronousTcpSession;
 import hunt.net.NetEvent;
-import hunt.net.Result;
+import hunt.net.AsyncResult;
 import hunt.net.NetSocket;
 import hunt.net.Server;
 import hunt.net.Config;

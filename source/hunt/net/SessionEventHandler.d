@@ -1,10 +1,10 @@
-module hunt.net.Handler;
+module hunt.net.SessionEventHandler;
 
 import hunt.net.Session;
 
 import std.exception;
 
-abstract class Handler {
+abstract class SessionEventHandler {
 
 	void sessionOpened(Session session) ;
 
@@ -18,3 +18,6 @@ abstract class Handler {
 
 	void failedAcceptingSession(int sessionId, Exception t) { }
 }
+
+deprecated("Using SessionEventHandler instead.")
+alias Handler = SessionEventHandler;

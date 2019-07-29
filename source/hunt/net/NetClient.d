@@ -7,7 +7,7 @@ import hunt.net.AsynchronousTcpSession;
 import hunt.net.Config;
 import hunt.net.NetEvent;
 import hunt.net.NetSocket;
-import hunt.net.Result;
+import hunt.net.AsyncResult;
 import hunt.net.Client;
 
 import hunt.logging;
@@ -82,7 +82,7 @@ class NetClient : AbstractClient {
         });
 
         client.onConnected((bool suc) {
-            Result!NetSocket result = null;
+            AsyncResult!NetSocket result = null;
             _isConnected = suc;
             if (suc) {
 			    version (HUNT_DEBUG) 
@@ -90,7 +90,7 @@ class NetClient : AbstractClient {
 
                 if (_handler !is null)
                     _handler(tcpSession);
-                result = new Result!NetSocket(tcpSession);
+                result = succeededResult!(NetSocket)(tcpSession);
                 _isRunning = true;
                 if (netEvent !is null && _config.getHandler() !is null)
                     netEvent.notifySessionOpened(tcpSession);
@@ -100,7 +100,7 @@ class NetClient : AbstractClient {
                     warning("connection failed!"); 
                 import std.format;
                 string msg = format("Failed to connect to %s:%d", host, port);
-                result = new Result!NetSocket(new Exception(msg));
+                result = failedResult!(NetSocket)(new Exception(msg));
                 
                 if(_config !is null && _config.getHandler() !is null)
                     _config.getHandler().failedOpeningSession(sessionId,

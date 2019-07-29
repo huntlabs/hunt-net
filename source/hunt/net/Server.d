@@ -1,26 +1,27 @@
 module hunt.net.Server;
 
 import hunt.net.Config;
-import hunt.net.Result;
+import hunt.net.AsyncResult;
 import hunt.net.NetSocket;
 import hunt.util.Lifecycle;
 import std.socket;
 
 
-alias ListenHandler = void delegate(Result!Server);
+alias ListenHandler = NetEventHandler!(AsyncResult!AbstractServer);
+alias NetSocketHandler = NetEventHandler!NetSocket;
 
-interface Server {
+// interface Server {
 
-    void setConfig(Config config);
+//     void setConfig(Config config);
 
-    void listen(string host, int port, ListenHandler handler);
+//     void listen(string host, int port, ListenHandler handler);
 
-    // ExecutorService getNetExecutorService();
-}
+//     // ExecutorService getNetExecutorService();
+// }
 
-abstract class AbstractServer : AbstractLifecycle, Server {
+abstract class AbstractServer : AbstractLifecycle { // , Server
 	protected Address _address;
-    protected Handler _handler;
+    protected NetSocketHandler _handler;
 
     @property Address bindingAddress() {
 		return _address;
@@ -32,7 +33,7 @@ abstract class AbstractServer : AbstractLifecycle, Server {
         stop();
     }
 
-    AbstractServer connectionHandler(Handler handler) {
+    AbstractServer connectionHandler(NetSocketHandler handler) {
         _handler = handler;
         return this;
     }

@@ -4,22 +4,14 @@ import hunt.Exceptions;
 
 import std.exception;
 
-
-class SSLException : IOException
-{
+class SSLException : IOException {
     mixin basicExceptionCtors;
 }
 
-
-class SSLHandshakeException : SSLException
-{
+class SSLHandshakeException : SSLException {
     mixin basicExceptionCtors;
 }
 
-
-class SSLPeerUnverifiedException : SSLException
-{
+class SSLPeerUnverifiedException : SSLException {
     mixin basicExceptionCtors;
 }
-
-
