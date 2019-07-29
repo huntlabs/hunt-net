@@ -22,6 +22,19 @@ class NetClient : AbstractClient {
     private AsynchronousTcpSession tcpSession;
     private bool _isConnected = false;
     private TcpStream client;
+    private int _loopIdleTime = -1;
+
+    this() {
+        _loop = new EventLoop();
+    }
+
+    this(EventLoop loop) {
+        _loop = loop;
+    }
+
+    ~this() {
+        this.stop();
+    }
 
     string getHost() {
         return _host;
@@ -98,7 +111,7 @@ class NetClient : AbstractClient {
                 handler(result);
         }).connect(host, cast(ushort) port);
 
-        // _loop.run();
+        _loop.runAsync(_loopIdleTime);
 
         return this;
     }
@@ -125,6 +138,7 @@ class NetClient : AbstractClient {
     override protected void destroy() {
         if (tcpSession !is null) {
             _isConnected = false;
+            _loop.stop();
             tcpSession.close();
         }
     }
@@ -136,11 +150,6 @@ class NetClient : AbstractClient {
 
     bool isConnected() {
         return _isConnected;
-    }
-
-package:
-    this(EventLoop loop) {
-        _loop = loop;
     }
 
 private:
