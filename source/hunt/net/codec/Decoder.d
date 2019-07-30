@@ -1,12 +1,17 @@
-module hunt.net.DecoderChain;
+module hunt.net.codec.Decoder;
 
-import hunt.net.Decoder;
 import hunt.net.Session;
 import hunt.collection.ByteBuffer;
 
 import hunt.Exceptions;
 
-abstract class DecoderChain : Decoder {
+interface Decoder {
+    void decode(ByteBuffer buf, Session session);
+}
+
+/**
+*/
+class DecoderChain : Decoder {
 
     protected DecoderChain next;
 
@@ -18,6 +23,8 @@ abstract class DecoderChain : Decoder {
         return next;
     }
 
-    void decode(ByteBuffer buf, Session session) { implementationMissing(); }
+    void decode(ByteBuffer buf, Session session) {
+        NotImplementedException();
+    }
 
 }
