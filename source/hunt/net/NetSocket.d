@@ -1,6 +1,9 @@
 module hunt.net.NetSocket;
 
 import hunt.net.AsyncResult;
+import hunt.net.Session;
+
+import hunt.Boolean;
 import hunt.collection.ByteBuffer;
 import hunt.Functions;
 import hunt.io.channel;
@@ -10,17 +13,18 @@ import hunt.util.Common;
 
 import std.socket;
 
-alias ConnectHandler = void delegate(AsyncResult!NetSocket);
-
 alias NetEventHandler(E) = void delegate(E event);
+alias ConnectHandler = NetEventHandler!(AsyncResult!NetSocket);
 
-alias Handler = void delegate(NetSocket sock);
+
+// alias Handler = void delegate(NetSocket sock);
 
 ///
-class NetSocket {
+class NetSocket : Session {
     protected TcpStream _tcp;
-    private SimpleEventHandler _closeHandler;
-    private DataReceivedHandler _dataReceivedHandler;
+    protected SimpleEventHandler _closeHandler;
+    protected DataReceivedHandler _dataReceivedHandler;
+    protected Object[string] attributes;
 
     ///
     this(TcpStream tcp) {
@@ -104,6 +108,114 @@ class NetSocket {
 
     TcpStream getTcpStream() {
         return _tcp;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    Object getAttribute(string key) {
+        return getAttribute(key, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object getAttribute(string key, Object defaultValue) {
+        return attributes.get(key, defaultValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttribute(string key, Object value) {
+        auto itemPtr = key in attributes;
+		string oldValue = null;
+        if(itemPtr !is null) {
+            oldValue = *itemPtr;
+        }
+        attributes[key] = value;
+		return oldValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttribute(string key) {
+        return setAttribute(key, Boolean.TRUE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttributeIfAbsent(string key, Object value) {
+        auto itemPtr = key in attributes;
+        if(itemPtr is null) {
+            attributes[key] = value;
+            return null;
+        } else {
+            return *itemPtr;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttributeIfAbsent(string key) {
+        return setAttributeIfAbsent(key, Boolean.TRUE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object removeAttribute(string key) {
+        auto itemPtr = key in attributes;
+        if(itemPtr is null) {
+            return null;
+        } else {
+            Object oldValue = *itemPtr;
+            attributes.remove(key);
+            return oldValue;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    bool removeAttribute(string key, Object value) {
+        auto itemPtr = key in attributes;
+        if(itemPtr !is null && *itemPtr == value) {
+            attributes.remove(key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    bool replaceAttribute(string key, Object oldValue, Object newValue) {
+        auto itemPtr = key in attributes;
+        if(itemPtr !is null && *itemPtr == oldValue) {
+            attributes[key] = newValue;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    bool containsAttribute(string key) {
+        auto itemPtr = key in attributes;
+        return itemPtr !is null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    string[] getAttributeKeys() {
+        return attributes.keys();
     }
 
 }
