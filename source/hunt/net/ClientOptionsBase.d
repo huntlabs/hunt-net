@@ -16,6 +16,10 @@ import hunt.net.OpenSSLEngineOptions;
 import hunt.net.ProxyOptions;
 import hunt.net.TcpSslOptions;
 
+import hunt.Exceptions;
+
+import core.time;
+
 /**
  * Base class for Client options
  *
@@ -192,65 +196,65 @@ abstract class ClientOptionsBase : TcpSslOptions {
         return cast(ClientOptionsBase) super.setSoLinger(soLinger);
     }
 
-    override
-    ClientOptionsBase setUsePooledBuffers(bool usePooledBuffers) {
-        return cast(ClientOptionsBase) super.setUsePooledBuffers(usePooledBuffers);
-    }
+    // override
+    // ClientOptionsBase setUsePooledBuffers(bool usePooledBuffers) {
+    //     return cast(ClientOptionsBase) super.setUsePooledBuffers(usePooledBuffers);
+    // }
 
     override
-    ClientOptionsBase setIdleTimeout(int idleTimeout) {
+    ClientOptionsBase setIdleTimeout(Duration idleTimeout) {
         return cast(ClientOptionsBase) super.setIdleTimeout(idleTimeout);
     }
 
-    override
-    ClientOptionsBase setIdleTimeoutUnit(TimeUnit idleTimeoutUnit) {
-        return cast(ClientOptionsBase) super.setIdleTimeoutUnit(idleTimeoutUnit);
-    }
+    // override
+    // ClientOptionsBase setIdleTimeoutUnit(TimeUnit idleTimeoutUnit) {
+    //     return cast(ClientOptionsBase) super.setIdleTimeoutUnit(idleTimeoutUnit);
+    // }
 
     override
     ClientOptionsBase setSsl(bool ssl) {
         return cast(ClientOptionsBase) super.setSsl(ssl);
     }
 
-    override
-    ClientOptionsBase setKeyCertOptions(KeyCertOptions options) {
-        return cast(ClientOptionsBase) super.setKeyCertOptions(options);
-    }
+    // override
+    // ClientOptionsBase setKeyCertOptions(KeyCertOptions options) {
+    //     return cast(ClientOptionsBase) super.setKeyCertOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setKeyStoreOptions(JksOptions options) {
-        return cast(ClientOptionsBase) super.setKeyStoreOptions(options);
-    }
+    // override
+    // ClientOptionsBase setKeyStoreOptions(JksOptions options) {
+    //     return cast(ClientOptionsBase) super.setKeyStoreOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setPfxKeyCertOptions(PfxOptions options) {
-        return cast(ClientOptionsBase) super.setPfxKeyCertOptions(options);
-    }
+    // override
+    // ClientOptionsBase setPfxKeyCertOptions(PfxOptions options) {
+    //     return cast(ClientOptionsBase) super.setPfxKeyCertOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setPemKeyCertOptions(PemKeyCertOptions options) {
-        return cast(ClientOptionsBase) super.setPemKeyCertOptions(options);
-    }
+    // override
+    // ClientOptionsBase setPemKeyCertOptions(PemKeyCertOptions options) {
+    //     return cast(ClientOptionsBase) super.setPemKeyCertOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setTrustOptions(TrustOptions options) {
-        return cast(ClientOptionsBase) super.setTrustOptions(options);
-    }
+    // override
+    // ClientOptionsBase setTrustOptions(TrustOptions options) {
+    //     return cast(ClientOptionsBase) super.setTrustOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setTrustStoreOptions(JksOptions options) {
-        return cast(ClientOptionsBase) super.setTrustStoreOptions(options);
-    }
+    // override
+    // ClientOptionsBase setTrustStoreOptions(JksOptions options) {
+    //     return cast(ClientOptionsBase) super.setTrustStoreOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setPfxTrustOptions(PfxOptions options) {
-        return cast(ClientOptionsBase) super.setPfxTrustOptions(options);
-    }
+    // override
+    // ClientOptionsBase setPfxTrustOptions(PfxOptions options) {
+    //     return cast(ClientOptionsBase) super.setPfxTrustOptions(options);
+    // }
 
-    override
-    ClientOptionsBase setPemTrustOptions(PemTrustOptions options) {
-        return cast(ClientOptionsBase) super.setPemTrustOptions(options);
-    }
+    // override
+    // ClientOptionsBase setPemTrustOptions(PemTrustOptions options) {
+    //     return cast(ClientOptionsBase) super.setPemTrustOptions(options);
+    // }
 
     override
     ClientOptionsBase setUseAlpn(bool useAlpn) {
@@ -267,10 +271,10 @@ abstract class ClientOptionsBase : TcpSslOptions {
     //     return cast(ClientOptionsBase) super.setJdkSslEngineOptions(sslEngineOptions);
     // }
 
-    // override
-    // ClientOptionsBase setOpenSslEngineOptions(OpenSSLEngineOptions sslEngineOptions) {
-    //     return cast(ClientOptionsBase) super.setOpenSslEngineOptions(sslEngineOptions);
-    // }
+    override
+    ClientOptionsBase setOpenSslEngineOptions(OpenSSLEngineOptions sslEngineOptions) {
+        return cast(ClientOptionsBase) super.setOpenSslEngineOptions(sslEngineOptions);
+    }
 
     override
     ClientOptionsBase setSendBufferSize(int sendBufferSize) {
@@ -312,15 +316,15 @@ abstract class ClientOptionsBase : TcpSslOptions {
     //     return cast(ClientOptionsBase) super.addCrlValue(crlValue);
     // }
 
-    override
-    ClientOptionsBase addEnabledSecureTransportProtocol(string protocol) {
-        return cast(ClientOptionsBase) super.addEnabledSecureTransportProtocol(protocol);
-    }
+    // override
+    // ClientOptionsBase addEnabledSecureTransportProtocol(string protocol) {
+    //     return cast(ClientOptionsBase) super.addEnabledSecureTransportProtocol(protocol);
+    // }
 
-    override
-    ClientOptionsBase removeEnabledSecureTransportProtocol(string protocol) {
-        return cast(ClientOptionsBase) super.removeEnabledSecureTransportProtocol(protocol);
-    }
+    // override
+    // ClientOptionsBase removeEnabledSecureTransportProtocol(string protocol) {
+    //     return cast(ClientOptionsBase) super.removeEnabledSecureTransportProtocol(protocol);
+    // }
 
     override
     ClientOptionsBase setTcpFastOpen(bool tcpFastOpen) {

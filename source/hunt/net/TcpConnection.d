@@ -1,10 +1,11 @@
-module hunt.net.AsynchronousTcpSession;
+module hunt.net.TcpConnection;
 
-import hunt.net.Config;
-import hunt.net.NetEvent;
-import hunt.net.NetSocket;
+import hunt.net.TcpSslOptions;
+import hunt.net.AbstractConnection;
+import hunt.net.Connection;
+import hunt.net.codec;
 import hunt.net.OutputEntry;
-import hunt.net.Session;
+// import hunt.net.Session;
 
 import hunt.collection;
 import hunt.util.DateTime;
@@ -15,9 +16,12 @@ import hunt.logging;
 import hunt.util.Common;
 
 import core.atomic;
+import core.time;
 import std.socket;
 
-class AsynchronousTcpSession : NetSocket, Session {
+alias AsynchronousTcpSession = TcpConnection;
+
+class TcpConnection : AbstractConnection {
     protected int sessionId;
 
 version(HUNT_METRIC) {
@@ -29,39 +33,35 @@ version(HUNT_METRIC) {
     private size_t writtenBytes = 0;
 } 
 
-    protected Config _config;
-    protected NetEvent _netEvent;
-    protected Object attachment;
+    protected TcpSslOptions _config;
+    protected ConnectionEventHandler _eventHandler;
+    protected Encoder _encoder;
+    protected Decoder _decoder;
     protected shared bool _isClosed = false;
     protected shared bool _isShutdownOutput = false;
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
-    this(int sessionId, Config config, NetEvent netEvent, TcpStream tcp) {
-        // assert(netEvent !is null);
+    this(int sessionId, TcpSslOptions config, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
+        assert(eventHandler !is null);
         this.sessionId = sessionId;
         this._config = config;
-        this._netEvent = netEvent;
+        this._eventHandler = eventHandler;
+        if(codec !is null) {
+            this._encoder = codec.getEncoder();
+            this._decoder = codec.getDecoder;
+        }
         super(tcp);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("initializing...");
-        // if(netEvent !is null)
-        //     netEvent.notifySessionOpened(this);
     }  
 
-    override void attachObject(Object attachment) {
-        this.attachment = attachment;
-    }
-
-    override Object getAttachment() {
-        return attachment;
-    }
 
     void encode(Object message) {
         try {
-            _config.getEncoder().encode(message, this);
+            this._encoder.encode(message, this);
         } catch (Exception t) {
-            _netEvent.notifyExceptionCaught(this, t);
+            _eventHandler.exceptionCaught(this, t);
         }
     }
 
@@ -69,21 +69,21 @@ version(HUNT_METRIC) {
     //     try {
     //         _config.getEncoder().encode(message, this);
     //     } catch (Exception t) {
-    //         _netEvent.notifyExceptionCaught(this, t);
+    //         _eventHandler.notifyExceptionCaught(this, t);
     //     }
     // }
 
     void encode(ByteBuffer[] messages) {
         try {
             foreach (ByteBuffer message; messages) {
-                _config.getEncoder().encode(message, this);
+                this._encoder.encode(message, this);
             }
         } catch (Exception t) {
-            _netEvent.notifyExceptionCaught(this, t);
+            _eventHandler.exceptionCaught(this, t);
         }
     }
 
-    override void write(ByteBuffer buffer, Callback callback) {
+    void write(ByteBuffer buffer, AsyncVoidResultHandler callback) {
         version (HUNT_DEBUG_MORE)
             tracef("writting buffer: %s", buffer.toString());
 
@@ -92,13 +92,13 @@ version(HUNT_METRIC) {
         int end = buffer.limit();
 
         write(cast(ubyte[]) data[start .. end]);
-        callback.succeeded();
+        // callback.succeeded();
     }
 
     // override
     // void write(ByteBufferOutputEntry entry) {
     //     ByteBuffer buffer = entry.getData();
-    //     Callback callback = entry.getCallback();
+    //     AsyncVoidResultHandler callback = entry.getCallback();
     //     write(buffer, callback);
     //     // version(HUNT_DEBUG)
     //     // tracef("writting buffer: %s", buffer.toString());
@@ -111,7 +111,7 @@ version(HUNT_METRIC) {
     //     // callback.succeeded();
     // }
 
-    override void write(ByteBuffer[] buffers, Callback callback) {
+    void write(ByteBuffer[] buffers, AsyncVoidResultHandler callback) {
         foreach (ByteBuffer buffer; buffers) {
             version (HUNT_DEBUG)
                 tracef("writting buffer: %s", buffer.toString());
@@ -122,14 +122,14 @@ version(HUNT_METRIC) {
 
             write(cast(ubyte[]) data[start .. end]);
         }
-        callback.succeeded();
+        // callback.succeeded();
     }
 
-    override void write(Collection!(ByteBuffer) buffers, Callback callback) {
+    void write(Collection!(ByteBuffer) buffers, AsyncVoidResultHandler callback) {
         write(buffers.toArray(), callback); // BufferUtils.EMPTY_BYTE_BUFFER_ARRAY
     }
 
-    alias write = NetSocket.write;
+    alias write = AbstractConnection.write;
 
     void notifyMessageReceived(Object message) {
         implementationMissing(false);
@@ -146,7 +146,7 @@ version(HUNT_METRIC) {
         super.onDataReceived(buffer);
     }
 
-    override NetSocket write(const ubyte[] data) {
+    override AsynchronousTcpConnection write(const ubyte[] data) {
         writtenBytes += data.length;
         super.write(data);
         return this;
@@ -217,16 +217,16 @@ version(HUNT_METRIC) {
                 errorf("The session %d close exception: %s", sessionId, e.msg);
             } 
             // finally {
-            //     _netEvent.notifySessionClosed(this);
+            //     _eventHandler.notifySessionClosed(this);
             // }
         } else {
             infof("The session %d already closed", sessionId);
         }
     }
 
-    override void closeNow() {
-        this.close();
-    }
+    // override void closeNow() {
+    //     this.close();
+    // }
 
     override protected void onClosed() {
         super.onClosed();
@@ -237,8 +237,8 @@ version(HUNT_METRIC) {
         } else {
             version(HUNT_DEBUG) tracef("The session %d closed", sessionId);
         }
-        if(_netEvent !is null)
-            _netEvent.notifySessionClosed(this);
+        if(_eventHandler !is null)
+            _eventHandler.sessionClosed(this);
     }
 
     private void shutdownSocketChannel() {
@@ -278,7 +278,7 @@ version(HUNT_METRIC) {
         }
     }
 
-    override bool isOpen() {
+    bool isOpen() {
         return _tcp.isConnected();
     }
 
@@ -306,8 +306,8 @@ version(HUNT_METRIC) {
         return remoteAddress();
     }
 
-    long getMaxIdleTimeout() {
-        return _config.getTimeout();
+    Duration getMaxIdleTimeout() {
+        return _config.getIdleTimeout();
     }
 
 }

@@ -1,20 +1,21 @@
 module hunt.net.NetUtil;
 import hunt.event;
 
-import hunt.net.Config;
+// import hunt.net.Config;
 import hunt.net.NetClient;
 import hunt.net.NetServer;
-import hunt.net.Server;
+import hunt.net.NetClientImpl;
+import hunt.net.NetServerImpl;
 
 /**
 */
 class NetUtil {
     static AbstractServer createNetServer(ServerThreadMode threadModel = ServerThreadMode.Single)() {
-        return new NetServer!(threadModel)(_loopGroup);
+        return new NetServerImpl!(threadModel)(_loopGroup);
     }
 
     static NetClient createNetClient() {
-        return new NetClient();
+        return new NetClientImpl();
     }
 
     static void startEventLoop(long timeout = -1) {

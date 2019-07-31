@@ -13,6 +13,9 @@ module hunt.net.NetClientOptions;
 
 import hunt.net.ClientOptionsBase;
 import hunt.net.OpenSSLEngineOptions;
+import hunt.net.ProxyOptions;
+
+import hunt.Exceptions;
 
 import core.time;
 import std.array;
@@ -118,23 +121,17 @@ class NetClientOptions : ClientOptionsBase {
         return this;
     }
 
-    override
-    NetClientOptions setUsePooledBuffers(bool usePooledBuffers) {
-        super.setUsePooledBuffers(usePooledBuffers);
-        return this;
-    }
+    // override
+    // NetClientOptions setUsePooledBuffers(bool usePooledBuffers) {
+    //     super.setUsePooledBuffers(usePooledBuffers);
+    //     return this;
+    // }
 
     override
-    NetClientOptions setIdleTimeout(int idleTimeout) {
+    NetClientOptions setIdleTimeout(Duration idleTimeout) {
         super.setIdleTimeout(idleTimeout);
         return this;
     }
-
-    // override
-    // NetClientOptions setIdleTimeoutUnit(TimeUnit idleTimeoutUnit) {
-    //     super.setIdleTimeoutUnit(idleTimeoutUnit);
-    //     return this;
-    // }
 
     override
     NetClientOptions setSsl(bool ssl) {
@@ -186,22 +183,22 @@ class NetClientOptions : ClientOptionsBase {
     //     return cast(NetClientOptions) super.setPfxTrustOptions(options);
     // }
 
-    override
-    NetClientOptions addEnabledCipherSuite(string suite) {
-        super.addEnabledCipherSuite(suite);
-        return this;
-    }
+    // override
+    // NetClientOptions addEnabledCipherSuite(string suite) {
+    //     super.addEnabledCipherSuite(suite);
+    //     return this;
+    // }
 
-    override
-    NetClientOptions addEnabledSecureTransportProtocol(final string protocol) {
-        super.addEnabledSecureTransportProtocol(protocol);
-        return this;
-    }
+    // override
+    // NetClientOptions addEnabledSecureTransportProtocol(string protocol) {
+    //     super.addEnabledSecureTransportProtocol(protocol);
+    //     return this;
+    // }
 
-    override
-    NetClientOptions removeEnabledSecureTransportProtocol(string protocol) {
-        return cast(NetClientOptions) super.removeEnabledSecureTransportProtocol(protocol);
-    }
+    // override
+    // NetClientOptions removeEnabledSecureTransportProtocol(string protocol) {
+    //     return cast(NetClientOptions) super.removeEnabledSecureTransportProtocol(protocol);
+    // }
 
     override
     NetClientOptions setUseAlpn(bool useAlpn) {
@@ -334,7 +331,7 @@ class NetClientOptions : ClientOptionsBase {
         return cast(NetClientOptions) super.setLogActivity(logEnabled);
     }
 
-    NetClientOptions setProxyOptions(ProxyOptions proxyOptions) {
+    override NetClientOptions setProxyOptions(ProxyOptions proxyOptions) {
         return cast(NetClientOptions) super.setProxyOptions(proxyOptions);
     }
 
@@ -343,23 +340,20 @@ class NetClientOptions : ClientOptionsBase {
         return cast(NetClientOptions) super.setLocalAddress(localAddress);
     }
 
-    override
-    NetClientOptions setEnabledSecureTransportProtocols(Set!(string) enabledSecureTransportProtocols) {
-        return cast(NetClientOptions) super.setEnabledSecureTransportProtocols(enabledSecureTransportProtocols);
-    }
+    // override
+    // NetClientOptions setEnabledSecureTransportProtocols(Set!(string) enabledSecureTransportProtocols) {
+    //     return cast(NetClientOptions) super.setEnabledSecureTransportProtocols(enabledSecureTransportProtocols);
+    // }
 
-    NetClientOptions setSslHandshakeTimeout(long sslHandshakeTimeout) {
+    override NetClientOptions setSslHandshakeTimeout(Duration sslHandshakeTimeout) {
         return cast(NetClientOptions) super.setSslHandshakeTimeout(sslHandshakeTimeout);
     }
 
-    NetClientOptions setSslHandshakeTimeoutUnit(TimeUnit sslHandshakeTimeoutUnit) {
-        return cast(NetClientOptions) super.setSslHandshakeTimeoutUnit(sslHandshakeTimeoutUnit);
-    }
 
     override
-    bool equals(Object o) {
+    bool opEquals(Object o) {
         if (this is o) return true;
-        if (!super.equals(o)) return false;
+        if (!super.opEquals(o)) return false;
 
         NetClientOptions that = cast(NetClientOptions) o;
         if(that is null) return false;

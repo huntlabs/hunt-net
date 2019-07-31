@@ -73,7 +73,7 @@ class OpenSSLEngineOptions {
     }
 
     override
-    bool equals(Object o) {
+    bool opEquals(Object o) {
         if (this is o) return true;
 
         OpenSSLEngineOptions that = cast(OpenSSLEngineOptions) o;

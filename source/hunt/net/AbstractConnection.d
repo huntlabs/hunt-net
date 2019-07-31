@@ -1,177 +1,236 @@
 module hunt.net.AbstractConnection;
 
+import hunt.net.AsyncResult;
 import hunt.net.Connection;
-import hunt.net.OutputEntry;
-import hunt.net.secure.SecureSession;
-import hunt.net.Session;
 
+import hunt.Boolean;
 import hunt.collection.ByteBuffer;
-import hunt.Exceptions;
-import hunt.logging;
 import hunt.Functions;
+import hunt.io.channel;
+import hunt.io.TcpStream;
+import hunt.logging.ConsoleLogger;
 import hunt.util.Common;
 
 import std.socket;
 
-/**
- * 
- */
-abstract class AbstractConnection : Connection {
-    // static Scheduler scheduler = Schedulers.createScheduler();
 
-    protected SecureSession secureSession;
-    protected Session tcpSession;
+
+// alias Handler = void delegate(AbstractConnection sock);
+
+/**
+ * Abstract base class for TCP connections.
+ *
+ */
+class AbstractConnection : Connection {
+    protected TcpStream _tcp;
+    protected SimpleEventHandler _closeHandler;
+    protected DataReceivedHandler _dataReceivedHandler;
+    protected Object[string] attributes;
+
     protected Object attachment;
 
-    this(SecureSession secureSession, Session tcpSession) {
-        this.secureSession = secureSession;
-        this.tcpSession = tcpSession;
+    ///
+    this(TcpStream tcp) {
+        _tcp = tcp;
+        _tcp.onClosed(&onClosed);
+        _tcp.onReceived(&onDataReceived);
     }
 
-    int getSessionId() {
-        return tcpSession.getSessionId();
+    deprecated("Using setAttributes instead.")
+    void attachObject(Object attachment) {
+        this.attachment = attachment;
     }
 
-version (HUNT_METRIC) {
-    long getOpenTime() {
-        return tcpSession.getOpenTime();
-    }
-
-    long getCloseTime() {
-        return tcpSession.getCloseTime();
-    }
-
-    long getDuration() {
-        return tcpSession.getDuration();
-    }
-
-    long getLastReadTime() {
-        return tcpSession.getLastReadTime();
-    }
-
-    long getLastWrittenTime() {
-        return tcpSession.getLastWrittenTime();
-    }
-
-    long getLastActiveTime() {
-        return tcpSession.getLastActiveTime();
-    }
-
-    long getReadBytes() {
-        return tcpSession.getReadBytes();
-    }
-
-    long getWrittenBytes() {
-        return tcpSession.getWrittenBytes();
-    }
-
-    long getIdleTimeout() {
-        return tcpSession.getIdleTimeout();
-    }
-
-}
-
-    bool isOpen() {
-        return tcpSession.isOpen();
-    }
-
-    bool isClosed() {
-        return tcpSession.isClosed();
-    }
-
-    Address getLocalAddress() {
-        return tcpSession.getLocalAddress();
-    }
-
-    Address getRemoteAddress() {
-        return tcpSession.getRemoteAddress();
-    }
-
-    long getMaxIdleTimeout() {
-        return tcpSession.getMaxIdleTimeout();
-    }
-
+    deprecated("Using getAttributes instead.")
     Object getAttachment() {
         return attachment;
     }
 
-    void setAttachment(Object attachment) {
-        this.attachment = attachment;
+    ///
+    AbstractConnection handler(DataReceivedHandler handler) {
+        _dataReceivedHandler = handler;
+        return this;
     }
 
+    protected void onDataReceived(ByteBuffer buffer) {
+        version(HUNT_DEBUG) { 
+            auto data = cast(ubyte[]) buffer.getRemaining();
+            infof("data received (%d bytes): ", data.length); 
+            version(HUNT_IO_MORE) {
+            if(data.length<=64)
+                infof("%(%02X %)", data[0 .. $]);
+            else
+                infof("%(%02X %) ...", data[0 .. 64]);
+            }
+        }      
+
+        if(_dataReceivedHandler !is null) {
+            _dataReceivedHandler(buffer);
+        }
+    }
+
+    ///
     void close() {
-        // if(secureSession !is null && secureSession.isOpen)
-        //     secureSession.close();           
-        if (tcpSession !is null && tcpSession.isOpen)
-            tcpSession.close();
-        attachment = null;
+        _tcp.close();
+    }
+    
+    ////
+    AbstractConnection closeHandler(SimpleEventHandler handler) {
+        _tcp.closeHandler = &onClosed;
+        _closeHandler = handler;
+        return this;
     }
 
-    SecureSession getSecureSession() {
-        return secureSession;
+    protected void onClosed() {
+        if(_closeHandler !is null)
+            _closeHandler();
+    }
+    
+
+    ///
+    @property Address localAddress() {
+        return _tcp.localAddress;
+    }
+    
+    ////
+    @property Address remoteAddress() {
+        return _tcp.remoteAddress;
     }
 
-    Session getTcpSession() {
-        return tcpSession;
+    ////
+    AbstractConnection write(const(ubyte)[] data) {
+        version (HUNT_IO_MORE) {
+            if (data.length <= 32)
+                infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
+            else
+                infof("%d bytes: %(%02X %)", data.length, data[0 .. 32]);
+        }
+        _tcp.write(data);
+        return this;
     }
 
-    bool isEncrypted() {
-        return secureSession !is null;
+    ////
+    AbstractConnection write(string str) {
+        return write(cast(ubyte[]) str);
     }
 
-    ByteBuffer decrypt(ByteBuffer buffer) {
-        if (isEncrypted()) {
-            try {
-                return secureSession.read(buffer);
-            } catch (IOException e) {
-                throw new SecureNetException("decrypt exception", e);
-            }
-        } else {
+    AbstractConnection write(ByteBuffer buffer) {
+        _tcp.write(buffer);
+        return this;
+    }
+
+    TcpStream getTcpStream() {
+        return _tcp;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    Object getAttribute(string key) {
+        return getAttribute(key, null);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object getAttribute(string key, Object defaultValue) {
+        return attributes.get(key, defaultValue);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttribute(string key, Object value) {
+        auto itemPtr = key in attributes;
+		Object oldValue = null;
+        if(itemPtr !is null) {
+            oldValue = *itemPtr;
+        }
+        attributes[key] = value;
+		return oldValue;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttribute(string key) {
+        return setAttribute(key, Boolean.TRUE);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttributeIfAbsent(string key, Object value) {
+        auto itemPtr = key in attributes;
+        if(itemPtr is null) {
+            attributes[key] = value;
             return null;
+        } else {
+            return *itemPtr;
         }
     }
 
-    void encrypt(ByteBufferOutputEntry entry) {
-        encrypt!(ByteBuffer)(entry, (buffers, callback) {
-            try {
-                secureSession.write(buffers, callback);
-            } catch (IOException e) {
-                throw new SecureNetException("encrypt exception", e);
-            }
-        });
+    /**
+     * {@inheritDoc}
+     */
+    Object setAttributeIfAbsent(string key) {
+        return setAttributeIfAbsent(key, Boolean.TRUE);
     }
 
-    // void encrypt(ByteBufferArrayOutputEntry entry) {
-    //     encrypt(entry, (buffers, callback) {
-    //         try {
-    //             secureSession.write(buffers, callback);
-    //         } catch (IOException e) {
-    //             throw new SecureNetException("encrypt exception", e);
-    //         }
-    //     });
-    // }
-
-    void encrypt(ByteBuffer buffer) {
-        try {
-            secureSession.write(buffer, Callback.NOOP);
-        } catch (IOException e) {
-            errorf(e.toString());
-            throw new SecureNetException("encrypt exception", e);
+    /**
+     * {@inheritDoc}
+     */
+    Object removeAttribute(string key) {
+        auto itemPtr = key in attributes;
+        if(itemPtr is null) {
+            return null;
+        } else {
+            Object oldValue = *itemPtr;
+            attributes.remove(key);
+            return oldValue;
         }
     }
 
-    void encrypt(ByteBuffer[] buffers) {
-        try {
-            secureSession.write(buffers, Callback.NOOP);
-        } catch (IOException e) {
-            throw new SecureNetException("encrypt exception", e);
+    /**
+     * {@inheritDoc}
+     */
+    bool removeAttribute(string key, Object value) {
+        auto itemPtr = key in attributes;
+        if(itemPtr !is null && *itemPtr == value) {
+            attributes.remove(key);
+            return true;
         }
+        return false;
     }
 
-    private void encrypt(T)(OutputEntry!T entry, Action2!(T, Callback) et) {
-        if (isEncrypted()) {
-            et(entry.getData(), entry.getCallback());
+    /**
+     * {@inheritDoc}
+     */
+    bool replaceAttribute(string key, Object oldValue, Object newValue) {
+        auto itemPtr = key in attributes;
+        if(itemPtr !is null && *itemPtr == oldValue) {
+            attributes[key] = newValue;
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    bool containsAttribute(string key) {
+        auto itemPtr = key in attributes;
+        return itemPtr !is null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    string[] getAttributeKeys() {
+        return attributes.keys();
     }
 
 }
+
+

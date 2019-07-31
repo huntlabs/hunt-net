@@ -1,6 +1,7 @@
 module hunt.net.codec.Encoder;
 
-import hunt.net.Session;
+import hunt.net.Connection;
+import hunt.Exceptions;
 
 interface Encoder {
 	void encode(Object message, Session session);
@@ -28,6 +29,6 @@ class EncoderChain : Encoder {
 	}
 
 	void encode(Object message, Session session) {
-		NotImplementedException();
+        implementationMissing();
 	}
 }

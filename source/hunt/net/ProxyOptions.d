@@ -12,8 +12,10 @@
 module hunt.net.ProxyOptions;
 
 import hunt.net.ProxyType;
+import hunt.Exceptions;
 
 import std.array;
+import std.conv;
 
 /**
  * Proxy options for a net client or a net client.
@@ -105,7 +107,7 @@ class ProxyOptions {
      */
     ProxyOptions setPort(int port) {
         if (port < 0 || port > 65535) {
-            throw new IllegalArgumentException("Invalid proxy port " + port);
+            throw new IllegalArgumentException("Invalid proxy port " ~ port.to!string);
         }
         this.port = port;
         return this;

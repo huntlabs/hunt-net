@@ -15,3 +15,7 @@ class SSLHandshakeException : SSLException {
 class SSLPeerUnverifiedException : SSLException {
     mixin basicExceptionCtors;
 }
+
+class RecoverableProtocolDecoderException : SSLException {
+    mixin basicExceptionCtors;
+}

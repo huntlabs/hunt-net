@@ -15,6 +15,10 @@ import hunt.net.ClientAuth;
 import hunt.net.OpenSSLEngineOptions;
 import hunt.net.TcpSslOptions;
 
+import hunt.Exceptions;
+
+import core.time;
+
 /**
  * Options for configuring a {@link hunt.net.NetServer}.
  *
@@ -125,23 +129,18 @@ class NetServerOptions : TcpSslOptions {
         return this;
     }
 
-    override
-    NetServerOptions setUsePooledBuffers(bool usePooledBuffers) {
-        super.setUsePooledBuffers(usePooledBuffers);
-        return this;
-    }
+    // override
+    // NetServerOptions setUsePooledBuffers(bool usePooledBuffers) {
+    //     super.setUsePooledBuffers(usePooledBuffers);
+    //     return this;
+    // }
 
     override
-    NetServerOptions setIdleTimeout(int idleTimeout) {
+    NetServerOptions setIdleTimeout(Duration idleTimeout) {
         super.setIdleTimeout(idleTimeout);
         return this;
     }
 
-    override
-    NetServerOptions setIdleTimeoutUnit(TimeUnit idleTimeoutUnit) {
-        super.setIdleTimeoutUnit(idleTimeoutUnit);
-        return this;
-    }
 
     override
     NetServerOptions setSsl(bool ssl) {
@@ -163,114 +162,114 @@ class NetServerOptions : TcpSslOptions {
 
     // override
     // NetServerOptions setJdkSslEngineOptions(JdkSSLEngineOptions sslEngineOptions) {
-    //     return (NetServerOptions) super.setSslEngineOptions(sslEngineOptions);
+    //     return cast(NetServerOptions) super.setSslEngineOptions(sslEngineOptions);
     // }
 
     override
     NetServerOptions setOpenSslEngineOptions(OpenSSLEngineOptions sslEngineOptions) {
-        return (NetServerOptions) super.setSslEngineOptions(sslEngineOptions);
+        return cast(NetServerOptions) super.setOpenSslEngineOptions(sslEngineOptions);
     }
 
-    override
-    NetServerOptions setKeyCertOptions(KeyCertOptions options) {
-        super.setKeyCertOptions(options);
-        return this;
-    }
+    // override
+    // NetServerOptions setKeyCertOptions(KeyCertOptions options) {
+    //     super.setKeyCertOptions(options);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions setKeyStoreOptions(JksOptions options) {
-        super.setKeyStoreOptions(options);
-        return this;
-    }
+    // override
+    // NetServerOptions setKeyStoreOptions(JksOptions options) {
+    //     super.setKeyStoreOptions(options);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions setPfxKeyCertOptions(PfxOptions options) {
-        return (NetServerOptions) super.setPfxKeyCertOptions(options);
-    }
+    // override
+    // NetServerOptions setPfxKeyCertOptions(PfxOptions options) {
+    //     return cast(NetServerOptions) super.setPfxKeyCertOptions(options);
+    // }
 
-    override
-    NetServerOptions setPemKeyCertOptions(PemKeyCertOptions options) {
-        return (NetServerOptions) super.setPemKeyCertOptions(options);
-    }
+    // override
+    // NetServerOptions setPemKeyCertOptions(PemKeyCertOptions options) {
+    //     return cast(NetServerOptions) super.setPemKeyCertOptions(options);
+    // }
 
-    override
-    NetServerOptions setTrustOptions(TrustOptions options) {
-        super.setTrustOptions(options);
-        return this;
-    }
+    // override
+    // NetServerOptions setTrustOptions(TrustOptions options) {
+    //     super.setTrustOptions(options);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions setTrustStoreOptions(JksOptions options) {
-        super.setTrustStoreOptions(options);
-        return this;
-    }
+    // override
+    // NetServerOptions setTrustStoreOptions(JksOptions options) {
+    //     super.setTrustStoreOptions(options);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions setPfxTrustOptions(PfxOptions options) {
-        return (NetServerOptions) super.setPfxTrustOptions(options);
-    }
+    // override
+    // NetServerOptions setPfxTrustOptions(PfxOptions options) {
+    //     return cast(NetServerOptions) super.setPfxTrustOptions(options);
+    // }
 
-    override
-    NetServerOptions setPemTrustOptions(PemTrustOptions options) {
-        return (NetServerOptions) super.setPemTrustOptions(options);
-    }
+    // override
+    // NetServerOptions setPemTrustOptions(PemTrustOptions options) {
+    //     return cast(NetServerOptions) super.setPemTrustOptions(options);
+    // }
 
-    override
-    NetServerOptions addEnabledCipherSuite(string suite) {
-        super.addEnabledCipherSuite(suite);
-        return this;
-    }
+    // override
+    // NetServerOptions addEnabledCipherSuite(string suite) {
+    //     super.addEnabledCipherSuite(suite);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions addEnabledSecureTransportProtocol(final string protocol) {
-        super.addEnabledSecureTransportProtocol(protocol);
-        return this;
-    }
+    // override
+    // NetServerOptions addEnabledSecureTransportProtocol(string protocol) {
+    //     super.addEnabledSecureTransportProtocol(protocol);
+    //     return this;
+    // }
 
-    override
-    NetServerOptions removeEnabledSecureTransportProtocol(string protocol) {
-        return (NetServerOptions) super.removeEnabledSecureTransportProtocol(protocol);
-    }
+    // override
+    // NetServerOptions removeEnabledSecureTransportProtocol(string protocol) {
+    //     return cast(NetServerOptions) super.removeEnabledSecureTransportProtocol(protocol);
+    // }
 
     override
     NetServerOptions setTcpFastOpen(bool tcpFastOpen) {
-        return (NetServerOptions) super.setTcpFastOpen(tcpFastOpen);
+        return cast(NetServerOptions) super.setTcpFastOpen(tcpFastOpen);
     }
 
     override
     NetServerOptions setTcpCork(bool tcpCork) {
-        return (NetServerOptions) super.setTcpCork(tcpCork);
+        return cast(NetServerOptions) super.setTcpCork(tcpCork);
     }
 
     override
     NetServerOptions setTcpQuickAck(bool tcpQuickAck) {
-        return (NetServerOptions) super.setTcpQuickAck(tcpQuickAck);
+        return cast(NetServerOptions) super.setTcpQuickAck(tcpQuickAck);
     }
 
-    override
-    NetServerOptions addCrlPath(string crlPath) throws NullPointerException {
-        return (NetServerOptions) super.addCrlPath(crlPath);
-    }
+    // override
+    // NetServerOptions addCrlPath(string crlPath) {
+    //     return cast(NetServerOptions) super.addCrlPath(crlPath);
+    // }
+
+    // override
+    // NetServerOptions addCrlValue(Buffer crlValue) {
+    //     return cast(NetServerOptions) super.addCrlValue(crlValue);
+    // }
+
+    // override
+    // NetServerOptions setEnabledSecureTransportProtocols(Set!(string) enabledSecureTransportProtocols) {
+    //     return cast(NetServerOptions) super.setEnabledSecureTransportProtocols(enabledSecureTransportProtocols);
+    // }
 
     override
-    NetServerOptions addCrlValue(Buffer crlValue) throws NullPointerException {
-        return (NetServerOptions) super.addCrlValue(crlValue);
+    NetServerOptions setSslHandshakeTimeout(Duration sslHandshakeTimeout) {
+        return cast(NetServerOptions) super.setSslHandshakeTimeout(sslHandshakeTimeout);
     }
 
-    override
-    NetServerOptions setEnabledSecureTransportProtocols(Set!(string) enabledSecureTransportProtocols) {
-        return (NetServerOptions) super.setEnabledSecureTransportProtocols(enabledSecureTransportProtocols);
-    }
-
-    override
-    NetServerOptions setSslHandshakeTimeout(long sslHandshakeTimeout) {
-        return (NetServerOptions) super.setSslHandshakeTimeout(sslHandshakeTimeout);
-    }
-
-    override
-    NetServerOptions setSslHandshakeTimeoutUnit(TimeUnit sslHandshakeTimeoutUnit) {
-        return (NetServerOptions) super.setSslHandshakeTimeoutUnit(sslHandshakeTimeoutUnit);
-    }
+    // override
+    // NetServerOptions setSslHandshakeTimeoutUnit(TimeUnit sslHandshakeTimeoutUnit) {
+    //     return cast(NetServerOptions) super.setSslHandshakeTimeoutUnit(sslHandshakeTimeoutUnit);
+    // }
 
     /**
      * @return the value of accept backlog
