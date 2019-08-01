@@ -39,7 +39,7 @@ interface NetClient {
      * @return a reference to this, so the API can be used fluently
      */
     
-    void connect(int port, string host); // , AsyncConnectHandler connectHandler
+    void connect(string host, int port); // , AsyncConnectHandler connectHandler
 
     /**
      * Open a connection to a server at the specific {@code port} and {@code host}.
@@ -53,7 +53,7 @@ interface NetClient {
      * @return a reference to this, so the API can be used fluently
      */
     
-    void connect(int port, string host, string serverName); // , AsyncConnectHandler connectHandler
+    void connect(string host, int port, string serverName); // , AsyncConnectHandler connectHandler
 
     /**
      * Open a connection to a server at the specific {@code remoteAddress}.

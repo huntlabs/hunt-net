@@ -68,18 +68,18 @@ class NetClientImpl : AbstractClient {
         return this;
     }
 
-    void connect(int sessionId = 0) {
-        return connect(_port, _host, sessionId);
+    void connect() {
+        connect(_host, _port, "");
     }
 
-    void connect(int port, string host, int sessionId = 0) {
+    void connect(string host, int port, string serverName) {
         _host = host;
         _port = port;
-        _sessionId = sessionId;
+        // _sessionId = sessionId;
 
         _client = new TcpStream(_loop);
 
-        _tcpSession = new AsynchronousTcpSession(sessionId,
+        _tcpSession = new AsynchronousTcpSession(_sessionId++,
                 _config, _netHandler, _codec, _client);
 
 
@@ -102,9 +102,6 @@ class NetClientImpl : AbstractClient {
 			    version (HUNT_DEBUG) 
                 trace("connected to: ", _client.remoteAddress.toString()); 
 
-                // if (_handler !is null)
-                //     _handler(_tcpSession);
-                // result = succeededResult!(NetSocket)(_tcpSession);
                 _isRunning = true;
                 if (_netHandler !is null)
                     _netHandler.sessionOpened(_tcpSession);
@@ -114,36 +111,25 @@ class NetClientImpl : AbstractClient {
                     warning("connection failed!"); 
                 import std.format;
                 string msg = format("Failed to connect to %s:%d", host, port);
-                // result = failedResult!(NetSocket)(new Exception(msg));
 
                 if(_netHandler !is null)
-                    _netHandler.failedOpeningSession(sessionId, new Exception(msg));
-                
-                // if(_config !is null)
-                //     _config.getHandler().failedOpeningSession(sessionId,
-                //         new Exception(msg));
+                    _netHandler.failedOpeningSession(_sessionId, new Exception(msg));
             }
 
-            // if (handler !is null)
-            //     handler(result);
         }).connect(host, cast(ushort) port);
 
         _loop.runAsync(_loopIdleTime);
     }
 
 
-    int connect(string host, int port) {
-        int id = _sessionId + 1;
-        connect(port, host, id);
-        return id;
+    void connect(string host, int port) {
+        // int id = _sessionId + 1;
+        connect(host, port, "");
     }
 
-    void connect(string host, int port, int sessionId) {
-        connect(port, host, sessionId);
-    }
 
     override protected void initialize() {
-        connect(_port, _host);
+        connect(_host, _port);
     }
 
     override protected void destroy() {

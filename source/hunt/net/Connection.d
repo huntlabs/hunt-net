@@ -8,6 +8,7 @@ import hunt.util.Common;
 import hunt.collection.ByteBuffer;
 import hunt.collection.Collection;
 
+import core.time;
 import std.socket;
 
 
@@ -262,7 +263,7 @@ version(HUNT_METRIC) {
 
     void close();
 
-    void closeNow();
+    // void closeNow();
 
     void shutdownOutput();
 
@@ -282,7 +283,7 @@ version(HUNT_METRIC) {
 
     Address getRemoteAddress();
 
-    long getMaxIdleTimeout();
+    Duration getMaxIdleTimeout();
 }
 
 

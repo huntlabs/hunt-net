@@ -2,6 +2,7 @@ module hunt.net.AbstractConnection;
 
 import hunt.net.AsyncResult;
 import hunt.net.Connection;
+import hunt.net.codec;
 
 import hunt.Boolean;
 import hunt.collection.ByteBuffer;
@@ -21,19 +22,37 @@ import std.socket;
  * Abstract base class for TCP connections.
  *
  */
-class AbstractConnection : Connection {
+abstract class AbstractConnection : Connection {
     protected TcpStream _tcp;
     protected SimpleEventHandler _closeHandler;
     protected DataReceivedHandler _dataReceivedHandler;
     protected Object[string] attributes;
+    protected Encoder _encoder;
+    protected Decoder _decoder;
+    protected ConnectionEventHandler _eventHandler;
 
     protected Object attachment;
 
-    ///
+
     this(TcpStream tcp) {
+        assert(tcp !is null);
         _tcp = tcp;
+
         _tcp.onClosed(&onClosed);
         _tcp.onReceived(&onDataReceived);
+    }
+
+    ///
+    this(TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
+        assert(eventHandler !is null);
+
+        if(codec !is null) {
+            this._encoder = codec.getEncoder();
+            this._decoder = codec.getDecoder;
+        }
+        
+        this._eventHandler = eventHandler;
+        this(tcp);
     }
 
     deprecated("Using setAttributes instead.")
@@ -46,10 +65,18 @@ class AbstractConnection : Connection {
         return attachment;
     }
 
+    TcpStream getTcpStream() {
+        return _tcp;
+    }
+
     ///
-    AbstractConnection handler(DataReceivedHandler handler) {
-        _dataReceivedHandler = handler;
+    AbstractConnection setHandler(ConnectionEventHandler handler) {
+        this._eventHandler = handler;
         return this;
+    }
+
+    ConnectionEventHandler getHandler() {
+        return _eventHandler;
     }
 
     protected void onDataReceived(ByteBuffer buffer) {
@@ -64,8 +91,9 @@ class AbstractConnection : Connection {
             }
         }      
 
-        if(_dataReceivedHandler !is null) {
-            _dataReceivedHandler(buffer);
+        if(_eventHandler !is null) {
+            _eventHandler.messageReceived(this, cast(Object)buffer);
+            // _dataReceivedHandler(buffer);
         }
     }
 
@@ -75,15 +103,15 @@ class AbstractConnection : Connection {
     }
     
     ////
-    AbstractConnection closeHandler(SimpleEventHandler handler) {
-        _tcp.closeHandler = &onClosed;
-        _closeHandler = handler;
-        return this;
-    }
+    // AbstractConnection closeHandler(SimpleEventHandler handler) {
+    //     _tcp.closeHandler = &onClosed;
+    //     _closeHandler = handler;
+    //     return this;
+    // }
 
     protected void onClosed() {
-        if(_closeHandler !is null)
-            _closeHandler();
+        if(_eventHandler !is null)
+            _eventHandler.sessionClosed(this);
     }
     
 
@@ -118,11 +146,6 @@ class AbstractConnection : Connection {
         _tcp.write(buffer);
         return this;
     }
-
-    TcpStream getTcpStream() {
-        return _tcp;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -230,6 +253,34 @@ class AbstractConnection : Connection {
     string[] getAttributeKeys() {
         return attributes.keys();
     }
+
+
+    void encode(Object message) {
+        try {
+            this._encoder.encode(message, this);
+        } catch (Exception t) {
+            _eventHandler.exceptionCaught(this, t);
+        }
+    }
+
+    // void encode(ByteBuffer message) {
+    //     try {
+    //         _config.getEncoder().encode(message, this);
+    //     } catch (Exception t) {
+    //         _eventHandler.notifyExceptionCaught(this, t);
+    //     }
+    // }
+
+    void encode(ByteBuffer[] messages) {
+        try {
+            foreach (ByteBuffer message; messages) {
+                this._encoder.encode(message, this);
+            }
+        } catch (Exception t) {
+            _eventHandler.exceptionCaught(this, t);
+        }
+    }
+
 
 }
 

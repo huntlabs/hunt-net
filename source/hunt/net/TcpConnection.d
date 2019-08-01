@@ -21,6 +21,11 @@ import std.socket;
 
 alias AsynchronousTcpSession = TcpConnection;
 
+
+/**
+ * Represents a socket-like interface to a TCP connection on either the
+ * client or the server side.
+ */
 class TcpConnection : AbstractConnection {
     protected int sessionId;
 
@@ -34,54 +39,19 @@ version(HUNT_METRIC) {
 } 
 
     protected TcpSslOptions _config;
-    protected ConnectionEventHandler _eventHandler;
-    protected Encoder _encoder;
-    protected Decoder _decoder;
     protected shared bool _isClosed = false;
     protected shared bool _isShutdownOutput = false;
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
     this(int sessionId, TcpSslOptions config, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
-        assert(eventHandler !is null);
         this.sessionId = sessionId;
         this._config = config;
-        this._eventHandler = eventHandler;
-        if(codec !is null) {
-            this._encoder = codec.getEncoder();
-            this._decoder = codec.getDecoder;
-        }
-        super(tcp);
+        super(tcp, codec, eventHandler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("initializing...");
     }  
 
-
-    void encode(Object message) {
-        try {
-            this._encoder.encode(message, this);
-        } catch (Exception t) {
-            _eventHandler.exceptionCaught(this, t);
-        }
-    }
-
-    // void encode(ByteBuffer message) {
-    //     try {
-    //         _config.getEncoder().encode(message, this);
-    //     } catch (Exception t) {
-    //         _eventHandler.notifyExceptionCaught(this, t);
-    //     }
-    // }
-
-    void encode(ByteBuffer[] messages) {
-        try {
-            foreach (ByteBuffer message; messages) {
-                this._encoder.encode(message, this);
-            }
-        } catch (Exception t) {
-            _eventHandler.exceptionCaught(this, t);
-        }
-    }
 
     void write(ByteBuffer buffer, AsyncVoidResultHandler callback) {
         version (HUNT_DEBUG_MORE)
