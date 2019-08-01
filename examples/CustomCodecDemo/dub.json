@@ -1,0 +1,32 @@
+{
+	"name": "codec-demo",
+	"targetType":"executable",
+    "description": "Custom codec demo for hunt-net.",
+    "copyright": "Copyright (C) 2018-2019, HuntLabs",
+    "homepage": "https://www.huntlabs.net",
+    "license": "Apache-2.0",
+    "versions": ["HUNT_DEBUG", "HUNT_IO_DEBUG1", "HUNT_NET_DEBUG"],
+	"dependencies":{
+		"hunt-net":{
+			"path" :"../../"
+		}
+	},
+    "configurations": [
+		{
+			"name": "client",
+			"targetName": "codec-client",
+			"targetType": "executable",
+			"excludedSourceFiles": [
+				"source/server.d"
+			]
+		},
+		{
+			"name": "server",
+			"targetName": "codec-server",
+			"targetType": "executable",
+			"excludedSourceFiles": [
+				"source/client.d"
+			]
+		}
+	]
+}

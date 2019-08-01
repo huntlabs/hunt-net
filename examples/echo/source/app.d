@@ -21,7 +21,7 @@ void main() {
     alias logInfo = writeln;
     alias logDebug = writeln;
 
-    auto server = NetUtil.createNetServer!(ServerThreadMode.Single)();
+    auto server = NetUtil.createNetServer!(ThreadMode.Single)();
     server.connectionHandler((NetSocket sock) {
         logInfo("accepted a connection...");
         sock.handler((ByteBuffer buffer) {
