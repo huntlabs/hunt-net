@@ -1,28 +1,30 @@
 module hunt.net.NetClientImpl;
 
-import hunt.event.EventLoop;
-import hunt.io.TcpStream;
-
-
 import hunt.net.TcpConnection;
-import hunt.net.NetClientOptions;
 import hunt.net.Connection;
 import hunt.net.codec.Codec;
 import hunt.net.NetClient;
+import hunt.net.NetClientOptions;
+
+import hunt.event.EventLoop;
+import hunt.io.TcpStream;
+import hunt.logging;
 import hunt.util.Lifecycle;
 
-import hunt.logging;
+import std.format;
 
 ///
 class NetClientImpl : AbstractLifecycle, NetClient {
-    private string _host = "127.0.0.1";
-    private int _port = 8080;
+    enum string DefaultLocalHost = "127.0.0.1";
+    enum int DefaultLocalPort = 8080;
+    private string _host = DefaultLocalHost;
+    private int _port = DefaultLocalPort;
+    private string _serverName;
     private int _sessionId;
     private NetClientOptions _options;
     private Codec _codec;
     private ConnectionEventHandler _netHandler;
     private TcpConnection _tcpSession;
-    private bool _isConnected = false;
     private TcpStream _client;
     private int _loopIdleTime = -1;
 
@@ -91,12 +93,22 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void connect() {
-        connect(_host, _port, "");
+        connect(DefaultLocalHost, DefaultLocalPort, "");
+    }
+
+    void connect(string host, int port) {
+        connect(host, port, "");
     }
 
     void connect(string host, int port, string serverName) {
-        _host = host;
-        _port = port;
+        this._host = host;
+        this._port = port;
+        this._serverName = serverName;
+
+        super.start();
+    }
+
+    override protected void initialize() { // doConnect
         // _sessionId = sessionId;
 
         _client = new TcpStream(_loop);
@@ -106,20 +118,16 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
 
         _client.onClosed(() {
-            _isConnected = false;
             if (_netHandler !is null)
                 _netHandler.sessionClosed(_tcpSession);
         });
 
         _client.onError((string message) {
-            _isConnected = false;
             if (_netHandler !is null)
                 _netHandler.exceptionCaught(_tcpSession, new Exception(message));
         });
 
         _client.onConnected((bool suc) {
-            // AsyncResult!NetSocket result = null;
-            _isConnected = suc;
             if (suc) {
 			    version (HUNT_DEBUG) 
                 trace("connected to: ", _client.remoteAddress.toString()); 
@@ -129,29 +137,17 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                     _netHandler.sessionOpened(_tcpSession);
             }
             else {
+                string msg = format("Failed to connect to %s:%d", _host, _port);
 			    version (HUNT_DEBUG) 
-                    warning("connection failed!"); 
-                import std.format;
-                string msg = format("Failed to connect to %s:%d", host, port);
+                    warning(msg); 
 
                 if(_netHandler !is null)
                     _netHandler.failedOpeningSession(_sessionId, new Exception(msg));
             }
 
-        }).connect(host, cast(ushort) port);
+        }).connect(_host, cast(ushort)_port);
 
         _loop.runAsync(_loopIdleTime);
-    }
-
-
-    void connect(string host, int port) {
-        // int id = _sessionId + 1;
-        connect(host, port, "");
-    }
-
-
-    override protected void initialize() {
-        connect(_host, _port);
     }
 
     void close() {
@@ -160,14 +156,13 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     override protected void destroy() {
         if (_tcpSession !is null) {
-            _isConnected = false;
             _loop.stop();
             _tcpSession.close();
         }
     }
 
     bool isConnected() {
-        return _isConnected;
+        return _tcpSession.isConnected();
     }
 
 private:

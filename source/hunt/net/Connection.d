@@ -273,9 +273,32 @@ version(HUNT_METRIC) {
 
     void shutdownInput();
 
-    bool isOpen();
+    // bool isOpen();
 
-    bool isClosed();
+    // bool isClosed();
+
+    /**
+     * @return <tt>true</tt> if this session is connected with remote peer.
+     */
+    bool isConnected();
+    
+    /**
+     * @return <tt>true</tt> if this session is active.
+     */
+    bool isActive();
+
+    /**
+     * @return <tt>true</tt> if and only if this session is being closed
+     * (but not disconnected yet) or is closed.
+     */
+    bool isClosing();
+    
+    /**
+     * @return <tt>true</tt> if the session has started and initialized a SslEngine,
+     * <tt>false</tt> if the session is not yet secured (the handshake is not completed)
+     * or if SSL is not set for this session, or if SSL is not even an option.
+     */
+    bool isSecured();    
 
     bool isShutdownOutput();
 

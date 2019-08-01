@@ -21,8 +21,6 @@ import std.socket;
 
 deprecated("Using TcpConnection instead.")
 alias AsynchronousTcpSession = TcpConnection;
-deprecated("Using TcpConnection instead.")
-alias NetSocketImpl = TcpConnection;
 
 
 /**
@@ -50,12 +48,12 @@ version(HUNT_METRIC) {
         this._config = config;
         super(sessionId, tcp, codec, eventHandler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
-        version(HUNT_DEBUG) trace("initializing...");
+        version(HUNT_DEBUG) trace("initializing TCP connection...");
     }  
 
 
     void write(ByteBuffer buffer, AsyncVoidResultHandler callback) {
-        version (HUNT_DEBUG_MORE)
+        version (HUNT_IO_MORE)
             tracef("writting buffer: %s", buffer.toString());
 
         byte[] data = buffer.array;
@@ -246,13 +244,26 @@ version(HUNT_METRIC) {
         }
     }
 
-    bool isOpen() {
+    bool isConnected() {
         return _tcp.isConnected();
     }
 
-    bool isClosed() {
-        return _tcp.isClosed();
+    bool isActive() {
+        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:04:44 PM
+        // 
+        return _tcp.isConnected();
     }
+
+    bool isClosing() {
+        return _tcp.isClosing();
+    }
+
+    bool isSecured() {
+        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:09:26 PM
+        // 
+        return false;
+    }
+    
 
     bool isShutdownOutput() {
         return _isShutdownOutput;

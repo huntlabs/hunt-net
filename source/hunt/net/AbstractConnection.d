@@ -21,7 +21,7 @@ import std.socket;
 abstract class AbstractConnection : Connection {
     protected int _sessionId;
     protected TcpStream _tcp;
-    protected SimpleEventHandler _closeHandler;
+    // protected SimpleEventHandler _closeHandler;
     protected DataReceivedHandler _dataReceivedHandler;
     protected Object[string] attributes;
     protected Encoder _encoder;
@@ -89,9 +89,12 @@ abstract class AbstractConnection : Connection {
             }
         }      
 
-        if(_eventHandler !is null) {
-            _eventHandler.messageReceived(this, cast(Object)buffer);
-            // _dataReceivedHandler(buffer);
+        if(_decoder !is null) {
+            _decoder.decode(buffer, this);
+        } else {
+            if(_eventHandler !is null) {
+                _eventHandler.messageReceived(this, cast(Object)buffer);
+            }
         }
     }
 

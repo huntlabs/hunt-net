@@ -3,12 +3,34 @@ module server;
 import hunt.net;
 import hunt.logging;
 
+import hunt.net.codec.textline;
+
 import std.format;
 
 void main() {
 
     NetServerOptions options = new NetServerOptions();
     NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
+
+    server.setCodec(new class Codec {
+
+        // private TextLineEncoder encoder;
+        private TextLineDecoder decoder;
+
+        this() {
+            decoder = new TextLineDecoder();
+        }
+
+        Encoder getEncoder() {
+            // return encoder;
+            return null;
+        }
+
+        Decoder getDecoder() {
+            return decoder;
+        }
+    });
+
 
     server.setHandler(new class ConnectionEventHandler {
 
@@ -21,6 +43,7 @@ void main() {
         }
 
         override void messageReceived(Connection session, Object message) {
+            tracef("message type: %s", typeid(message).name);
             string str = format("data received: %s", message.toString());
             tracef(str);
             session.write(str);
@@ -38,16 +61,4 @@ void main() {
             warning(t);
         }
     }).listen("0.0.0.0", 8080);
-    // server.getOptions();
-    // server.connectionHandler((NetSocket sock) {
-    //     logInfo("accepted a connection...");
-    //     sock.handler((ByteBuffer buffer) {
-    //         logInfo("received from client");
-    //         sock.write(buffer);
-    //     });
-    // }).listen("0.0.0.0", 8080, (Result!Server result) {
-    //     if (result.failed())
-    //         throw result.cause();
-    // });
-
 }

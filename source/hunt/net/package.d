@@ -15,3 +15,5 @@ public import hunt.net.OpenSSLEngineOptions;
 public import hunt.net.ProxyOptions;
 public import hunt.net.TcpConnection;
 public import hunt.net.TcpSslOptions;
+
+public import hunt.net.codec;

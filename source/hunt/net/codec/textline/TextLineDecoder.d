@@ -251,7 +251,7 @@ class TextLineDecoder : DecoderChain {
                         string str = cast(string)data;
 
                         // call session handler
-                        SessionEventHandler handler = session.getHandler();
+                        ConnectionEventHandler handler = session.getHandler();
                         if(handler !is null) {
                             handler.messageReceived(session, new String(str));
                         }
@@ -329,7 +329,7 @@ class TextLineDecoder : DecoderChain {
                             string str = cast(string)data;
 
                             // call session handler
-                            SessionEventHandler handler = session.getHandler();
+                            ConnectionEventHandler handler = session.getHandler();
                             if(handler !is null) {
                                 handler.messageReceived(session, new String(str));
                             }                            
