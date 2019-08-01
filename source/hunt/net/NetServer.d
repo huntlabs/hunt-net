@@ -1,13 +1,13 @@
 module hunt.net.NetServer;
 
 import hunt.net.Connection;
-import hunt.net.AsyncResult;
-import hunt.net.Connection;
+import hunt.net.codec;
+import hunt.net.NetServerOptions;
 import hunt.util.Lifecycle;
 import std.socket;
 
 
-alias ListenHandler = NetEventHandler!(AsyncResult!NetServer);
+// alias ListenHandler = NetEventHandler!(AsyncResult!NetServer);
 
 
 /**
@@ -16,6 +16,28 @@ alias ListenHandler = NetEventHandler!(AsyncResult!NetServer);
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
 interface NetServer {
+
+    NetServerOptions getOptions();
+
+    NetServer setOptions(NetServerOptions options);
+
+
+    Codec getCodec();
+
+    NetServer setCodec(Codec codec);
+
+    /**
+     * @return the handler which will handle all connections managed by this server.
+     */
+    ConnectionEventHandler getHandler();
+
+    /**
+     * Sets the handler which will handle all connections managed by this server.
+     * 
+     * @param handler The ConnectionEventHandler to use
+     */
+    NetServer setHandler(ConnectionEventHandler handler);
+
 
     /**
      * Return the connect stream for this server. The server can only have at most one handler at any one time.
@@ -33,10 +55,10 @@ interface NetServer {
      *
      * @return a reference to this, so the API can be used fluently
      */
-    NetServer connectHandler(ConnectHandler handler);
+    // NetServer connectHandler(ConnectHandler handler);
 
     
-    ConnectHandler connectHandler();
+    // ConnectHandler connectHandler();
 
     /**
      * Start listening on the port and host as configured in the {@link hunt.net.NetServerOptions} used when
@@ -47,16 +69,8 @@ interface NetServer {
      * @return a reference to this, so the API can be used fluently
      */
     
-    NetServer listen();
+    void listen();
 
-    /**
-     * Like {@link #listen} but providing a handler that will be notified when the server is listening, or fails.
-     *
-     * @param listenHandler  handler that will be notified when listening or failed
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    NetServer listen(ListenHandler listenHandler);
 
     /**
      * Start listening on the specified port and host, ignoring port and host configured in the {@link hunt.net.NetServerOptions} used when
@@ -71,18 +85,7 @@ interface NetServer {
      * @return a reference to this, so the API can be used fluently
      */
     
-    NetServer listen(int port, string host);
-
-    /**
-     * Like {@link #listen(int, string)} but providing a handler that will be notified when the server is listening, or fails.
-     *
-     * @param port  the port to listen on
-     * @param host  the host to listen on
-     * @param listenHandler handler that will be notified when listening or failed
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    NetServer listen(int port, string host, ListenHandler listenHandler);
+    void listen(string host, int port);
 
     /**
      * Start listening on the specified port and host "0.0.0.0", ignoring port and host configured in the
@@ -95,17 +98,7 @@ interface NetServer {
      * @return a reference to this, so the API can be used fluently
      */
     
-    NetServer listen(int port);
-
-    /**
-     * Like {@link #listen(int)} but providing a handler that will be notified when the server is listening, or fails.
-     *
-     * @param port  the port to listen on
-     * @param listenHandler handler that will be notified when listening or failed
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    NetServer listen(int port, ListenHandler listenHandler);
+    void listen(int port);
 
     /**
      * Start listening on the specified local address, ignoring port and host configured in the {@link hunt.net.NetServerOptions} used when
@@ -129,16 +122,6 @@ interface NetServer {
     
     // NetServer listen(SocketAddress localAddress, ListenHandler listenHandler);
 
-    /**
-     * Set an exception handler called for socket errors happening before the connection
-     * is passed to the {@link #connectHandler}, e.g during the TLS handshake.
-     *
-     * @param handler the handler to set
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    
-    NetServer exceptionHandler(ExceptionHandler handler);
 
     /**
      * Close the server. This will close any currently open connections. The close may not complete until after this
@@ -151,7 +134,7 @@ interface NetServer {
      *
      * @param completionHandler  the handler
      */
-    void close(AsyncVoidResultHandler completionHandler);
+    // void close(AsyncVoidResultHandler completionHandler);
 
     /**
      * The actual port the server is listening on. This is useful if you bound the server specifying 0 as port number
@@ -165,28 +148,33 @@ interface NetServer {
 
 /**
 */
-abstract class AbstractServer : AbstractLifecycle, NetServer { 
-	protected Address _address;
-    protected ConnectHandler _connectHandler;
+// abstract class AbstractServer : AbstractLifecycle, NetServer { 
+// 	protected Address _address;
+//     // protected ConnectHandler _connectHandler;
 
-    @property Address bindingAddress() {
-		return _address;
-	}
+//     @property Address bindingAddress() {
+// 		return _address;
+// 	}
+    
+//     ConnectionEventHandler getHandler() {
 
-    // abstract void setConfig(Config config);
+//     }
 
-    void close() {
-        stop();
-    }
+//     /**
+//      * Sets the handler which will handle all connections managed by this server.
+//      * 
+//      * @param handler The ConnectionEventHandler to use
+//      */
+//     void setHandler(ConnectionEventHandler handler);
 
-    AbstractServer connectHandler(ConnectHandler handler) {
-        _connectHandler = handler;
-        return this;
-    }
+//     void close() {
+//         stop();
+//     }
 
-    void listen(int port = 0, string host = "0.0.0.0", ListenHandler handler = null) {
-        listen(host, port, handler);
-    }
+//     // AbstractServer connectHandler(ConnectHandler handler) {
+//     //     _connectHandler = handler;
+//     //     return this;
+//     // }
 
-    abstract void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null);
-}
+//     abstract void listen(string host = "0.0.0.0", int port = 0);
+// }

@@ -1,6 +1,5 @@
 module hunt.net.AbstractConnection;
 
-import hunt.net.AsyncResult;
 import hunt.net.Connection;
 import hunt.net.codec;
 
@@ -15,14 +14,12 @@ import hunt.util.Common;
 import std.socket;
 
 
-
-// alias Handler = void delegate(AbstractConnection sock);
-
 /**
  * Abstract base class for TCP connections.
  *
  */
 abstract class AbstractConnection : Connection {
+    protected int _sessionId;
     protected TcpStream _tcp;
     protected SimpleEventHandler _closeHandler;
     protected DataReceivedHandler _dataReceivedHandler;
@@ -34,16 +31,17 @@ abstract class AbstractConnection : Connection {
     protected Object attachment;
 
 
-    this(TcpStream tcp) {
+    this(int sessionId, TcpStream tcp) {
         assert(tcp !is null);
         _tcp = tcp;
+        this._sessionId = sessionId;
 
         _tcp.onClosed(&onClosed);
         _tcp.onReceived(&onDataReceived);
     }
 
     ///
-    this(TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
+    this(int sessionId, TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
         assert(eventHandler !is null);
 
         if(codec !is null) {
@@ -52,7 +50,7 @@ abstract class AbstractConnection : Connection {
         }
         
         this._eventHandler = eventHandler;
-        this(tcp);
+        this(sessionId, tcp);
     }
 
     deprecated("Using setAttributes instead.")
@@ -126,7 +124,7 @@ abstract class AbstractConnection : Connection {
     }
 
     ////
-    AbstractConnection write(const(ubyte)[] data) {
+    void write(const(ubyte)[] data) {
         version (HUNT_IO_MORE) {
             if (data.length <= 32)
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. $]);
@@ -134,17 +132,15 @@ abstract class AbstractConnection : Connection {
                 infof("%d bytes: %(%02X %)", data.length, data[0 .. 32]);
         }
         _tcp.write(data);
-        return this;
     }
 
     ////
-    AbstractConnection write(string str) {
-        return write(cast(ubyte[]) str);
+    void write(string str) {
+        write(cast(ubyte[]) str);
     }
 
-    AbstractConnection write(ByteBuffer buffer) {
+    void write(ByteBuffer buffer) {
         _tcp.write(buffer);
-        return this;
     }
 
     /**
@@ -281,6 +277,9 @@ abstract class AbstractConnection : Connection {
         }
     }
 
+    int getId() {
+        return _sessionId;
+    }
 
 }
 

@@ -12,7 +12,7 @@ import core.time;
 import std.socket;
 
 
-alias TcpSession = Connection;
+// alias TcpSession = Connection;
 alias IoSession = Connection;
 alias SocketSession = Connection;
 alias Session = Connection;
@@ -20,7 +20,7 @@ alias NetSocket = Connection;
 
 alias NetEventHandler(E) = void delegate(E event);
 alias ExceptionHandler = NetEventHandler!(Throwable);
-alias ConnectHandler = NetEventHandler!Connection;
+// alias ConnectHandler = NetEventHandler!Connection;
 // alias AsyncConnectHandler = NetEventHandler!(AsyncResult!Connection);
 alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
 
@@ -229,6 +229,10 @@ deprecated("Using getAttribute instead.")
     // void write(OutputEntry<?> entry);
     // void write(ByteBufferOutputEntry entry);
 
+    void write(const(ubyte)[] data);
+    void write(string str);
+    void write(ByteBuffer buffer);
+
     void write(ByteBuffer byteBuffer, AsyncVoidResultHandler callback);
 
     void write(ByteBuffer[] buffers, AsyncVoidResultHandler callback);
@@ -237,7 +241,7 @@ deprecated("Using getAttribute instead.")
 
     // void write(FileRegion file, AsyncVoidResultHandler callback);
 
-    int getSessionId();
+    int getId();
 
 version(HUNT_METRIC) {
     long getOpenTime();

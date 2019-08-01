@@ -12,9 +12,10 @@
 module hunt.net.NetClient;
 
 import hunt.net.Connection;
-import hunt.util.Lifecycle;
 
 import hunt.net.codec.Codec;
+import hunt.net.ClientOptionsBase;
+import hunt.net.NetClientOptions;
 
 /**
  * A TCP client.
@@ -87,11 +88,18 @@ interface NetClient {
      */
     void close();
 
+
+    NetClientOptions getOptions();
+
+    NetClient setOptions(NetClientOptions options);
+
+
+    Codec getCodec();
+    
     NetClient setCodec(Codec codec);
+
+    ConnectionEventHandler getHandler();
 
     NetClient setHandler(ConnectionEventHandler handler);
 }
 
-
-abstract class AbstractClient : AbstractLifecycle, NetClient { 
-}

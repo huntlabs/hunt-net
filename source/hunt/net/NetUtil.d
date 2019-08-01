@@ -5,13 +5,19 @@ import hunt.event;
 import hunt.net.NetClient;
 import hunt.net.NetServer;
 import hunt.net.NetClientImpl;
+import hunt.net.NetClientOptions;
 import hunt.net.NetServerImpl;
+import hunt.net.NetServerOptions;
 
 /**
 */
 class NetUtil {
-    static AbstractServer createNetServer(ServerThreadMode threadModel = ServerThreadMode.Single)() {
+    static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)() {
         return new NetServerImpl!(threadModel)(_loopGroup);
+    }
+
+    static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)(NetServerOptions options) {
+        return new NetServerImpl!(threadModel)(_loopGroup, options);
     }
 
     static NetClient createNetClient() {

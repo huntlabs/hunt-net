@@ -19,7 +19,10 @@ import core.atomic;
 import core.time;
 import std.socket;
 
+deprecated("Using TcpConnection instead.")
 alias AsynchronousTcpSession = TcpConnection;
+deprecated("Using TcpConnection instead.")
+alias NetSocketImpl = TcpConnection;
 
 
 /**
@@ -27,7 +30,6 @@ alias AsynchronousTcpSession = TcpConnection;
  * client or the server side.
  */
 class TcpConnection : AbstractConnection {
-    protected int sessionId;
 
 version(HUNT_METRIC) {
     private long openTime;
@@ -45,9 +47,8 @@ version(HUNT_METRIC) {
     protected shared bool _isWaitingForClose = false;
 
     this(int sessionId, TcpSslOptions config, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
-        this.sessionId = sessionId;
         this._config = config;
-        super(tcp, codec, eventHandler);
+        super(sessionId, tcp, codec, eventHandler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("initializing...");
     }  
@@ -105,9 +106,6 @@ version(HUNT_METRIC) {
         implementationMissing(false);
     }
 
-    int getSessionId() {
-        return sessionId;
-    }
 
 version(HUNT_METRIC) {
 
@@ -170,7 +168,7 @@ version(HUNT_METRIC) {
 
     override string toString() {
         import std.conv;
-        return "[sessionId=" ~ sessionId.to!string() ~ ", openTime="
+        return "[sessionId=" ~ _sessionId.to!string() ~ ", openTime="
                 ~ openTime.to!string() ~ ", closeTime="
                 ~ closeTime.to!string() ~ ", duration=" ~ getDuration().to!string()
                 ~ ", readBytes=" ~ readBytes.to!string() ~ ", writtenBytes=" ~ writtenBytes.to!string() ~ "]";
@@ -182,15 +180,15 @@ version(HUNT_METRIC) {
             try {
                 super.close();                
             } catch (AsynchronousCloseException e) {
-                warningf("The session %d asynchronously close exception", sessionId);
+                warningf("The session %d asynchronously close exception", _sessionId);
             } catch (IOException e) {
-                errorf("The session %d close exception: %s", sessionId, e.msg);
+                errorf("The session %d close exception: %s", _sessionId, e.msg);
             } 
             // finally {
             //     _eventHandler.notifySessionClosed(this);
             // }
         } else {
-            infof("The session %d already closed", sessionId);
+            infof("The session %d already closed", _sessionId);
         }
     }
 
@@ -203,9 +201,9 @@ version(HUNT_METRIC) {
         version(HUNT_METRIC) {
             closeTime = DateTimeHelper.currentTimeMillis();
             // version(HUNT_DEBUG) 
-            tracef("The session %d closed: %s", sessionId, this.toString());
+            tracef("The session %d closed: %s", _sessionId, this.toString());
         } else {
-            version(HUNT_DEBUG) tracef("The session %d closed", sessionId);
+            version(HUNT_DEBUG) tracef("The session %d closed", _sessionId);
         }
         if(_eventHandler !is null)
             _eventHandler.sessionClosed(this);
@@ -218,32 +216,32 @@ version(HUNT_METRIC) {
 
     void shutdownOutput() {
         if (_isShutdownOutput) {
-            tracef("The session %d is already shutdown output", sessionId);
+            tracef("The session %d is already shutdown output", _sessionId);
         } else {
             _isShutdownOutput = true;
             try {
                 _tcp.shutdownOutput();
-                tracef("The session %d is shutdown output", sessionId);
+                tracef("The session %d is shutdown output", _sessionId);
             } catch (ClosedChannelException e) {
-                warningf("Shutdown output exception. The session %d is closed", sessionId);
+                warningf("Shutdown output exception. The session %d is closed", _sessionId);
             } catch (IOException e) {
-                errorf("The session %d shutdown output I/O exception. %s", sessionId, e.message);
+                errorf("The session %d shutdown output I/O exception. %s", _sessionId, e.message);
             }
         }
     }
 
     void shutdownInput() {
         if (_isShutdownInput) {
-            tracef("The session %d is already shutdown input", sessionId);
+            tracef("The session %d is already shutdown input", _sessionId);
         } else {
             _isShutdownInput = true;
             try {
                 _tcp.shutdownInput();
-                tracef("The session %d is shutdown input", sessionId);
+                tracef("The session %d is shutdown input", _sessionId);
             } catch (ClosedChannelException e) {
-                warningf("Shutdown input exception. The session %d is closed", sessionId);
+                warningf("Shutdown input exception. The session %d is closed", _sessionId);
             } catch (IOException e) {
-                errorf("The session %d shutdown input I/O exception. %s", sessionId, e.message);
+                errorf("The session %d shutdown input I/O exception. %s", _sessionId, e.message);
             }
         }
     }

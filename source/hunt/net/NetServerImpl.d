@@ -1,21 +1,24 @@
 module hunt.net.NetServerImpl;
 
-import hunt.net.TcpConnection;
+import hunt.net.Connection;
+import hunt.net.codec;
 // import hunt.net.NetEvent;
-import hunt.net.AsyncResult;
+// import hunt.net.AsyncResult;
 // import hunt.net.NetSocket;
 import hunt.net.NetServer;
-// import hunt.net.Config;
+import hunt.net.NetServerOptions;
+import hunt.net.TcpConnection;
 
 import hunt.event; 
 import hunt.io;
 import hunt.logging;
+import hunt.util.Lifecycle;
 
 import core.atomic;
 import std.conv;
 import std.socket;
 
-enum ServerThreadMode {
+enum ThreadMode {
     Single,
     Multi
 }
@@ -33,26 +36,71 @@ shared static ~this() {
 
 /**
 */
-class NetServerImpl(ServerThreadMode threadModel = ServerThreadMode.Single) : AbstractServer {
+class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecycle, NetServer {
     private string _host = "0.0.0.0";
     private int _port = 8080;
     protected bool _isStarted;
     private shared int _sessionId;
-    private Config _config;
-    private NetEvent netEvent;
+    private NetServerOptions _options;
+    private Codec _codec;
+    private ConnectionEventHandler _eventHandler;
     protected EventLoopGroup _group = null;
 
+	protected Address _address;
+
     this(EventLoopGroup loopGroup) {
+        this(loopGroup, new NetServerOptions());
+    }
+
+    this(EventLoopGroup loopGroup, NetServerOptions options) {
         this._group = loopGroup;
-        _config = new Config();
+        _options = options;
     }
 
-    override void setConfig(Config config) {
-        _config = config;
-        netEvent = new DefaultNetEvent(config);
+    NetServerOptions getOptions() {
+        return _options;
+    }
+    
+    NetServerImpl!threadModel setOptions(NetServerOptions options) {
+        _options = options;
+        return this;
     }
 
-    override void listen(string host = "0.0.0.0", int port = 0, ListenHandler handler = null) {
+    NetServerImpl!threadModel setCodec(Codec codec) {
+        this._codec = codec;
+        return this;
+    }
+
+    Codec getCodec() {
+        return this._codec;
+    }
+
+    ConnectionEventHandler getHandler() {
+        return _eventHandler;
+    }
+
+    NetServerImpl!threadModel setHandler(ConnectionEventHandler handler) {
+        _eventHandler = handler;
+        return this;
+    }
+
+    @property Address bindingAddress() {
+		return _address;
+	}
+    // override void setConfig(Config config) {
+    //     _options = config;
+    //     _eventHandler = new DefaultNetEvent(config);
+    // }
+
+    void listen() {
+        listen("0.0.0.0", 0);
+    }
+
+    void listen(int port) {
+        listen("0.0.0.0", port);
+    }
+
+    void listen(string host, int port) {
         _host = host;
         _port = port;
 
@@ -63,39 +111,36 @@ class NetServerImpl(ServerThreadMode threadModel = ServerThreadMode.Single) : Ab
 		version(HUNT_DEBUG) info("start to listen:");
         _group.start();
 
-        Result!Server result = null;
-
         try {
 
-        static if(threadModel == ServerThreadMode.Multi) {   
-            listeners = new TcpListener[_group.size];         
-            for (size_t i = 0; i < _group.size; ++i) {
-                listeners[i] = createServer(_group[i]);
-                version(HUNT_DEBUG) infof("lister[%d] created", i);
-            }
-            version(HUNT_DEBUG) infof("All the servers are listening on %s.", _address.toString());
-        } else {
-            tcpListener = new TcpSocket();
-            tcpListener.setOption(SocketOptionLevel.SOCKET, SocketOption.REUSEADDR, true);
-            tcpListener.bind(_address);
-            tcpListener.listen(1000);
-            version(HUNT_DEBUG) infof("Servers is listening on %s.", _address.toString());
-        }     
+            static if(threadModel == ThreadMode.Multi) {   
+                listeners = new TcpListener[_group.size];         
+                for (size_t i = 0; i < _group.size; ++i) {
+                    listeners[i] = createServer(_group[i]);
+                    version(HUNT_DEBUG) infof("lister[%d] created", i);
+                }
+                version(HUNT_DEBUG) infof("All the servers are listening on %s.", _address.toString());
+            } else {
+                tcpListener = new TcpSocket();
+                tcpListener.setOption(SocketOptionLevel.SOCKET, SocketOption.REUSEADDR, true);
+                tcpListener.bind(_address);
+                tcpListener.listen(1000);
+                version(HUNT_DEBUG) infof("Servers is listening on %s.", _address.toString());
+            }     
 
 		    _isStarted = true;
-            result = new Result!Server(this);
             
         } catch (Exception e) {
             warning(e.message);
-            result = new Result!Server(e);
-            if (_config !is null)
-                _config.getHandler().failedOpeningSession(0, e);
+            // result = new Result!Server(e);
+            if (_eventHandler !is null)
+                _eventHandler.failedOpeningSession(0, e);
         }
 
-        if (handler !is null)
-            handler(result);
+        // if (handler !is null)
+        //     handler(result);
 
-        static if(threadModel == ServerThreadMode.Single) {
+        static if(threadModel == ThreadMode.Single) {
             import std.parallelism;
             auto theTask = task(&waitingForAccept);
             taskPool.put(theTask);
@@ -106,7 +151,7 @@ class NetServerImpl(ServerThreadMode threadModel = ServerThreadMode.Single) : Ab
         listen(_host, _port);
     }
 
-static if(threadModel == ServerThreadMode.Multi){
+static if(threadModel == ThreadMode.Multi){
     private TcpListener[] listeners;
 
     protected TcpListener createServer(EventLoop loop) {
@@ -117,10 +162,9 @@ static if(threadModel == ServerThreadMode.Multi){
         listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
                 auto currentId = atomicOp!("+=")(_sessionId, 1);
                 version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
-                AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
-                    _config, netEvent, stream);
-                if (netEvent !is null)
-                    netEvent.notifySessionOpened(session);
+                TcpSession session = new TcpSession(currentId, _options, _eventHandler, stream);
+                if (_eventHandler !is null)
+                    _eventHandler.notifySessionOpened(session);
                 if (_handler !is null)
                     _handler(session);
             });
@@ -167,30 +211,41 @@ static if(threadModel == ServerThreadMode.Multi){
 			infof("new connection from %s, fd=%d", socket.remoteAddress.toString(), socket.handle());
 		}
 		EventLoop loop = _group.nextLoop();
-		TcpStream stream = new TcpStream(loop, socket, _config.tcpStreamOption());
-
-        if (_handler !is null) {
-            auto currentId = atomicOp!("+=")(_sessionId, 1);
-            version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
-            AsynchronousTcpSession session = new AsynchronousTcpSession(currentId,
-                _config, netEvent, stream);
-            if (netEvent !is null)
-                    netEvent.notifySessionOpened(session);
-            _handler(session);
-        }
+        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 12:43:08 PM
+        // 
+        TcpStreamOption options = new TcpStreamOption();
+		TcpStream stream = new TcpStream(loop, socket, options);
 		stream.start();
+
+        auto currentId = atomicOp!("+=")(_sessionId, 1);
+        version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
+        Connection session = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
+        if (_eventHandler !is null) {
+                _eventHandler.sessionOpened(session);
+        }
 
         version(HUNT_METRIC) { 
             Duration timeElapsed = MonoTime.currTime - startTime;
-            warningf("client processing done in: %d microseconds",
+            warningf("peer connection processing done in: %d microseconds",
                 timeElapsed.total!(TimeUnit.Microsecond)());
         }
 	}
+
+    int actualPort() {
+        return _port;
+    }
+
+    override void close() {
+        this.stop();
+    }
 
     override protected void destroy() {
         if(_isStarted && tcpListener !is null) {
             tcpListener.close();
         }
+
+        // if(_eventHandler !is null)
+        //     _eventHandler.
     }
 }    
 }

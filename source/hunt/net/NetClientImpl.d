@@ -7,31 +7,37 @@ import hunt.io.TcpStream;
 import hunt.net.TcpConnection;
 import hunt.net.NetClientOptions;
 import hunt.net.Connection;
-import hunt.net.AsyncResult;
 import hunt.net.codec.Codec;
 import hunt.net.NetClient;
+import hunt.util.Lifecycle;
 
 import hunt.logging;
 
 ///
-class NetClientImpl : AbstractClient {
+class NetClientImpl : AbstractLifecycle, NetClient {
     private string _host = "127.0.0.1";
     private int _port = 8080;
     private int _sessionId;
-    private NetClientOptions _config;
-    private ConnectionEventHandler _netHandler;
+    private NetClientOptions _options;
     private Codec _codec;
-    private AsynchronousTcpSession _tcpSession;
+    private ConnectionEventHandler _netHandler;
+    private TcpConnection _tcpSession;
     private bool _isConnected = false;
     private TcpStream _client;
     private int _loopIdleTime = -1;
 
     this() {
         _loop = new EventLoop();
+        this(new EventLoop());
     }
 
     this(EventLoop loop) {
+        this(loop, new NetClientOptions());
+    }
+
+    this(EventLoop loop, NetClientOptions options) {
         _loop = loop;
+        this._options = options;
     }
 
     ~this() {
@@ -42,28 +48,44 @@ class NetClientImpl : AbstractClient {
         return _host;
     }
 
-    void setHost(string host) {
+    NetClientImpl setHost(string host) {
         this._host = host;
+        return this;
     }
 
     int getPort() {
         return _port;
     }
 
-    void setPort(int port) {
+    NetClientImpl setPort(int port) {
         this._port = port;
+        return this;
     }
 
-    void close() {
-        this.stop();
+    NetClientOptions getOptions() {
+        return _options;
     }
 
-    NetClient setCodec(Codec codec) {
+    NetClient setOptions(NetClientOptions options) {
+        this._options = options;
+        return this;
+    }
+
+    NetClientImpl setCodec(Codec codec) {
         this._codec = codec;
         return this;
     }
 
-    NetClient setHandler(ConnectionEventHandler handler) {
+    Codec getCodec() {
+        return this._codec;
+    }
+
+    ConnectionEventHandler getHandler() {
+        return this._netHandler;
+    }
+
+
+    NetClientImpl setHandler(ConnectionEventHandler handler) {
         this._netHandler = handler;
         return this;
     }
@@ -79,8 +101,8 @@ class NetClientImpl : AbstractClient {
 
         _client = new TcpStream(_loop);
 
-        _tcpSession = new AsynchronousTcpSession(_sessionId++,
-                _config, _netHandler, _codec, _client);
+        _tcpSession = new TcpConnection(_sessionId++,
+                _options, _netHandler, _codec, _client);
 
 
         _client.onClosed(() {
@@ -130,6 +152,10 @@ class NetClientImpl : AbstractClient {
 
     override protected void initialize() {
         connect(_host, _port);
+    }
+
+    void close() {
+        this.stop();
     }
 
     override protected void destroy() {
