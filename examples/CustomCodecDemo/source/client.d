@@ -1,7 +1,9 @@
 module client;
 
 import hunt.net;
+import hunt.net.codec.textline;
 import hunt.logging;
+import hunt.String;
 
 import std.format;
 
@@ -11,12 +13,33 @@ void main() {
     int count = 0;
 
     NetClient client = NetUtil.createNetClient();
+
+    client.setCodec(new class Codec {
+
+        private TextLineEncoder encoder;
+        private TextLineDecoder decoder;
+
+        this() {
+            encoder = new TextLineEncoder();
+            decoder = new TextLineDecoder();
+        }
+
+        Encoder getEncoder() {
+            return encoder;
+        }
+
+        Decoder getDecoder() {
+            return decoder;
+        }
+    });
+
     client.setHandler(new class ConnectionEventHandler {
 
         override void sessionOpened(Connection session) {
             infof("Connection created: %s", session.getRemoteAddress());
 
-            session.write("Hi, I'm client");
+            // session.write("Hi, I'm client");
+            session.encode(new String("Hi, I'm client\r"));
         }
 
         override void sessionClosed(Connection session) {
@@ -29,8 +52,9 @@ void main() {
             tracef("message type: %s", typeid(message).name);
             string str = format("data received: %s", message.toString());
             tracef(str);
-            if(count< 3) 
-            session.write(str);
+            if(count< 10) {
+                session.encode(new String(str));
+            }
             count++;
         }
 
@@ -49,21 +73,6 @@ void main() {
     }).connect("10.1.222.120", 8080);
 
 
-    // client.connectHandler((Connection sock) {
-    //     trace("connected-------------------------------------------");
-    //     sock.closeHandler(() {
-    //         trace("disconnected-------------------------------------");
-    //     });
-    // });
-    // client.connect(8080, "127.0.0.1", 0, (AsyncResult!Connection result) {
-    //     if (result.failed()) {
-    //         trace(result.cause().toString());
-    //     } else {
-    //         trace("client have connected to server...");
-    //     }
-    // });
-    // client.setCodec();
-    // NetUtil.startEventLoop();
 
 
 }

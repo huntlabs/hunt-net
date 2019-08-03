@@ -5,6 +5,7 @@ import hunt.net.codec;
 
 import hunt.Boolean;
 import hunt.collection.ByteBuffer;
+import hunt.Exceptions;
 import hunt.Functions;
 import hunt.io.channel;
 import hunt.io.TcpStream;
@@ -259,7 +260,11 @@ abstract class AbstractConnection : Connection {
 
     void encode(Object message) {
         try {
-            this._encoder.encode(message, this);
+            if(this._encoder is null) {
+                throw new IOException("No encoder set.");
+            } else {
+                this._encoder.encode(message, this);
+            }
         } catch (Exception t) {
             _eventHandler.exceptionCaught(this, t);
         }
@@ -273,15 +278,15 @@ abstract class AbstractConnection : Connection {
     //     }
     // }
 
-    void encode(ByteBuffer[] messages) {
-        try {
-            foreach (ByteBuffer message; messages) {
-                this._encoder.encode(message, this);
-            }
-        } catch (Exception t) {
-            _eventHandler.exceptionCaught(this, t);
-        }
-    }
+    // void encode(ByteBuffer[] messages) {
+    //     try {
+    //         foreach (ByteBuffer message; messages) {
+    //             this._encoder.encode(message, this);
+    //         }
+    //     } catch (Exception t) {
+    //         _eventHandler.exceptionCaught(this, t);
+    //     }
+    // }
 
     // void notifyMessageReceived(Object message) {
     //     implementationMissing(false);

@@ -215,14 +215,13 @@ deprecated("Using getAttribute instead.")
      */
     string[] getAttributeKeys();
 
-
-    // void notifyMessageReceived(Object message);
-
     void encode(Object message);
 
-    void encode(ByteBuffer[] message);
+    // void encode(ByteBuffer[] message);
 
     // void encode(ByteBufferOutputEntry message);
+
+    // void notifyMessageReceived(Object message);
 
     /**
      * Writes the specified <code>message</code> to remote peer.  This

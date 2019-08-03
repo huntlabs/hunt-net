@@ -14,23 +14,22 @@ void main() {
 
     server.setCodec(new class Codec {
 
-        // private TextLineEncoder encoder;
+        private TextLineEncoder encoder;
         private TextLineDecoder decoder;
 
         this() {
+            encoder = new TextLineEncoder();
             decoder = new TextLineDecoder();
         }
 
         Encoder getEncoder() {
-            // return encoder;
-            return null;
+            return encoder;
         }
 
         Decoder getDecoder() {
             return decoder;
         }
     });
-
 
     server.setHandler(new class ConnectionEventHandler {
 

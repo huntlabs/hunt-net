@@ -105,22 +105,22 @@ class TextLineEncoder : EncoderChain {
      * {@inheritDoc}
      */
     override
-    void encode(Object message, Connection session)  { // , ProtocolEncoderOutput out
-    
-        // string value = message is null ? "" : message.toString();
-        // ByteBuffer buf = BufferUtils.allocate(value.length());
-        // buf.put(value);
+    void encode(Object message, Connection session) {
 
-        // if (buf.position() > maxLineLength) {
-        //     throw new IllegalArgumentException("Line length: " + buf.position());
-        // }
+        string delimiterValue = delimiter.getValue();
 
-        // buf.put(delimiter.getValue());
-        // buf.flip();
+        string value = message is null ? "" : message.toString();
+        ByteBuffer buf = BufferUtils.allocate(cast(int)(value.length+delimiterValue.length));
+        buf.put(value);
 
-        // // 
+        if (buf.position() > maxLineLength) {
+            throw new IllegalArgumentException("Line length: " ~ buf.position().to!string());
+        }
 
-        // session.write();
+        buf.put(delimiterValue);
+        buf.flip();
+
+        session.write(buf);
     }
 
     /**
