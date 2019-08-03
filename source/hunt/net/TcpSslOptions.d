@@ -159,10 +159,12 @@ class TcpSslOptions : NetworkOptions {
         this.tcpKeepAlive = other.isTcpKeepAlive();
         this.soLinger = other.getSoLinger();
         // this.usePooledBuffers = other.isUsePooledBuffers();
+        
         this.idleTimeout = other.getIdleTimeout();
         this.keepaliveWaitTime = other.keepaliveWaitTime;
         this.keepaliveInterval = other.keepaliveInterval;
         this.keepaliveProbes = other.keepaliveProbes;
+
         this.ssl = other.isSsl();
         this.sslHandshakeTimeout = other.sslHandshakeTimeout;
         // this.keyCertOptions = other.getKeyCertOptions() !is null ? other.getKeyCertOptions().copy() : null;
@@ -783,7 +785,11 @@ class TcpSslOptions : NetworkOptions {
             return false;
 
         if (idleTimeout != that.idleTimeout) return false;
-        // if (idleTimeoutUnit !is null ? !idleTimeoutUnit.equals(that.idleTimeoutUnit) : that.idleTimeoutUnit !is null) return false;
+        if (keepaliveWaitTime != that.keepaliveWaitTime) return false;
+        if (keepaliveInterval != that.keepaliveInterval) return false;
+        if (keepaliveProbes != that.keepaliveProbes) return false;
+
+
         if (soLinger != that.soLinger) return false;
         if (ssl != that.ssl) return false;
         if (tcpKeepAlive != that.tcpKeepAlive) return false;
@@ -801,6 +807,8 @@ class TcpSslOptions : NetworkOptions {
         if (useAlpn != that.useAlpn) return false;
         // if (sslEngineOptions !is null ? !sslEngineOptions.equals(that.sslEngineOptions) : that.sslEngineOptions !is null) return false;
         // if (!enabledSecureTransportProtocols.equals(that.enabledSecureTransportProtocols)) return false;
+        if (retryTimes != that.retryTimes) return false;
+        if (retryInterval != that.retryInterval) return false;
 
         return true;
     }
@@ -816,6 +824,9 @@ class TcpSslOptions : NetworkOptions {
         result = 31 * result + soLinger;
         result = 31 * result + (usePooledBuffers ? 1 : 0);
         result = 31 * result + idleTimeout.total!"msecs";
+        result = 31 * result + keepaliveWaitTime.total!"msecs";
+        result = 31 * result + keepaliveInterval.total!"msecs";
+        result = 31 * result + keepaliveProbes;
         // result = 31 * result + (idleTimeoutUnit !is null ? idleTimeoutUnit.toHash() : 0);
         result = 31 * result + (ssl ? 1 : 0);
         // result = 31 * result + (keyCertOptions !is null ? keyCertOptions.toHash() : 0);
@@ -827,6 +838,8 @@ class TcpSslOptions : NetworkOptions {
         // result = 31 * result + (sslEngineOptions !is null ? sslEngineOptions.toHash() : 0);
         // result = 31 * result + (enabledSecureTransportProtocols !is null ? enabledSecureTransportProtocols
         //         .toHash() : 0);
+        result = 31 * result + retryTimes;
+        result = 31 * result + retryInterval.total!"msecs";
         return result;
     }
 

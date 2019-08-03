@@ -19,6 +19,7 @@ import std.format;
 class NetClientImpl : AbstractLifecycle, NetClient {
     enum string DefaultLocalHost = "127.0.0.1";
     enum int DefaultLocalPort = 8080;
+    
     private string _host = DefaultLocalHost;
     private int _port = DefaultLocalPort;
     private string _serverName;
@@ -118,10 +119,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void initialize() { // doConnect
-
-        _loop.onStarted(&initializeClient);
-        _loop.runAsync(_loopIdleTime);
-
+        _loop.runAsync(_loopIdleTime, &initializeClient);
     }
 
     private void initializeClient(){
@@ -132,8 +130,6 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 _options, _netHandler, _codec, _client);
 
         _client.onClosed(() {
-            // if (_netHandler !is null)
-            //     _netHandler.sessionClosed(_tcpSession);
             version(HUNT_NET_DEBUG) {
                 info("session closed");
             }
@@ -167,22 +163,22 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     void close() {
         this.stop();
-
     }
 
     override protected void destroy() {
         if (_tcpSession !is null) {
-            tracef("isRunning: %s, isConnected: %s, isClosing: %s", isRunning(), 
-            _tcpSession.isConnected(), _tcpSession.isClosing());
-            
-            // if(isRunning()) 
-            {
-                if(!_tcpSession.isClosing()) {
-                    _tcpSession.close();
-                }
-                if (_tcpSession.isClosing() && _netHandler !is null)
-                    _netHandler.sessionClosed(_tcpSession);
+
+            version(HUNT_NET_DEBUG) {
+                tracef("isRunning: %s, isConnected: %s, isClosing: %s", isRunning(), 
+                    _tcpSession.isConnected(), _tcpSession.isClosing());
             }
+            
+            if(!_tcpSession.isClosing()) {
+                _tcpSession.close();
+            }
+
+            if (_tcpSession.isClosing() && _netHandler !is null)
+                _netHandler.sessionClosed(_tcpSession);
 
             _tcpSession = null;
             _loop.stop();
