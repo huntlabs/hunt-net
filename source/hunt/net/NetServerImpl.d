@@ -4,7 +4,7 @@ import hunt.net.Connection;
 import hunt.net.codec;
 // import hunt.net.NetEvent;
 // import hunt.net.AsyncResult;
-// import hunt.net.NetSocket;
+// import hunt.net.Connection;
 import hunt.net.NetServer;
 import hunt.net.NetServerOptions;
 import hunt.net.TcpConnection;

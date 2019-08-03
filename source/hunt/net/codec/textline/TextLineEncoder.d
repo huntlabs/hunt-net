@@ -105,7 +105,7 @@ class TextLineEncoder : EncoderChain {
      * {@inheritDoc}
      */
     override
-    void encode(Object message, IoSession session)  { // , ProtocolEncoderOutput out
+    void encode(Object message, Connection session)  { // , ProtocolEncoderOutput out
     
         // string value = message is null ? "" : message.toString();
         // ByteBuffer buf = BufferUtils.allocate(value.length());

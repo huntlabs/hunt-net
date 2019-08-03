@@ -41,16 +41,16 @@ interface NetServer {
 
     /**
      * Return the connect stream for this server. The server can only have at most one handler at any one time.
-     * As the server accepts TCP or SSL connections it creates an instance of {@link NetSocket} and passes it to the
+     * As the server accepts TCP or SSL connections it creates an instance of {@link Connection} and passes it to the
      * connect stream {@link ReadStream#handler(hunt.net.NetEventHandler)}.
      *
      * @return the connect stream
      */
-    // ReadStream!(NetSocket) connectStream();
+    // ReadStream!(Connection) connectStream();
 
     /**
      * Supply a connect handler for this server. The server can only have at most one connect handler at any one time.
-     * As the server accepts TCP or SSL connections it creates an instance of {@link NetSocket} and passes it to the
+     * As the server accepts TCP or SSL connections it creates an instance of {@link Connection} and passes it to the
      * connect handler.
      *
      * @return a reference to this, so the API can be used fluently

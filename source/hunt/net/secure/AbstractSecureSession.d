@@ -7,7 +7,7 @@ version(WITH_HUNT_SECURITY):
 import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.SecureSession;
 import hunt.net.Exceptions;
-import hunt.net.Session;
+import hunt.net.Connection;
 import hunt.net.ssl;
 
 
@@ -29,7 +29,7 @@ abstract class AbstractSecureSession : SecureSession {
 
     protected __gshared ByteBuffer hsBuffer;
 
-    protected Session session;
+    protected Connection session;
     protected SSLEngine sslEngine;
     protected ProtocolSelector applicationProtocolSelector;
     protected SecureSessionHandshakeListener handshakeListener;
@@ -45,7 +45,7 @@ abstract class AbstractSecureSession : SecureSession {
         hsBuffer = new HeapByteBuffer(0,0); 
     }
 
-    this(Session session, SSLEngine sslEngine,
+    this(Connection session, SSLEngine sslEngine,
                                  ProtocolSelector applicationProtocolSelector,
                                  SecureSessionHandshakeListener handshakeListener) {
         this.session = session;
@@ -133,7 +133,7 @@ abstract class AbstractSecureSession : SecureSession {
                 initialHSStatus = result.getHandshakeStatus();
 
                 version(HUNT_DEBUG) {
-                    tracef("Session %s handshake result -> %s, initialHSStatus -> %s, inNetRemain -> %s", 
+                    tracef("Connection %s handshake result -> %s, initialHSStatus -> %s, inNetRemain -> %s", 
                         session.getSessionId(), result.toString(), initialHSStatus, receivedPacketBuf.remaining());
                 }
 
@@ -177,13 +177,13 @@ abstract class AbstractSecureSession : SecureSession {
                     break;
 
                     case SSLEngineResult.Status.CLOSED: {
-                        infof("Session %s handshake failure. SSLEngine will close inbound", session.getSessionId());
+                        infof("Connection %s handshake failure. SSLEngine will close inbound", session.getSessionId());
                         closeInbound();
                     }
                     break needIO;
 
                     default:
-                        throw new SecureNetException(format("Session %s handshake exception. status -> %s", session.getSessionId(), result.getStatus()));
+                        throw new SecureNetException(format("Connection %s handshake exception. status -> %s", session.getSessionId(), result.getStatus()));
 
                 }
             }
@@ -191,7 +191,7 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected void handshakeFinish() {
-        version(HUNT_DEBUG) infof("Session %s handshake success. The application protocol is %s", 
+        version(HUNT_DEBUG) infof("Connection %s handshake success. The application protocol is %s", 
             session.getSessionId(), getApplicationProtocol());
         initialHSComplete = true;
         if(handshakeListener !is null)
@@ -259,7 +259,7 @@ abstract class AbstractSecureSession : SecureSession {
                         break;
 
                     case SSLEngineResult.Status.CLOSED:
-                        warningf("Session %s handshake failure. SSLEngine will close inbound", session.getSessionId());
+                        warningf("Connection %s handshake failure. SSLEngine will close inbound", session.getSessionId());
                         packetBuffer.flip();
                         if (packetBuffer.hasRemaining()) {
                             session.write(packetBuffer, Callback.NOOP);
@@ -268,7 +268,7 @@ abstract class AbstractSecureSession : SecureSession {
                         break outer;
 
                     default: // BUFFER_UNDERFLOW
-                        throw new SecureNetException(format("Session %s handshake exception. status -> %s", 
+                        throw new SecureNetException(format("Connection %s handshake exception. status -> %s", 
                             session.getSessionId(), result.getStatus()));
                 }
             }
@@ -291,7 +291,7 @@ abstract class AbstractSecureSession : SecureSession {
         if (receivedPacketBuf !is null) {
             if (receivedPacketBuf.hasRemaining()) {
                 version(HUNT_DEBUG) {
-                    tracef("Session %s read data, merge buffer -> %s, %s", session.getSessionId(),
+                    tracef("Connection %s read data, merge buffer -> %s, %s", session.getSessionId(),
                             receivedPacketBuf.remaining(), now.remaining());
                 }
                 ByteBuffer ret = newBuffer(receivedPacketBuf.remaining() + now.remaining());
@@ -313,7 +313,7 @@ abstract class AbstractSecureSession : SecureSession {
     protected ByteBuffer getReceivedAppBuf() {
         receivedAppBuf.flip();
         version(HUNT_DEBUG) {
-            tracef("Session %s read data, get app buf -> %s, %s", 
+            tracef("Connection %s read data, get app buf -> %s, %s", 
                 session.getSessionId(), receivedAppBuf.position(), receivedAppBuf.limit());
         }
 
@@ -403,7 +403,7 @@ abstract class AbstractSecureSession : SecureSession {
 
     protected SSLEngineResult unwrap(ByteBuffer input) {
         version(HUNT_DEBUG) {
-            tracef("Session %d read data, src -> %s, dst -> %s", 
+            tracef("Connection %d read data, src -> %s, dst -> %s", 
                 session.getSessionId(), input.isDirect(), receivedAppBuf.isDirect());
         }
         // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
@@ -432,7 +432,7 @@ abstract class AbstractSecureSession : SecureSession {
         //split net buffer when the net buffer remaining great than the net size
         ByteBuffer buf = splitBuffer(packetBufferSize);
         version(HUNT_DEBUG) {
-            tracef("Session %s read data, buf -> %s, packet -> %s, appBuf -> %s",
+            tracef("Connection %s read data, buf -> %s, packet -> %s, appBuf -> %s",
                     session.getSessionId(), buf.remaining(), packetBufferSize, receivedAppBuf.remaining());
         }
         if (!receivedAppBuf.hasRemaining()) {
@@ -471,7 +471,7 @@ abstract class AbstractSecureSession : SecureSession {
             SSLEngineResult result = unwrap();
 
             version(HUNT_DEBUG) {
-                tracef("Session %s read data result -> %s, receivedPacketBuf -> %s, appBufSize -> %s",
+                tracef("Connection %s read data result -> %s, receivedPacketBuf -> %s, appBufSize -> %s",
                         session.getSessionId(), result.toString().replace("\n", " "),
                         receivedPacketBuf.remaining(), receivedAppBuf.remaining());
             }
@@ -502,13 +502,13 @@ abstract class AbstractSecureSession : SecureSession {
                 }
 
                 case SSLEngineResult.Status.CLOSED: {
-                    infof("Session %s read data failure. SSLEngine will close inbound", session.getSessionId());
+                    infof("Connection %s read data failure. SSLEngine will close inbound", session.getSessionId());
                     closeInbound();
                 }
                 break needIO;
 
                 default:
-                    throw new SecureNetException(format("Session %s SSLEngine read data exception. status -> %s",
+                    throw new SecureNetException(format("Connection %s SSLEngine read data exception. status -> %s",
                             session.getSessionId(), result.getStatus()));
             }
         }
@@ -584,7 +584,7 @@ abstract class AbstractSecureSession : SecureSession {
                     break; // retry the operation.
 
                     case SSLEngineResult.Status.CLOSED: {
-                        infof("Session %s SSLEngine will close", session.getSessionId());
+                        infof("Connection %s SSLEngine will close", session.getSessionId());
                         packetBuffer.flip();
                         if (packetBuffer.hasRemaining()) {
                             pocketBuffers.add(packetBuffer);
@@ -594,7 +594,7 @@ abstract class AbstractSecureSession : SecureSession {
                     break outer;
 
                     default: {
-                        SecureNetException ex = new SecureNetException(format("Session %s SSLEngine writes data exception. status -> %s", session.getSessionId(), result.getStatus()));
+                        SecureNetException ex = new SecureNetException(format("Connection %s SSLEngine writes data exception. status -> %s", session.getSessionId(), result.getStatus()));
                         callback.failed(ex);
                         throw ex;
                     }

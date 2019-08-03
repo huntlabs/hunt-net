@@ -38,7 +38,7 @@ interface SSLSessionContext {
     /**
      * Returns the <code>SSLSession</code> bound to the specified session id.
      *
-     * @param sessionId the Session identifier
+     * @param sessionId the Connection identifier
      * @return the <code>SSLSession</code> or null if
      * the specified session id does not refer to a valid SSLSession.
      *
@@ -50,7 +50,7 @@ interface SSLSessionContext {
      * Returns an Enumeration of all session id's grouped under this
      * <code>SSLSessionContext</code>.
      *
-     * @return an enumeration of all the Session id's
+     * @return an enumeration of all the Connection id's
      */
     Enumeration!(byte[]) getIds();
 

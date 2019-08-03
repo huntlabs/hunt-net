@@ -5,7 +5,7 @@ import hunt.net.AbstractConnection;
 import hunt.net.Connection;
 import hunt.net.codec;
 import hunt.net.OutputEntry;
-// import hunt.net.Session;
+// import hunt.net.Connection;
 
 import hunt.collection;
 import hunt.util.DateTime;
@@ -99,11 +99,6 @@ version(HUNT_METRIC) {
     }
 
     alias write = AbstractConnection.write;
-
-    void notifyMessageReceived(Object message) {
-        implementationMissing(false);
-    }
-
 
 version(HUNT_METRIC) {
 

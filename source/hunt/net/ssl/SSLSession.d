@@ -19,7 +19,7 @@ import hunt.security.Principal;
  * rejoined, as part of the SSL handshaking protocol. Sessions may be
  * invalidated due to policies affecting security or resource usage,
  * or by an application explicitly calling <code>invalidate</code>.
- * Session management policies are typically used to tune performance.
+ * Connection management policies are typically used to tune performance.
  *
  * <P> In addition to the standard session attributes, SSL sessions expose
  * these read-only attributes:  <UL>
@@ -48,9 +48,9 @@ import hunt.security.Principal;
 interface SSLSession {
 
     /**
-     * Returns the identifier assigned to this Session.
+     * Returns the identifier assigned to this Connection.
      *
-     * @return the Session identifier
+     * @return the Connection identifier
      */
     byte[] getId();
 
@@ -77,16 +77,16 @@ interface SSLSession {
 
 
     /**
-     * Returns the time at which this Session representation was created,
+     * Returns the time at which this Connection representation was created,
      * in milliseconds since midnight, January 1, 1970 UTC.
      *
-     * @return the time this Session was created
+     * @return the time this Connection was created
      */
     long getCreationTime();
 
 
     /**
-     * Returns the last time this Session representation was accessed by the
+     * Returns the last time this Connection representation was accessed by the
      * session level infrastructure, in milliseconds since
      * midnight, January 1, 1970 UTC.
      * <P>
@@ -99,7 +99,7 @@ interface SSLSession {
      * sessions in a given context which haven't been used in a long time;
      * or, the sessions might be sorted according to age to optimize some task.
      *
-     * @return the last time this Session was accessed
+     * @return the last time this Connection was accessed
      */
     long getLastAccessedTime();
 
@@ -185,13 +185,13 @@ interface SSLSession {
 
     /**
      * Returns an array of the names of all the application layer
-     * data objects bound into the Session.
+     * data objects bound into the Connection.
      * <p>
      * For security reasons, the same named values may not be
      * visible across different access control contexts.
      *
      * @return a non-null (possibly empty) array of names of the objects
-     *  bound to this Session.
+     *  bound to this Connection.
      */
     string [] getValueNames();
 

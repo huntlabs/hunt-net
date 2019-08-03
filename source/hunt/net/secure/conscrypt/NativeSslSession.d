@@ -296,7 +296,7 @@ implementationMissing();
 
             //     daos.writeInt(OPEN_SSL_WITH_TLS_SCT.value); // session type ID
 
-            //     // Session data.
+            //     // Connection data.
             //     byte[] data = NativeCrypto.i2d_SSL_SESSION(_ref.context);
             //     daos.writeInt(data.length);
             //     daos.write(data);
@@ -330,7 +330,7 @@ implementationMissing();
             //     return baos.toByteArray();
             // } catch (IOException e) {
             //     // TODO(nathanmittler): Better error handling?
-            //     warningf("Failed to convert saved SSL Session: %s", e.msg);
+            //     warningf("Failed to convert saved SSL Connection: %s", e.msg);
             //     return null;
             // } catch (Exception e) {
             //     error(e.msg);

@@ -13,7 +13,7 @@ import hunt.net.secure.SecureSession;
 import hunt.net.secure.SecureSessionFactory;
 import hunt.net.secure.SSLContextFactory;
 
-import hunt.net.Session;
+import hunt.net.Connection;
 import hunt.net.ssl;
 
 import hunt.Exceptions;
@@ -57,7 +57,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         this.serverSSLContextFactory = serverSSLContextFactory;
     }
 
-    SecureSession create(Session session, bool clientMode, 
+    SecureSession create(Connection session, bool clientMode, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
 
         SSLContextFactory sslContextFactory = from(clientMode);
@@ -71,7 +71,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
-    SecureSession create(Session session, bool clientMode, string peerHost, int peerPort, 
+    SecureSession create(Connection session, bool clientMode, string peerHost, int peerPort, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
             
         SSLContextFactory sslContextFactory = from(clientMode);

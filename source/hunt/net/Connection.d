@@ -13,13 +13,11 @@ import std.socket;
 
 
 // alias TcpSession = Connection;
-alias IoSession = Connection;
-alias SocketSession = Connection;
-alias Session = Connection;
-alias NetSocket = Connection;
+// alias Session = Connection;
+// alias Connection = Connection;
 
 alias NetEventHandler(E) = void delegate(E event);
-alias ExceptionHandler = NetEventHandler!(Throwable);
+// alias ExceptionHandler = NetEventHandler!(Throwable);
 // alias ConnectHandler = NetEventHandler!Connection;
 // alias AsyncConnectHandler = NetEventHandler!(AsyncResult!Connection);
 alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
@@ -30,7 +28,7 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  *   transport types.
  * </p>
  * <p>
- *   {@link IoSession} provides user-defined attributes.  User-defined attributes
+ *   {@link Connection} provides user-defined attributes.  User-defined attributes
  *   are application-specific data which are associated with a session.
  *   It often contains objects that represents the state of a higher-level protocol
  *   and becomes a way to exchange data between filters and handlers.
@@ -41,9 +39,9 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  * </p>
  * <h3>Thread Safety</h3>
  * <p>
- *   {@link IoSession} is thread-safe.  But please note that performing
+ *   {@link Connection} is thread-safe.  But please note that performing
  *   more than one {@link #write(Object)} calls at the same time will
- *   cause the {@link IoFilter#filterWrite(IoFilter.NextFilter,IoSession,WriteRequest)}
+ *   cause the {@link IoFilter#filterWrite(IoFilter.NextFilter,Connection,WriteRequest)}
  *   to be executed simultaneously, and therefore you have to make sure the
  *   {@link IoFilter} implementations you're using are thread-safe, too.
  * </p>
@@ -218,13 +216,26 @@ deprecated("Using getAttribute instead.")
     string[] getAttributeKeys();
 
 
-    void notifyMessageReceived(Object message);
+    // void notifyMessageReceived(Object message);
 
     void encode(Object message);
 
     void encode(ByteBuffer[] message);
 
     // void encode(ByteBufferOutputEntry message);
+
+    /**
+     * Writes the specified <code>message</code> to remote peer.  This
+     * operation is asynchronous; {@link IoHandler#messageSent(Connection,Object)}
+     * will be invoked when the message is actually sent to remote peer.
+     * You can also wait for the returned {@link WriteFuture} if you want
+     * to wait for the message actually written.
+     * 
+     * @param message The message to write
+     * @return The associated WriteFuture
+     */
+    // void write(Object message);
+
 
     // void write(OutputEntry<?> entry);
     // void write(ByteBufferOutputEntry entry);
@@ -321,13 +332,13 @@ version(HUNT_METRIC) {
  */
 abstract class ConnectionEventHandler {
 
-	void sessionOpened(Session session) ;
+	void sessionOpened(Connection session) ;
 
-	void sessionClosed(Session session) ;
+	void sessionClosed(Connection session) ;
 
-	void messageReceived(Session session, Object message) ;
+	void messageReceived(Connection session, Object message) ;
 
-	void exceptionCaught(Session session, Exception t) ;
+	void exceptionCaught(Connection session, Exception t) ;
 
 	void failedOpeningSession(int sessionId, Exception t) { }
 

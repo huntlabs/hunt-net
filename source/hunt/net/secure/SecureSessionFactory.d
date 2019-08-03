@@ -6,7 +6,7 @@ version(WITH_HUNT_SECURITY):
 
 import hunt.net.secure.SecureSession;
 import hunt.net.secure.SSLContextFactory;
-import hunt.net.Session;
+import hunt.net.Connection;
 
 
 /**
@@ -14,10 +14,10 @@ import hunt.net.Session;
  */
 interface SecureSessionFactory {
 
-    SecureSession create(Session session, bool clientMode,
+    SecureSession create(Connection session, bool clientMode,
                          SecureSessionHandshakeListener secureSessionHandshakeListener);
 
-    SecureSession create(Session session, bool clientMode,
+    SecureSession create(Connection session, bool clientMode,
                          string peerHost, int peerPort,
                          SecureSessionHandshakeListener secureSessionHandshakeListener);
 

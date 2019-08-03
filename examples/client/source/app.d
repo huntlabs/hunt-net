@@ -16,13 +16,13 @@ void main() {
     import std.stdio;
 
     NetClient client = NetUtil.createNetClient();
-    client.connectHandler((NetSocket sock) {
+    client.connectHandler((Connection sock) {
         trace("connected-------------------------------------------");
         sock.closeHandler(() {
             trace("disconnected-------------------------------------");
         });
     });
-    client.connect(3003, "127.0.0.1", 0, (Result!NetSocket result) {
+    client.connect(3003, "127.0.0.1", 0, (Result!Connection result) {
         if (result.failed()) {
             trace(result.cause().toString());
         } else {

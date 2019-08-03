@@ -63,6 +63,10 @@ abstract class AbstractConnection : Connection {
         return attachment;
     }
 
+    int getId() {
+        return _sessionId;
+    }
+
     TcpStream getTcpStream() {
         return _tcp;
     }
@@ -253,7 +257,6 @@ abstract class AbstractConnection : Connection {
         return attributes.keys();
     }
 
-
     void encode(Object message) {
         try {
             this._encoder.encode(message, this);
@@ -280,10 +283,9 @@ abstract class AbstractConnection : Connection {
         }
     }
 
-    int getId() {
-        return _sessionId;
-    }
-
+    // void notifyMessageReceived(Object message) {
+    //     implementationMissing(false);
+    // }
 }
 
 

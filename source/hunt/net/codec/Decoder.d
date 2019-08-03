@@ -6,7 +6,7 @@ import hunt.collection.ByteBuffer;
 import hunt.Exceptions;
 
 interface Decoder {
-    void decode(ByteBuffer buf, Session session);
+    void decode(ByteBuffer buf, Connection session);
 }
 
 /**
@@ -23,7 +23,7 @@ class DecoderChain : Decoder {
         return _nextDecoder;
     }
 
-    void decode(ByteBuffer buf, Session session) {
+    void decode(ByteBuffer buf, Connection session) {
         implementationMissing();
     }
 

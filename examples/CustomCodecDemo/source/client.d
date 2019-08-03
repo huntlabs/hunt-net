@@ -49,13 +49,13 @@ void main() {
     }).connect("10.1.222.120", 8080);
 
 
-    // client.connectHandler((NetSocket sock) {
+    // client.connectHandler((Connection sock) {
     //     trace("connected-------------------------------------------");
     //     sock.closeHandler(() {
     //         trace("disconnected-------------------------------------");
     //     });
     // });
-    // client.connect(8080, "127.0.0.1", 0, (AsyncResult!NetSocket result) {
+    // client.connect(8080, "127.0.0.1", 0, (AsyncResult!Connection result) {
     //     if (result.failed()) {
     //         trace(result.cause().toString());
     //     } else {

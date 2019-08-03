@@ -22,7 +22,7 @@ void main() {
     alias logDebug = writeln;
 
     auto server = NetUtil.createNetServer!(ThreadMode.Single)();
-    server.connectionHandler((NetSocket sock) {
+    server.connectionHandler((Connection sock) {
         logInfo("accepted a connection...");
         sock.handler((ByteBuffer buffer) {
             logInfo("received from client");
@@ -34,7 +34,7 @@ void main() {
     });
 
     auto client = NetUtil.createNetClient();
-    client.connect(8080, "127.0.0.1", 0, (Result!NetSocket result) {
+    client.connect(8080, "127.0.0.1", 0, (Result!Connection result) {
         if (result.failed()) {
             logDebug(result.cause().toString());
             return;

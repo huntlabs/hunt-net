@@ -330,7 +330,7 @@ abstract class SSLSocket : Socket
 
 
     /**
-     * Returns the SSL Session in use by this connection.  These can
+     * Returns the SSL Connection in use by this connection.  These can
      * be long lived, and frequently correspond to an entire login session
      * for some user.  The session specifies a particular cipher suite
      * which is being actively used by all connections in that session,

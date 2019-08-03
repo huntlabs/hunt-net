@@ -4,7 +4,7 @@ import hunt.net.Connection;
 import hunt.Exceptions;
 
 interface Encoder {
-	void encode(Object message, Session session);
+	void encode(Object message, Connection session);
 }
 
 /**
@@ -28,7 +28,7 @@ class EncoderChain : Encoder {
 		this.next = next;
 	}
 
-	void encode(Object message, Session session) {
+	void encode(Object message, Connection session) {
         implementationMissing();
 	}
 }

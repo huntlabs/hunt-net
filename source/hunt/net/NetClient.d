@@ -33,7 +33,7 @@ interface NetClient {
      * Open a connection to a server at the specific {@code port} and {@code host}.
      * <p>
      * {@code host} can be a valid host name or IP address. The connect is done asynchronously and on success, a
-     * {@link NetSocket} instance is supplied via the {@code connectHandler} instance
+     * {@link Connection} instance is supplied via the {@code connectHandler} instance
      *
      * @param port  the port
      * @param host  the host
@@ -46,7 +46,7 @@ interface NetClient {
      * Open a connection to a server at the specific {@code port} and {@code host}.
      * <p>
      * {@code host} can be a valid host name or IP address. The connect is done asynchronously and on success, a
-     * {@link NetSocket} instance is supplied via the {@code connectHandler} instance
+     * {@link Connection} instance is supplied via the {@code connectHandler} instance
      *
      * @param port the port
      * @param host the host
@@ -59,7 +59,7 @@ interface NetClient {
     /**
      * Open a connection to a server at the specific {@code remoteAddress}.
      * <p>
-     * The connect is done asynchronously and on success, a {@link NetSocket} instance is supplied via the {@code connectHandler} instance
+     * The connect is done asynchronously and on success, a {@link Connection} instance is supplied via the {@code connectHandler} instance
      *
      * @param remoteAddress the remote address
      * @return a reference to this, so the API can be used fluently
@@ -70,7 +70,7 @@ interface NetClient {
     /**
      * Open a connection to a server at the specific {@code remoteAddress}.
      * <p>
-     * The connect is done asynchronously and on success, a {@link NetSocket} instance is supplied via the {@code connectHandler} instance
+     * The connect is done asynchronously and on success, a {@link Connection} instance is supplied via the {@code connectHandler} instance
      *
      * @param remoteAddress the remote address
      * @param serverName the SNI server name
