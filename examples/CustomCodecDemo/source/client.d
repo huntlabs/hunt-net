@@ -21,6 +21,8 @@ void main() {
 
         override void sessionClosed(Connection session) {
             infof("Connection closed: %s", session.getRemoteAddress());
+
+            // client.close();
         }
 
         override void messageReceived(Connection session, Object message) {
@@ -38,7 +40,7 @@ void main() {
 
         override void failedOpeningSession(int sessionId, Exception t) {
             warning(t);
-            // client.close(); 
+            client.close(); 
         }
 
         override void failedAcceptingSession(int sessionId, Exception t) {
@@ -63,9 +65,5 @@ void main() {
     // client.setCodec();
     // NetUtil.startEventLoop();
 
-    getchar();
 
-    // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:37:27 PM
-    // Invalid memory operation
-    client.close(); 
 }

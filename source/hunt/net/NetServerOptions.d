@@ -16,6 +16,7 @@ import hunt.net.OpenSSLEngineOptions;
 import hunt.net.TcpSslOptions;
 
 import hunt.Exceptions;
+import hunt.io.TcpStreamOptions;
 
 import core.time;
 
@@ -404,5 +405,5 @@ class NetServerOptions : TcpSslOptions {
         this.acceptBacklog = DEFAULT_ACCEPT_BACKLOG;
         this.clientAuth = DEFAULT_CLIENT_AUTH;
         this.sni = DEFAULT_SNI;
-    }
+    } 
 }

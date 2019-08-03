@@ -37,8 +37,8 @@ shared static ~this() {
 /**
 */
 class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecycle, NetServer {
-    private string _host = "0.0.0.0";
-    private int _port = 8080;
+    private string _host = NetServerOptions.DEFAULT_HOST;
+    private int _port = NetServerOptions.DEFAULT_PORT;
     protected bool _isStarted;
     private shared int _sessionId;
     private NetServerOptions _options;
@@ -61,12 +61,12 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
         return _options;
     }
     
-    NetServerImpl!threadModel setOptions(NetServerOptions options) {
+    NetServer setOptions(NetServerOptions options) {
         _options = options;
         return this;
     }
 
-    NetServerImpl!threadModel setCodec(Codec codec) {
+    NetServer setCodec(Codec codec) {
         this._codec = codec;
         return this;
     }
@@ -79,7 +79,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
         return _eventHandler;
     }
 
-    NetServerImpl!threadModel setHandler(ConnectionEventHandler handler) {
+    NetServer setHandler(ConnectionEventHandler handler) {
         _eventHandler = handler;
         return this;
     }
@@ -210,11 +210,11 @@ static if(threadModel == ThreadMode.Multi){
 		version (HUNT_DEBUG) {
 			infof("new connection from %s, fd=%d", socket.remoteAddress.toString(), socket.handle());
 		}
+
+        TcpStreamOptions streamOptions = _options.toStreamOptions();
+
 		EventLoop loop = _group.nextLoop();
-        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 12:43:08 PM
-        // 
-        TcpStreamOption options = new TcpStreamOption();
-		TcpStream stream = new TcpStream(loop, socket, options);
+		TcpStream stream = new TcpStream(loop, socket, streamOptions);
 		stream.start();
 
         auto currentId = atomicOp!("+=")(_sessionId, 1);

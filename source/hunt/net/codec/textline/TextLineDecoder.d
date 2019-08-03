@@ -255,19 +255,6 @@ class TextLineDecoder : DecoderChain {
                         if(handler !is null) {
                             handler.messageReceived(session, new String(str));
                         }
-
-
-                        
-                        // if(_nextDecoder is null) {
-                        //     // call the session handler
-                        // } else {
-                        //     _nextDecoder.decode(inBuffer, session);
-                        // }
-                        // CharsetDecoder decoder = ctx.getDecoder();
-
-                        // CharBuffer inBuffer = decoder.decode(ByteBuffer.wrap(data));
-                        // string str = inBuffer.toString();
-                        // writeText(session, str, out);
                     } finally {
                         buf.clear();
                     }

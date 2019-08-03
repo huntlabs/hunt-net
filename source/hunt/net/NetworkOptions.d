@@ -14,7 +14,7 @@ module hunt.net.NetworkOptions;
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-abstract class NetworkOptions {
+class NetworkOptions {
 
     /**
      * The default value of TCP send buffer size

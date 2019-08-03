@@ -13,7 +13,9 @@ module hunt.net.TcpSslOptions;
 
 import hunt.net.NetworkOptions;
 import hunt.net.OpenSSLEngineOptions;
+
 import hunt.Exceptions;
+import hunt.io.TcpStreamOptions;
 
 import core.time;
 
@@ -22,7 +24,7 @@ import core.time;
  *
  * @author <a href="http://tfox.org">Tim Fox</a>
  */
-abstract class TcpSslOptions : NetworkOptions {
+class TcpSslOptions : NetworkOptions {
 
     /**
      * The default value of TCP-no-delay = true (Nagle disabled)
@@ -53,6 +55,17 @@ abstract class TcpSslOptions : NetworkOptions {
      * Default idle timeout = 0
      */
     enum Duration DEFAULT_IDLE_TIMEOUT = Duration.zero;
+
+    // http://www.tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html
+    /// the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; 
+    /// after the connection is marked to need keepalive, this counter is not used any further 
+    enum Duration DEFAULT_KEEPALIVE_WAITTIME = 7200.seconds;
+
+    /// the interval between subsequential keepalive probes, regardless of what the connection has exchanged in the meantime 
+    enum Duration DEFAULT_KEEPALIVE_INTERVAL = 75.seconds;
+
+    /// the number of unacknowledged probes to send before considering the connection dead and notifying the application layer 
+    enum int DEFAULT_KEEPALIVE_PROBES = 9;
 
     /**
      * Default idle time unit = SECONDS
@@ -94,23 +107,24 @@ abstract class TcpSslOptions : NetworkOptions {
     enum bool DEFAULT_TCP_QUICKACK = false;
 
     /**
-     * The default value of SSL handshake timeout = 10
+     * The default value of SSL handshake timeout = 10 SECONDS
      */
-    enum long DEFAULT_SSL_HANDSHAKE_TIMEOUT = 10L;
+    enum Duration DEFAULT_SSL_HANDSHAKE_TIMEOUT = 10.seconds;
 
-    /**
-     * Default SSL handshake time unit = SECONDS
-     */
-    // enum TimeUnit DEFAULT_SSL_HANDSHAKE_TIMEOUT_TIME_UNIT = TimeUnit.SECONDS;
+    enum int DEFAULT_RETRY_TIMES = 5;
+    enum Duration DEFAULT_RETRY_INTERVAL = 2.seconds;
+
 
     private bool tcpNoDelay;
     private bool tcpKeepAlive;
     private int soLinger;
     private bool usePooledBuffers;
     private Duration idleTimeout;
+    private Duration keepaliveWaitTime = DEFAULT_KEEPALIVE_WAITTIME;
+    private Duration keepaliveInterval = DEFAULT_KEEPALIVE_INTERVAL;
+    private int keepaliveProbes = DEFAULT_KEEPALIVE_PROBES;
     private bool ssl;
     private Duration sslHandshakeTimeout;
-    // private TimeUnit sslHandshakeTimeoutUnit;
     // private KeyCertOptions keyCertOptions;
     // private TrustOptions trustOptions;
     // private Set!(string) enabledCipherSuites;
@@ -122,6 +136,9 @@ abstract class TcpSslOptions : NetworkOptions {
     private bool tcpFastOpen;
     private bool tcpCork;
     private bool tcpQuickAck;
+
+    private int retryTimes = DEFAULT_RETRY_TIMES;
+    private Duration retryInterval = DEFAULT_RETRY_INTERVAL;
 
     /**
      * Default constructor
@@ -143,10 +160,11 @@ abstract class TcpSslOptions : NetworkOptions {
         this.soLinger = other.getSoLinger();
         // this.usePooledBuffers = other.isUsePooledBuffers();
         this.idleTimeout = other.getIdleTimeout();
-        // this.idleTimeoutUnit = other.getIdleTimeoutUnit() !is null ? other.getIdleTimeoutUnit() : DEFAULT_IDLE_TIMEOUT_TIME_UNIT;
+        this.keepaliveWaitTime = other.keepaliveWaitTime;
+        this.keepaliveInterval = other.keepaliveInterval;
+        this.keepaliveProbes = other.keepaliveProbes;
         this.ssl = other.isSsl();
         this.sslHandshakeTimeout = other.sslHandshakeTimeout;
-        // this.sslHandshakeTimeoutUnit = other.getSslHandshakeTimeoutUnit() !is null ? other.getSslHandshakeTimeoutUnit() : DEFAULT_SSL_HANDSHAKE_TIMEOUT_TIME_UNIT;
         // this.keyCertOptions = other.getKeyCertOptions() !is null ? other.getKeyCertOptions().copy() : null;
         // this.trustOptions = other.getTrustOptions() !is null ? other.getTrustOptions().copy() : null;
         // this.enabledCipherSuites = other.getEnabledCipherSuites() is null ? new LinkedHashSet<>() : new LinkedHashSet<>(other.getEnabledCipherSuites());
@@ -158,6 +176,9 @@ abstract class TcpSslOptions : NetworkOptions {
         this.tcpFastOpen = other.isTcpFastOpen();
         this.tcpCork = other.isTcpCork();
         this.tcpQuickAck = other.isTcpQuickAck();
+
+        this.retryTimes = other.retryTimes;
+        this.retryInterval = other.retryInterval;
     }
 
     private void init() {
@@ -166,10 +187,13 @@ abstract class TcpSslOptions : NetworkOptions {
         soLinger = DEFAULT_SO_LINGER;
         usePooledBuffers = DEFAULT_USE_POOLED_BUFFERS;
         idleTimeout = DEFAULT_IDLE_TIMEOUT;
-        // idleTimeoutUnit = DEFAULT_IDLE_TIMEOUT_TIME_UNIT;
+
+        keepaliveWaitTime = 15.seconds;
+        keepaliveInterval = 3.seconds;
+        keepaliveProbes = 5;
+
         ssl = DEFAULT_SSL;
-        // sslHandshakeTimeout = DEFAULT_SSL_HANDSHAKE_TIMEOUT;
-        // sslHandshakeTimeoutUnit = DEFAULT_SSL_HANDSHAKE_TIMEOUT_TIME_UNIT;
+        sslHandshakeTimeout = DEFAULT_SSL_HANDSHAKE_TIMEOUT;
         // enabledCipherSuites = new LinkedHashSet<>();
         // crlPaths = new ArrayList<>();
         // crlValues = new ArrayList<>();
@@ -239,28 +263,6 @@ abstract class TcpSslOptions : NetworkOptions {
         return this;
     }
 
-    // /**
-    //  * @return are Netty pooled buffers enabled?
-    //  * @deprecated this has no effect, just don't use it
-    //  */
-    // @Deprecated
-    // bool isUsePooledBuffers() {
-    //     return usePooledBuffers;
-    // }
-
-    // /**
-    //  * Set whether Netty pooled buffers are enabled
-    //  *
-    //  * @param usePooledBuffers true if pooled buffers enabled
-    //  * @return a reference to this, so the API can be used fluently
-    //  * @deprecated this has no effect, just don't use it
-    //  */
-    // @Deprecated
-    // TcpSslOptions setUsePooledBuffers(bool usePooledBuffers) {
-    //     this.usePooledBuffers = usePooledBuffers;
-    //     return this;
-    // }
-
     /**
      * Set the idle timeout, default time unit is seconds. Zero means don't timeout.
      * This determines if a connection will timeout and be closed if no data is received within the timeout.
@@ -283,6 +285,42 @@ abstract class TcpSslOptions : NetworkOptions {
      */
     Duration getIdleTimeout() {
         return idleTimeout;
+    }
+
+    TcpSslOptions setKeepaliveWaitTime(Duration timeout) {
+        if (timeout < Duration.zero) {
+            throw new IllegalArgumentException("keepaliveWaitTime must be >= 0");
+        }
+        this.keepaliveWaitTime = timeout;
+        return this;
+    }
+
+    Duration getKeepaliveWaitTime() {
+        return keepaliveWaitTime;
+    }
+
+    TcpSslOptions setKeepaliveInterval(Duration timeout) {
+        if (timeout < Duration.zero) {
+            throw new IllegalArgumentException("keepaliveInterval must be >= 0");
+        }
+        this.keepaliveInterval = timeout;
+        return this;
+    }
+
+    Duration getKeepaliveInterval() {
+        return keepaliveInterval;
+    }
+
+    TcpSslOptions setKeepaliveProbes(int times) {
+        if (times <=0) {
+            throw new IllegalArgumentException("keepaliveProbes must be >= 1");
+        }
+        this.keepaliveProbes = times;
+        return this;
+    }
+
+    int getKeepaliveProbes() {
+        return keepaliveProbes;
     }
 
     /**
@@ -711,6 +749,30 @@ abstract class TcpSslOptions : NetworkOptions {
         return cast(TcpSslOptions) super.setReusePort(reusePort);
     }
 
+    TcpSslOptions setRetryTimes(int times) {
+        if (times <= 0) {
+            throw new IllegalArgumentException("retryTimes must be >= 1");
+        }
+        this.retryTimes = times;
+        return this;
+    }
+
+    int getRetryTimes() {
+        return retryTimes;
+    }
+
+    TcpSslOptions setRetryInterval(Duration timeout) {
+        if (retryInterval < Duration.zero) {
+            throw new IllegalArgumentException("retryInterval must be >= 0");
+        }
+        this.retryInterval = timeout;
+        return this;
+    }
+
+    Duration getRetryInterval() {
+        return retryInterval;
+    }
+
     override
     bool opEquals(Object o) {
         if (this is o) return true;
@@ -767,4 +829,19 @@ abstract class TcpSslOptions : NetworkOptions {
         //         .toHash() : 0);
         return result;
     }
+
+    TcpStreamOptions toStreamOptions() {
+
+        TcpStreamOptions streamOptions = new TcpStreamOptions();
+        streamOptions.isKeepalive = isTcpKeepAlive();
+        streamOptions.keepaliveTime = cast(int)getKeepaliveWaitTime().total!"seconds";
+        streamOptions.keepaliveInterval = cast(int)getKeepaliveInterval().total!"seconds";
+        streamOptions.retryTimes = getRetryTimes();
+        streamOptions.retryInterval = getRetryInterval();
+        int size = getReceiveBufferSize();
+        if(size > 0)
+            streamOptions.bufferSize = size;
+
+        return streamOptions;
+    }   
 }

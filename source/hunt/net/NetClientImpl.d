@@ -7,7 +7,9 @@ import hunt.net.NetClient;
 import hunt.net.NetClientOptions;
 
 import hunt.event.EventLoop;
+import hunt.Exceptions;
 import hunt.io.TcpStream;
+import hunt.io.TcpStreamOptions;
 import hunt.logging;
 import hunt.util.Lifecycle;
 
@@ -26,10 +28,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private ConnectionEventHandler _netHandler;
     private TcpConnection _tcpSession;
     private TcpStream _client;
+    private EventLoop _loop;
     private int _loopIdleTime = -1;
 
     this() {
-        _loop = new EventLoop();
         this(new EventLoop());
     }
 
@@ -50,25 +52,28 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         return _host;
     }
 
-    NetClientImpl setHost(string host) {
-        this._host = host;
-        return this;
-    }
+    // NetClientImpl setHost(string host) {
+    //     this._host = host;
+    //     return this;
+    // }
 
     int getPort() {
         return _port;
     }
 
-    NetClientImpl setPort(int port) {
-        this._port = port;
-        return this;
-    }
+    // NetClientImpl setPort(int port) {
+    //     this._port = port;
+    //     return this;
+    // }
 
     NetClientOptions getOptions() {
         return _options;
     }
 
     NetClient setOptions(NetClientOptions options) {
+        if(isConnected()) {
+            throw new IOException("The options can't be set after the connection created.");
+        }
         this._options = options;
         return this;
     }
@@ -101,6 +106,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void connect(string host, int port, string serverName) {
+        if(isConnected()) {
+            throw new IOException("The options can't be set after the connection created.");
+        }
+
         this._host = host;
         this._port = port;
         this._serverName = serverName;
@@ -109,17 +118,26 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void initialize() { // doConnect
-        // _sessionId = sessionId;
 
-        _client = new TcpStream(_loop);
+        _loop.onStarted(&initializeClient);
+        _loop.runAsync(_loopIdleTime);
 
+    }
+
+    private void initializeClient(){
+
+        TcpStreamOptions options = _options.toStreamOptions();
+        _client = new TcpStream(_loop, options);
         _tcpSession = new TcpConnection(_sessionId++,
                 _options, _netHandler, _codec, _client);
 
-
         _client.onClosed(() {
-            if (_netHandler !is null)
-                _netHandler.sessionClosed(_tcpSession);
+            // if (_netHandler !is null)
+            //     _netHandler.sessionClosed(_tcpSession);
+            version(HUNT_NET_DEBUG) {
+                info("session closed");
+            }
+            this.close();
         });
 
         _client.onError((string message) {
@@ -132,7 +150,6 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 			    version (HUNT_DEBUG) 
                 trace("connected to: ", _client.remoteAddress.toString()); 
 
-                _isRunning = true;
                 if (_netHandler !is null)
                     _netHandler.sessionOpened(_tcpSession);
             }
@@ -146,26 +163,36 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             }
 
         }).connect(_host, cast(ushort)_port);
-
-        _loop.runAsync(_loopIdleTime);
     }
 
     void close() {
         this.stop();
+
     }
 
     override protected void destroy() {
         if (_tcpSession !is null) {
+            tracef("isRunning: %s, isConnected: %s, isClosing: %s", isRunning(), 
+            _tcpSession.isConnected(), _tcpSession.isClosing());
+            
+            // if(isRunning()) 
+            {
+                if(!_tcpSession.isClosing()) {
+                    _tcpSession.close();
+                }
+                if (_tcpSession.isClosing() && _netHandler !is null)
+                    _netHandler.sessionClosed(_tcpSession);
+            }
+
+            _tcpSession = null;
             _loop.stop();
-            _tcpSession.close();
         }
     }
 
     bool isConnected() {
-        return _tcpSession.isConnected();
+        if(_tcpSession is null)
+            return false;
+        else
+            return _tcpSession.isConnected();
     }
-
-private:
-    ///
-    EventLoop _loop;
 }

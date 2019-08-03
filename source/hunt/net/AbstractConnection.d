@@ -82,10 +82,10 @@ abstract class AbstractConnection : Connection {
             auto data = cast(ubyte[]) buffer.getRemaining();
             infof("data received (%d bytes): ", data.length); 
             version(HUNT_IO_MORE) {
-            if(data.length<=64)
-                infof("%(%02X %)", data[0 .. $]);
-            else
-                infof("%(%02X %) ...", data[0 .. 64]);
+                if(data.length<=64)
+                    infof("%(%02X %)", data[0 .. $]);
+                else
+                    infof("%(%02X %) ...", data[0 .. 64]);
             }
         }      
 

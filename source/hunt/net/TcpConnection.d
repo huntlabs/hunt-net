@@ -38,14 +38,14 @@ version(HUNT_METRIC) {
     private size_t writtenBytes = 0;
 } 
 
-    protected TcpSslOptions _config;
-    protected shared bool _isClosed = false;
+    protected TcpSslOptions _options;
+    // protected shared bool _isClosed = false;
     protected shared bool _isShutdownOutput = false;
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
-    this(int sessionId, TcpSslOptions config, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
-        this._config = config;
+    this(int sessionId, TcpSslOptions options, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
+        this._options = options;
         super(sessionId, tcp, codec, eventHandler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("initializing TCP connection...");
@@ -173,22 +173,22 @@ version(HUNT_METRIC) {
     }
 }
 
-    override void close() {
-        if(cas(&_isClosed, false, true)) {
-            try {
-                super.close();                
-            } catch (AsynchronousCloseException e) {
-                warningf("The session %d asynchronously close exception", _sessionId);
-            } catch (IOException e) {
-                errorf("The session %d close exception: %s", _sessionId, e.msg);
-            } 
-            // finally {
-            //     _eventHandler.notifySessionClosed(this);
-            // }
-        } else {
-            infof("The session %d already closed", _sessionId);
-        }
-    }
+    // override void close() {
+    //     // if(cas(&_isClosed, false, true)) {
+    //         try {
+    //             super.close();                
+    //         } catch (AsynchronousCloseException e) {
+    //             warningf("The session %d asynchronously close exception", _sessionId);
+    //         } catch (IOException e) {
+    //             errorf("The session %d close exception: %s", _sessionId, e.msg);
+    //         } 
+    //         // finally {
+    //         //     _eventHandler.notifySessionClosed(this);
+    //         // }
+    //     // } else {
+    //     //     infof("The session %d already closed", _sessionId);
+    //     // }
+    // }
 
     // override void closeNow() {
     //     this.close();
@@ -286,7 +286,7 @@ version(HUNT_METRIC) {
     }
 
     Duration getMaxIdleTimeout() {
-        return _config.getIdleTimeout();
+        return _options.getIdleTimeout();
     }
 
 }
