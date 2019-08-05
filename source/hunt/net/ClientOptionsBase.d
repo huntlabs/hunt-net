@@ -42,7 +42,7 @@ abstract class ClientOptionsBase : TcpSslOptions {
      */
     enum string DEFAULT_METRICS_NAME = "";
 
-    private int connectTimeout;
+    private Duration connectTimeout;
     private bool trustAll;
     private string metricsName;
     private ProxyOptions proxyOptions;
@@ -71,7 +71,7 @@ abstract class ClientOptionsBase : TcpSslOptions {
     }
 
     private void init() {
-        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT;
+        this.connectTimeout = DEFAULT_CONNECT_TIMEOUT.msecs;
         this.trustAll = DEFAULT_TRUST_ALL;
         this.metricsName = DEFAULT_METRICS_NAME;
         this.proxyOptions = null;
@@ -100,7 +100,7 @@ abstract class ClientOptionsBase : TcpSslOptions {
     /**
      * @return the value of connect timeout
      */
-    int getConnectTimeout() {
+    Duration getConnectTimeout() {
         return connectTimeout;
     }
 
@@ -110,8 +110,8 @@ abstract class ClientOptionsBase : TcpSslOptions {
      * @param connectTimeout  connect timeout, in ms
      * @return a reference to this, so the API can be used fluently
      */
-    ClientOptionsBase setConnectTimeout(int connectTimeout) {
-        if (connectTimeout < 0) {
+    ClientOptionsBase setConnectTimeout(Duration connectTimeout) {
+        if (connectTimeout < Duration.zero) {
             throw new IllegalArgumentException("connectTimeout must be >= 0");
         }
         this.connectTimeout = connectTimeout;
@@ -362,7 +362,7 @@ abstract class ClientOptionsBase : TcpSslOptions {
     override
     size_t toHash() @trusted nothrow {
         size_t result = super.toHash();
-        result = 31 * result + connectTimeout;
+        result = 31 * result + connectTimeout.total!("msecs")();
         result = 31 * result + (trustAll ? 1 : 0);
         result = 31 * result + metricsName.hashOf();
         result = 31 * result + proxyOptions.hashOf();

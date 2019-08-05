@@ -36,6 +36,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         this(new EventLoop());
     }
 
+    this(NetClientOptions options) {
+        this(new EventLoop(), options);
+    }
+
     this(EventLoop loop) {
         this(loop, new NetClientOptions());
     }

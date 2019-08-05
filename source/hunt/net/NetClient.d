@@ -88,11 +88,12 @@ interface NetClient {
      */
     void close();
 
+    bool isConnected();
+
 
     NetClientOptions getOptions();
 
     NetClient setOptions(NetClientOptions options);
-
 
     Codec getCodec();
     

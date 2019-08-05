@@ -252,7 +252,7 @@ class NetClientOptions : ClientOptionsBase {
     }
 
     override
-    NetClientOptions setConnectTimeout(int connectTimeout) {
+    NetClientOptions setConnectTimeout(Duration connectTimeout) {
         super.setConnectTimeout(connectTimeout);
         return this;
     }

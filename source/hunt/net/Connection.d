@@ -4,6 +4,7 @@ import hunt.net.AsyncResult;
 import hunt.net.OutputEntry;
 import hunt.net.OutputEntryType;
 import hunt.util.Common;
+import hunt.io.TcpStream;
 
 import hunt.collection.ByteBuffer;
 import hunt.collection.Collection;
@@ -57,11 +58,13 @@ interface Connection {
 
     // DisconnectionOutputEntry DISCONNECTION_FLAG = new DisconnectionOutputEntry(null, null);
 
+    TcpStream getStream();
+
 
     /**
      * @return the {@link IoHandler} which handles this session.
      */
-    SessionEventHandler getHandler();    
+    ConnectionEventHandler getHandler();    
 
 deprecated("Using setAttribute instead.")
     void attachObject(Object attachment);
@@ -233,7 +236,7 @@ deprecated("Using getAttribute instead.")
      * @param message The message to write
      * @return The associated WriteFuture
      */
-    // void write(Object message);
+    void write(Object message); // It's same as void encode(Object message);
 
 
     // void write(OutputEntry<?> entry);
@@ -344,8 +347,8 @@ abstract class ConnectionEventHandler {
 	void failedAcceptingSession(int sessionId, Exception t) { }
 }
 
-deprecated("Using ConnectionEventHandler instead.")
-alias Handler = ConnectionEventHandler;
+// deprecated("Using ConnectionEventHandler instead.")
+// alias Handler = ConnectionEventHandler;
 
-deprecated("Using ConnectionEventHandler instead.")
-alias SessionEventHandler = ConnectionEventHandler;
+// deprecated("Using ConnectionEventHandler instead.")
+// alias SessionEventHandler = ConnectionEventHandler;

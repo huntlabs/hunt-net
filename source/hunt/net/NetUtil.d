@@ -24,6 +24,10 @@ class NetUtil {
         return new NetClientImpl();
     }
 
+    static NetClient createNetClient(NetClientOptions options) {
+        return new NetClientImpl(options);
+    }
+
     static void startEventLoop(long timeout = -1) {
         _loopGroup.start(timeout);
     }

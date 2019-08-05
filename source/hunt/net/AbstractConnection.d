@@ -68,7 +68,7 @@ abstract class AbstractConnection : Connection {
         return _sessionId;
     }
 
-    TcpStream getTcpStream() {
+    TcpStream getStream() {
         return _tcp;
     }
 
@@ -256,6 +256,10 @@ abstract class AbstractConnection : Connection {
      */
     string[] getAttributeKeys() {
         return attributes.keys();
+    }
+
+    void write(Object message) {
+        encode(message);
     }
 
     void encode(Object message) {
