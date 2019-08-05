@@ -38,38 +38,38 @@ class OpenSSLEngineOptions {
     }
 
     /**
-     * Default value of whether session cache is enabled in open SSL session server context = true
+     * Default value of whether connection cache is enabled in open SSL connection server context = true
      */
     enum bool DEFAULT_SESSION_CACHE_ENABLED = true;
 
-    private bool sessionCacheEnabled;
+    private bool connectionCacheEnabled;
 
     this() {
-        sessionCacheEnabled = DEFAULT_SESSION_CACHE_ENABLED;
+        connectionCacheEnabled = DEFAULT_SESSION_CACHE_ENABLED;
     }
 
     this(OpenSSLEngineOptions other) {
-        this.sessionCacheEnabled = other.isSessionCacheEnabled();
+        this.connectionCacheEnabled = other.isConnectionCacheEnabled();
     }
 
     /**
-     * Set whether session cache is enabled in open SSL session server context
+     * Set whether connection cache is enabled in open SSL connection server context
      *
-     * @param sessionCacheEnabled true if session cache is enabled
+     * @param connectionCacheEnabled true if connection cache is enabled
      * @return a reference to this, so the API can be used fluently
      */
-    OpenSSLEngineOptions setSessionCacheEnabled(bool sessionCacheEnabled) {
-        this.sessionCacheEnabled = sessionCacheEnabled;
+    OpenSSLEngineOptions setConnectionCacheEnabled(bool connectionCacheEnabled) {
+        this.connectionCacheEnabled = connectionCacheEnabled;
         return this;
     }
 
     /**
-     * Whether session cache is enabled in open SSL session server context
+     * Whether connection cache is enabled in open SSL connection server context
      *
-     * @return true if session cache is enabled
+     * @return true if connection cache is enabled
      */
-    bool isSessionCacheEnabled() {
-        return sessionCacheEnabled;
+    bool isConnectionCacheEnabled() {
+        return connectionCacheEnabled;
     }
 
     override
@@ -80,14 +80,14 @@ class OpenSSLEngineOptions {
         if(that is null)
             return false;
 
-        if (sessionCacheEnabled != that.sessionCacheEnabled) return false;
+        if (connectionCacheEnabled != that.connectionCacheEnabled) return false;
 
         return true;
     }
 
     override
     size_t toHash() @trusted nothrow {
-        return sessionCacheEnabled ? 1 : 0;
+        return connectionCacheEnabled ? 1 : 0;
     }
 
     OpenSSLEngineOptions clone() {

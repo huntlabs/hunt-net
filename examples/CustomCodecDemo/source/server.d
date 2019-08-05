@@ -33,30 +33,30 @@ void main() {
 
     server.setHandler(new class ConnectionEventHandler {
 
-        override void sessionOpened(Connection session) {
-            infof("Connection created: %s", session.getRemoteAddress());
+        override void connectionOpened(Connection connection) {
+            infof("Connection created: %s", connection.getRemoteAddress());
         }
 
-        override void sessionClosed(Connection session) {
-            infof("Connection closed: %s", session.getRemoteAddress());
+        override void connectionClosed(Connection connection) {
+            infof("Connection closed: %s", connection.getRemoteAddress());
         }
 
-        override void messageReceived(Connection session, Object message) {
+        override void messageReceived(Connection connection, Object message) {
             tracef("message type: %s", typeid(message).name);
             string str = format("data received: %s", message.toString());
             tracef(str);
-            session.write(str);
+            connection.write(str);
         }
 
-        override void exceptionCaught(Connection session, Exception t) {
+        override void exceptionCaught(Connection connection, Exception t) {
             warning(t);
         }
 
-        override void failedOpeningSession(int sessionId, Exception t) {
+        override void failedOpeningConnection(int connectionId, Exception t) {
             warning(t);
         }
 
-        override void failedAcceptingSession(int sessionId, Exception t) {
+        override void failedAcceptingConnection(int connectionId, Exception t) {
             warning(t);
         }
     }).listen("0.0.0.0", 8080);

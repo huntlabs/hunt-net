@@ -40,7 +40,7 @@ interface NetClient {
      * @return a reference to this, so the API can be used fluently
      */
     
-    void connect(string host, int port); // , AsyncConnectHandler connectHandler
+    void connect(string host, int port); 
 
     /**
      * Open a connection to a server at the specific {@code port} and {@code host}.
@@ -54,30 +54,7 @@ interface NetClient {
      * @return a reference to this, so the API can be used fluently
      */
     
-    void connect(string host, int port, string serverName); // , AsyncConnectHandler connectHandler
-
-    /**
-     * Open a connection to a server at the specific {@code remoteAddress}.
-     * <p>
-     * The connect is done asynchronously and on success, a {@link Connection} instance is supplied via the {@code connectHandler} instance
-     *
-     * @param remoteAddress the remote address
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    // NetClient connect(SocketAddress remoteAddress, AsyncConnectHandler connectHandler);
-
-    /**
-     * Open a connection to a server at the specific {@code remoteAddress}.
-     * <p>
-     * The connect is done asynchronously and on success, a {@link Connection} instance is supplied via the {@code connectHandler} instance
-     *
-     * @param remoteAddress the remote address
-     * @param serverName the SNI server name
-     * @return a reference to this, so the API can be used fluently
-     */
-    
-    // NetClient connect(SocketAddress remoteAddress, string serverName, AsyncConnectHandler connectHandler);
+    void connect(string host, int port, string serverName); 
 
 
     /**

@@ -105,7 +105,7 @@ class TextLineEncoder : EncoderChain {
      * {@inheritDoc}
      */
     override
-    void encode(Object message, Connection session) {
+    void encode(Object message, Connection connection) {
 
         string delimiterValue = delimiter.getValue();
 
@@ -120,7 +120,7 @@ class TextLineEncoder : EncoderChain {
         buf.put(delimiterValue);
         buf.flip();
 
-        session.write(buf);
+        connection.write(buf);
     }
 
     /**

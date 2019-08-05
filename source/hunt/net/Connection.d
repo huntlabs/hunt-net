@@ -13,8 +13,8 @@ import core.time;
 import std.socket;
 
 
-// alias TcpSession = Connection;
-// alias Session = Connection;
+// alias TcpConnection = Connection;
+// alias Connection = Connection;
 // alias Connection = Connection;
 
 alias NetEventHandler(E) = void delegate(E event);
@@ -30,13 +30,13 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  * </p>
  * <p>
  *   {@link Connection} provides user-defined attributes.  User-defined attributes
- *   are application-specific data which are associated with a session.
+ *   are application-specific data which are associated with a connection.
  *   It often contains objects that represents the state of a higher-level protocol
  *   and becomes a way to exchange data between filters and handlers.
  * </p>
  * <h3>Adjusting Transport Type Specific Properties</h3>
  * <p>
- *   You can simply downcast the session to an appropriate subclass.
+ *   You can simply downcast the connection to an appropriate subclass.
  * </p>
  * <h3>Thread Safety</h3>
  * <p>
@@ -46,7 +46,7 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  *   to be executed simultaneously, and therefore you have to make sure the
  *   {@link IoFilter} implementations you're using are thread-safe, too.
  * </p>
- * <h3>Equality of Sessions</h3>
+ * <h3>Equality of Connections</h3>
  * TODO : The getId() method is totally wrong. We can't base
  * a method which is designed to create a unique ID on the hashCode method.
  * {@link Object#equals(Object)} and {@link Object#hashCode()} shall not be overriden
@@ -62,7 +62,7 @@ interface Connection {
 
 
     /**
-     * @return the {@link IoHandler} which handles this session.
+     * @return the {@link IoHandler} which handles this connection.
      */
     ConnectionEventHandler getHandler();    
 
@@ -73,7 +73,7 @@ deprecated("Using getAttribute instead.")
     Object getAttachment();
 
     /**
-     * Returns the value of the user-defined attribute of this session.
+     * Returns the value of the user-defined attribute of this connection.
      *
      * @param key the key of the attribute
      * @return <tt>null</tt> if there is no attribute with the specified key
@@ -207,8 +207,8 @@ deprecated("Using getAttribute instead.")
     bool replaceAttribute(string key, Object oldValue, Object newValue);
 
     /**
-     * @param key The key of the attribute we are looking for in the session 
-     * @return <tt>true</tt> if this session contains the attribute with
+     * @param key The key of the attribute we are looking for in the connection 
+     * @return <tt>true</tt> if this connection contains the attribute with
      * the specified <tt>key</tt>.
      */
     bool containsAttribute(string key);
@@ -291,25 +291,25 @@ version(HUNT_METRIC) {
     // bool isClosed();
 
     /**
-     * @return <tt>true</tt> if this session is connected with remote peer.
+     * @return <tt>true</tt> if this connection is connected with remote peer.
      */
     bool isConnected();
     
     /**
-     * @return <tt>true</tt> if this session is active.
+     * @return <tt>true</tt> if this connection is active.
      */
     bool isActive();
 
     /**
-     * @return <tt>true</tt> if and only if this session is being closed
+     * @return <tt>true</tt> if and only if this connection is being closed
      * (but not disconnected yet) or is closed.
      */
     bool isClosing();
     
     /**
-     * @return <tt>true</tt> if the session has started and initialized a SslEngine,
-     * <tt>false</tt> if the session is not yet secured (the handshake is not completed)
-     * or if SSL is not set for this session, or if SSL is not even an option.
+     * @return <tt>true</tt> if the connection has started and initialized a SslEngine,
+     * <tt>false</tt> if the connection is not yet secured (the handshake is not completed)
+     * or if SSL is not set for this connection, or if SSL is not even an option.
      */
     bool isSecured();    
 
@@ -329,26 +329,26 @@ version(HUNT_METRIC) {
 
 
 /**
- * Handles all I/O events on a socket session.
+ * Handles all I/O events on a socket connection.
  *
  */
 abstract class ConnectionEventHandler {
 
-	void sessionOpened(Connection session) ;
+	void connectionOpened(Connection connection) ;
 
-	void sessionClosed(Connection session) ;
+	void connectionClosed(Connection connection) ;
 
-	void messageReceived(Connection session, Object message) ;
+	void messageReceived(Connection connection, Object message) ;
 
-	void exceptionCaught(Connection session, Exception t) ;
+	void exceptionCaught(Connection connection, Exception t) ;
 
-	void failedOpeningSession(int sessionId, Exception t) { }
+	void failedOpeningConnection(int connectionId, Exception t) { }
 
-	void failedAcceptingSession(int sessionId, Exception t) { }
+	void failedAcceptingConnection(int connectionId, Exception t) { }
 }
 
 // deprecated("Using ConnectionEventHandler instead.")
 // alias Handler = ConnectionEventHandler;
 
 // deprecated("Using ConnectionEventHandler instead.")
-// alias SessionEventHandler = ConnectionEventHandler;
+// alias ConnectionEventHandler = ConnectionEventHandler;

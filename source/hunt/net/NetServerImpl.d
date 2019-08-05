@@ -40,7 +40,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     private string _host = NetServerOptions.DEFAULT_HOST;
     private int _port = NetServerOptions.DEFAULT_PORT;
     protected bool _isStarted;
-    private shared int _sessionId;
+    private shared int _connectionId;
     private NetServerOptions _options;
     private Codec _codec;
     private ConnectionEventHandler _eventHandler;
@@ -134,7 +134,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
             warning(e.message);
             // result = new Result!Server(e);
             if (_eventHandler !is null)
-                _eventHandler.failedOpeningSession(0, e);
+                _eventHandler.failedOpeningConnection(0, e);
         }
 
         // if (handler !is null)
@@ -160,13 +160,13 @@ static if(threadModel == ThreadMode.Multi){
 		listener.reusePort(true);
 		listener.bind(_address).listen(1024);
         listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
-                auto currentId = atomicOp!("+=")(_sessionId, 1);
-                version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
-                TcpSession session = new TcpSession(currentId, _options, _eventHandler, stream);
+                auto currentId = atomicOp!("+=")(_connectionId, 1);
+                version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
+                TcpConnection connection = new TcpConnection(currentId, _options, _eventHandler, stream);
                 if (_eventHandler !is null)
-                    _eventHandler.notifySessionOpened(session);
+                    _eventHandler.notifyConnectionOpened(connection);
                 if (_handler !is null)
-                    _handler(session);
+                    _handler(connection);
             });
 		listener.start();
 
@@ -217,11 +217,11 @@ static if(threadModel == ThreadMode.Multi){
 		TcpStream stream = new TcpStream(loop, socket, streamOptions);
 		stream.start();
 
-        auto currentId = atomicOp!("+=")(_sessionId, 1);
-        version(HUNT_DEBUG) tracef("new tcp session: id=%d", currentId);
-        Connection session = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
+        auto currentId = atomicOp!("+=")(_connectionId, 1);
+        version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
+        Connection connection = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
         if (_eventHandler !is null) {
-                _eventHandler.sessionOpened(session);
+                _eventHandler.connectionOpened(connection);
         }
 
         version(HUNT_METRIC) { 

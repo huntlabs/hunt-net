@@ -20,7 +20,7 @@ import std.socket;
  *
  */
 abstract class AbstractConnection : Connection {
-    protected int _sessionId;
+    protected int _connectionId;
     protected TcpStream _tcp;
     // protected SimpleEventHandler _closeHandler;
     protected DataReceivedHandler _dataReceivedHandler;
@@ -32,17 +32,17 @@ abstract class AbstractConnection : Connection {
     protected Object attachment;
 
 
-    this(int sessionId, TcpStream tcp) {
+    this(int connectionId, TcpStream tcp) {
         assert(tcp !is null);
         _tcp = tcp;
-        this._sessionId = sessionId;
+        this._connectionId = connectionId;
 
         _tcp.onClosed(&onClosed);
         _tcp.onReceived(&onDataReceived);
     }
 
     ///
-    this(int sessionId, TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
+    this(int connectionId, TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
         assert(eventHandler !is null);
 
         if(codec !is null) {
@@ -51,7 +51,7 @@ abstract class AbstractConnection : Connection {
         }
         
         this._eventHandler = eventHandler;
-        this(sessionId, tcp);
+        this(connectionId, tcp);
     }
 
     deprecated("Using setAttributes instead.")
@@ -65,7 +65,7 @@ abstract class AbstractConnection : Connection {
     }
 
     int getId() {
-        return _sessionId;
+        return _connectionId;
     }
 
     TcpStream getStream() {
@@ -117,7 +117,7 @@ abstract class AbstractConnection : Connection {
 
     protected void onClosed() {
         if(_eventHandler !is null)
-            _eventHandler.sessionClosed(this);
+            _eventHandler.connectionClosed(this);
     }
     
 

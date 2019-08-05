@@ -19,7 +19,7 @@ interface Codec {
      * Returns a new (or reusable) instance of {@link Encoder} which
      * encodes message objects into binary or -specific data.
      * 
-     * @param session The current session
+     * @param connection The current connection
      * @return The encoder instance
      * @throws Exception If an error occurred while retrieving the encoder
      */
@@ -29,7 +29,7 @@ interface Codec {
      * Returns a new (or reusable) instance of {@link Decoder} which
      * decodes binary or -specific data into message objects.
      * 
-     * @param session The current session
+     * @param connection The current connection
      * @return The decoder instance
      * @throws Exception If an error occurred while retrieving the decoder
      */

@@ -23,11 +23,11 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private string _host = DefaultLocalHost;
     private int _port = DefaultLocalPort;
     private string _serverName;
-    private int _sessionId;
+    private int _connectionId;
     private NetClientOptions _options;
     private Codec _codec;
     private ConnectionEventHandler _netHandler;
-    private TcpConnection _tcpSession;
+    private TcpConnection _tcpConnection;
     private TcpStream _client;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
@@ -130,19 +130,19 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         TcpStreamOptions options = _options.toStreamOptions();
         _client = new TcpStream(_loop, options);
-        _tcpSession = new TcpConnection(_sessionId++,
+        _tcpConnection = new TcpConnection(_connectionId++,
                 _options, _netHandler, _codec, _client);
 
         _client.onClosed(() {
             version(HUNT_NET_DEBUG) {
-                info("session closed");
+                info("connection closed");
             }
             this.close();
         });
 
         _client.onError((string message) {
             if (_netHandler !is null)
-                _netHandler.exceptionCaught(_tcpSession, new Exception(message));
+                _netHandler.exceptionCaught(_tcpConnection, new Exception(message));
         });
 
         _client.onConnected((bool suc) {
@@ -151,7 +151,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 trace("connected to: ", _client.remoteAddress.toString()); 
 
                 if (_netHandler !is null)
-                    _netHandler.sessionOpened(_tcpSession);
+                    _netHandler.connectionOpened(_tcpConnection);
             }
             else {
                 string msg = format("Failed to connect to %s:%d", _host, _port);
@@ -159,7 +159,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                     warning(msg); 
 
                 if(_netHandler !is null)
-                    _netHandler.failedOpeningSession(_sessionId, new Exception(msg));
+                    _netHandler.failedOpeningConnection(_connectionId, new Exception(msg));
             }
 
         }).connect(_host, cast(ushort)_port);
@@ -170,29 +170,29 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void destroy() {
-        if (_tcpSession !is null) {
+        if (_tcpConnection !is null) {
 
             version(HUNT_NET_DEBUG) {
                 tracef("isRunning: %s, isConnected: %s, isClosing: %s", isRunning(), 
-                    _tcpSession.isConnected(), _tcpSession.isClosing());
+                    _tcpConnection.isConnected(), _tcpConnection.isClosing());
             }
             
-            if(!_tcpSession.isClosing()) {
-                _tcpSession.close();
+            if(!_tcpConnection.isClosing()) {
+                _tcpConnection.close();
             }
 
-            if (_tcpSession.isClosing() && _netHandler !is null)
-                _netHandler.sessionClosed(_tcpSession);
+            if (_tcpConnection.isClosing() && _netHandler !is null)
+                _netHandler.connectionClosed(_tcpConnection);
 
-            _tcpSession = null;
+            _tcpConnection = null;
             _loop.stop();
         }
     }
 
     bool isConnected() {
-        if(_tcpSession is null)
+        if(_tcpConnection is null)
             return false;
         else
-            return _tcpSession.isConnected();
+            return _tcpConnection.isConnected();
     }
 }

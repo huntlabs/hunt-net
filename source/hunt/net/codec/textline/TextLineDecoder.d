@@ -159,28 +159,28 @@ class TextLineDecoder : DecoderChain {
      * {@inheritDoc}
      */
     override
-    void decode(ByteBuffer buf, Connection session) { // , ProtocolDecoderOutput out
-        Context ctx = getContext(session);
+    void decode(ByteBuffer buf, Connection connection) { // , ProtocolDecoderOutput out
+        Context ctx = getContext(connection);
 
         if (LineDelimiter.AUTO == delimiter) {
-            decodeAuto(ctx, session, buf);
+            decodeAuto(ctx, connection, buf);
         } else {
-            decodeNormal(ctx, session, buf);
+            decodeNormal(ctx, connection, buf);
         }
     }
 
     /**
-     * @return the context for this session
+     * @return the context for this connection
      * 
-     * @param session The session for which we want the context
+     * @param connection The connection for which we want the context
      */
-    private Context getContext(Connection session) {
+    private Context getContext(Connection connection) {
         Context ctx;
-        ctx = cast(Context) session.getAttribute(CONTEXT);
+        ctx = cast(Context) connection.getAttribute(CONTEXT);
 
         if (ctx is null) {
             ctx = new Context(bufferLength);
-            session.setAttribute(CONTEXT, ctx);
+            connection.setAttribute(CONTEXT, ctx);
         }
 
         return ctx;
@@ -190,18 +190,18 @@ class TextLineDecoder : DecoderChain {
     /**
      * {@inheritDoc}
      */
-    void dispose(Connection session) {
-        Context ctx = cast(Context) session.getAttribute(CONTEXT);
+    void dispose(Connection connection) {
+        Context ctx = cast(Context) connection.getAttribute(CONTEXT);
 
         if (ctx !is null) {
-            session.removeAttribute(CONTEXT);
+            connection.removeAttribute(CONTEXT);
         }
     }
 
     /**
      * Decode a line using the default delimiter on the current system
      */
-    private void decodeAuto(Context ctx, Connection session, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
+    private void decodeAuto(Context ctx, Connection connection, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match
@@ -250,10 +250,10 @@ class TextLineDecoder : DecoderChain {
                         buf.get(data);
                         string str = cast(string)data;
 
-                        // call session handler
-                        ConnectionEventHandler handler = session.getHandler();
+                        // call connection handler
+                        ConnectionEventHandler handler = connection.getHandler();
                         if(handler !is null) {
-                            handler.messageReceived(session, new String(str));
+                            handler.messageReceived(connection, new String(str));
                         }
                     } finally {
                         buf.clear();
@@ -279,7 +279,7 @@ class TextLineDecoder : DecoderChain {
     /**
      * Decode a line using the delimiter defined by the caller
      */
-    private void decodeNormal(Context ctx, Connection session, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
+    private void decodeNormal(Context ctx, Connection connection, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match
@@ -309,16 +309,16 @@ class TextLineDecoder : DecoderChain {
                         buf.limit(buf.limit() - matchCount);
 
                         try {
-                            // writeText(session, buf.getString(ctx.getDecoder()), out);
+                            // writeText(connection, buf.getString(ctx.getDecoder()), out);
 
                             byte[] data = new byte[buf.limit()];
                             buf.get(data);
                             string str = cast(string)data;
 
-                            // call session handler
-                            ConnectionEventHandler handler = session.getHandler();
+                            // call connection handler
+                            ConnectionEventHandler handler = connection.getHandler();
                             if(handler !is null) {
-                                handler.messageReceived(session, new String(str));
+                                handler.messageReceived(connection, new String(str));
                             }                            
                         } finally {
                             buf.clear();
