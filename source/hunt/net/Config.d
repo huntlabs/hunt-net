@@ -4,6 +4,7 @@ import hunt.net.Decoder;
 import hunt.net.Encoder;
 import hunt.net.Handler;
 import hunt.io.TcpStream;
+import hunt.io.TcpStreamOptions;
 
 /**
 */
@@ -24,15 +25,15 @@ class Config {
     private Decoder decoder;
     private Encoder encoder;
     private Handler handler;
-    private TcpStreamOption _tcpStreamOption;
+    private TcpStreamOptions _tcpStreamOption;
 
     private bool monitorEnable = true;
 
     this() {
-		_tcpStreamOption = TcpStreamOption.createOption();
+		_tcpStreamOption = TcpStreamOptions.create();
     }
 
-    TcpStreamOption tcpStreamOption() {
+    TcpStreamOptions tcpStreamOption() {
         return _tcpStreamOption;
     }
 
