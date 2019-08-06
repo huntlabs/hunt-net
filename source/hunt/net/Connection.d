@@ -13,8 +13,10 @@ import core.time;
 import std.socket;
 
 
-// alias TcpConnection = Connection;
-// alias Connection = Connection;
+deprecated("Using Connection instead.")
+alias TcpSession = Connection;
+deprecated("Using Connection instead.")
+alias Session = Connection;
 // alias Connection = Connection;
 
 alias NetEventHandler(E) = void delegate(E event);
@@ -54,7 +56,7 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  *
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
-interface Connection {
+interface Connection : Closeable {
 
     // DisconnectionOutputEntry DISCONNECTION_FLAG = new DisconnectionOutputEntry(null, null);
 
@@ -347,8 +349,8 @@ abstract class ConnectionEventHandler {
 	void failedAcceptingConnection(int connectionId, Exception t) { }
 }
 
-// deprecated("Using ConnectionEventHandler instead.")
-// alias Handler = ConnectionEventHandler;
+deprecated("Using ConnectionEventHandler instead.")
+alias Handler = ConnectionEventHandler;
 
 // deprecated("Using ConnectionEventHandler instead.")
 // alias ConnectionEventHandler = ConnectionEventHandler;

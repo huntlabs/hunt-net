@@ -68,11 +68,6 @@ class TcpSslOptions : NetworkOptions {
     enum int DEFAULT_KEEPALIVE_PROBES = 9;
 
     /**
-     * Default idle time unit = SECONDS
-     */
-    // enum TimeUnit DEFAULT_IDLE_TIMEOUT_TIME_UNIT = TimeUnit.SECONDS;
-
-    /**
      * Default use alpn = false
      */
     enum bool DEFAULT_USE_ALPN = false;

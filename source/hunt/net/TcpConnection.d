@@ -189,8 +189,8 @@ version(HUNT_METRIC) {
     //     this.close();
     // }
 
-    override protected void onClosed() {
-        super.onClosed();
+    override protected void notifyClose() {
+        super.notifyClose();
         version(HUNT_METRIC) {
             closeTime = DateTimeHelper.currentTimeMillis();
             // version(HUNT_DEBUG) 

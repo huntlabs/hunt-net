@@ -22,7 +22,6 @@ import std.socket;
 abstract class AbstractConnection : Connection {
     protected int _connectionId;
     protected TcpStream _tcp;
-    // protected SimpleEventHandler _closeHandler;
     protected DataReceivedHandler _dataReceivedHandler;
     protected Object[string] attributes;
     protected Encoder _encoder;
@@ -37,7 +36,7 @@ abstract class AbstractConnection : Connection {
         _tcp = tcp;
         this._connectionId = connectionId;
 
-        _tcp.onClosed(&onClosed);
+        _tcp.onClosed(&notifyClose);
         _tcp.onReceived(&onDataReceived);
     }
 
@@ -108,19 +107,6 @@ abstract class AbstractConnection : Connection {
         _tcp.close();
     }
     
-    ////
-    // AbstractConnection closeHandler(SimpleEventHandler handler) {
-    //     _tcp.closeHandler = &onClosed;
-    //     _closeHandler = handler;
-    //     return this;
-    // }
-
-    protected void onClosed() {
-        if(_eventHandler !is null)
-            _eventHandler.connectionClosed(this);
-    }
-    
-
     ///
     @property Address localAddress() {
         return _tcp.localAddress;
@@ -270,7 +256,8 @@ abstract class AbstractConnection : Connection {
                 this._encoder.encode(message, this);
             }
         } catch (Exception t) {
-            _eventHandler.exceptionCaught(this, t);
+            version(HUNT_DEBUG) warning(t);
+            notifyException(t);
         }
     }
 
@@ -295,6 +282,16 @@ abstract class AbstractConnection : Connection {
     // void notifyMessageReceived(Object message) {
     //     implementationMissing(false);
     // }
+
+    protected void notifyClose() {
+        if(_eventHandler !is null)
+            _eventHandler.connectionClosed(this);
+    }
+
+    void notifyException(Exception t) {
+        if(_eventHandler !is null)
+            _eventHandler.exceptionCaught(this, t);
+    }
 }
 
 

@@ -67,6 +67,11 @@ interface NetClient {
 
     bool isConnected();
 
+    int getId();
+    
+    string getHost();
+
+    int getPort();
 
     NetClientOptions getOptions();
 

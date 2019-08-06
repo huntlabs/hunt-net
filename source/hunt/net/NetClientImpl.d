@@ -13,6 +13,7 @@ import hunt.io.TcpStreamOptions;
 import hunt.logging;
 import hunt.util.Lifecycle;
 
+import core.atomic;
 import std.format;
 
 ///
@@ -23,7 +24,8 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private string _host = DefaultLocalHost;
     private int _port = DefaultLocalPort;
     private string _serverName;
-    private int _connectionId;
+    private static shared int _connectionId;
+    private int _currentId;
     private NetClientOptions _options;
     private Codec _codec;
     private ConnectionEventHandler _netHandler;
@@ -47,10 +49,18 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     this(EventLoop loop, NetClientOptions options) {
         _loop = loop;
         this._options = options;
+
+        _currentId = atomicOp!("+=")(_connectionId, 1);
+        version (HUNT_NET_DEBUG)
+            tracef("Client Id = %d", _currentId);
     }
 
     ~this() {
         this.stop();
+    }
+
+    int getId() {
+        return _currentId;
     }
 
     string getHost() {
@@ -130,7 +140,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         TcpStreamOptions options = _options.toStreamOptions();
         _client = new TcpStream(_loop, options);
-        _tcpConnection = new TcpConnection(_connectionId++,
+        _tcpConnection = new TcpConnection(_currentId,
                 _options, _netHandler, _codec, _client);
 
         _client.onClosed(() {
@@ -159,7 +169,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                     warning(msg); 
 
                 if(_netHandler !is null)
-                    _netHandler.failedOpeningConnection(_connectionId, new Exception(msg));
+                    _netHandler.failedOpeningConnection(_currentId, new Exception(msg));
             }
 
         }).connect(_host, cast(ushort)_port);
