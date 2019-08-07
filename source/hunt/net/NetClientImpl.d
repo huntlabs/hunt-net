@@ -162,7 +162,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             if (suc) {
 			    version (HUNT_DEBUG) 
                 trace("connected to: ", _client.remoteAddress.toString()); 
-                _tcpConnection.setState(ConnectionState.Opened);
+                // _tcpConnection.setState(ConnectionState.Opened);
                 if (_eventHandler !is null)
                     _eventHandler.connectionOpened(_tcpConnection);
             }
@@ -177,7 +177,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         });
 
-        _tcpConnection.setState(ConnectionState.Opening);
+        // _tcpConnection.setState(ConnectionState.Opening);
         _client.connect(_host, cast(ushort)_port);
     }
 

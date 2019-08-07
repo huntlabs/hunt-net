@@ -162,7 +162,7 @@ static if(threadModel == ThreadMode.Multi){
                 auto currentId = atomicOp!("+=")(_connectionId, 1);
                 version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
                 TcpConnection connection = new TcpConnection(currentId, _options, _eventHandler, stream);
-                connection.setState(ConnectionState.Opened);
+                // connection.setState(ConnectionState.Opened);
                 if (_eventHandler !is null)
                     _eventHandler.notifyConnectionOpened(connection);
             });
@@ -218,7 +218,7 @@ static if(threadModel == ThreadMode.Multi){
         auto currentId = atomicOp!("+=")(_connectionId, 1);
         version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
         Connection connection = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
-        connection.setState(ConnectionState.Opened);
+        // connection.setState(ConnectionState.Opened);
         if (_eventHandler !is null) {
             _eventHandler.connectionOpened(connection);
         }

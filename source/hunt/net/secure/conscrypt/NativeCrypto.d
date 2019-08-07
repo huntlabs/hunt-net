@@ -1309,7 +1309,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         int result = deimos.openssl.ssl.BIO_write(bio, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HUNT_NET_DEBUG) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
+        version(HUNT_NET_DEBUG_MORE) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
                 ssl, bio, sourcePtr, len, result);
         return result;
     }

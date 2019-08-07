@@ -83,11 +83,11 @@ interface Connection : Closeable {
      */
     ConnectionEventHandler getHandler();    
 
-deprecated("Using setAttribute instead.")
-    void attachObject(Object attachment);
+// deprecated("Using setAttribute instead.")
+//     void attachObject(Object attachment);
 
-deprecated("Using getAttribute instead.")
-    Object getAttachment();
+// deprecated("Using getAttribute instead.")
+//     Object getAttachment();
 
     /**
      * Returns the value of the user-defined attribute of this connection.

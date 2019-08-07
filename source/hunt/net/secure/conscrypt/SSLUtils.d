@@ -150,7 +150,7 @@ final class SSLUtils {
      */
     static string getServerX509KeyType(long sslCipherNative) {
         version(Have_hunt_openssl) {
-            implementationMissing(false);
+            // implementationMissing(false);
             string kx_name = null;
         }
         version(Have_boringssl) string kx_name = NativeCrypto.SSL_CIPHER_get_kx_name(sslCipherNative);
