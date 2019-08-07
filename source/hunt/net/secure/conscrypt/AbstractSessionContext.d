@@ -61,7 +61,10 @@ abstract class AbstractSessionContext : SSLSessionContext {
         this.maximumSize = maximumSize;
         sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
         
-        trace("using certificate: " ~ certificate);
+        version(HUNT_NET_DEBUG) {
+            trace("using certificate: " ~ certificate);
+            trace("using privatekey: " ~ privatekey);
+        }
         // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, "/home/zxp/cert/server.crt");
         // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, "/home/zxp/cert/server.key");
         NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);

@@ -1214,9 +1214,11 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             }
         }
 
-        version(HUNT_DEBUG) {
+        version(HUNT_NET_DEBUG) {
             tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d result=%d",
                     ssl, destPtr, length,  result);
+        }
+        version(HUNT_NET_DEBUG_MORE) {
             if(result>16)
                 tracef("%(%02X %)", cast(ubyte[])destPtr[0..16]);
             else
@@ -1259,7 +1261,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+        version(HUNT_NET_DEBUG) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
                 ssl, sourcePtr, len, shc, result);
         return result;
     }
@@ -1307,7 +1309,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         int result = deimos.openssl.ssl.BIO_write(bio, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HUNT_DEBUG) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
+        version(HUNT_NET_DEBUG) tracef("ssl=%s ENGINE_SSL_write_BIO_direct bio=%s sourcePtr=%s len=%d => ret=%d",
                 ssl, bio, sourcePtr, len, result);
         return result;
     }
@@ -2283,7 +2285,7 @@ implementationMissing(false);
         for (size_t i = 0; i < count; i++) {
             ciphers[i] = cast(long)(sk_SSL_CIPHER_value(cipherStack, cast(int)i));
         }
-        version(HUNT_DEBUG) trace("ciphers: ", ciphers.length);
+        version(HUNT_NET_DEBUG) trace("ciphers: ", ciphers.length);
         return ciphers;        
     }
 
@@ -2772,7 +2774,7 @@ version(Have_boringssl) {
         const SSL_CIPHER* cipher = to_SSL_CIPHER(cipher_address);
         const char* kx_name = deimos.openssl.ssl.SSL_CIPHER_get_kx_name(cipher);
         string s = cast(string)fromStringz(kx_name);
-        version(HUNT_DEBUG) trace("cipher name: ", s);
+        version(HUNT_NET_DEBUG) trace("cipher name: ", s);
         return s;        
     }
 

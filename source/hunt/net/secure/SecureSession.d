@@ -8,7 +8,8 @@ import hunt.net.secure.ProtocolSelector;
 /**
  * 
  */
-interface SecureSession : ProtocolSelector { 
+interface SecureSession : ProtocolSelector {
+    enum string NAME = typeof(this).stringof;
 
     bool isOpen();
 
