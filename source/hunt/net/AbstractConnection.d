@@ -27,14 +27,16 @@ abstract class AbstractConnection : Connection {
     protected Encoder _encoder;
     protected Decoder _decoder;
     protected ConnectionEventHandler _eventHandler;
-
+    protected ConnectionState _connectionState;
     protected Object attachment;
+    private bool _isSecured = false;
 
 
     this(int connectionId, TcpStream tcp) {
         assert(tcp !is null);
         _tcp = tcp;
         this._connectionId = connectionId;
+        this._connectionState = ConnectionState.Ready;
 
         _tcp.onClosed(&notifyClose);
         _tcp.onReceived(&onDataReceived);
@@ -71,6 +73,17 @@ abstract class AbstractConnection : Connection {
         return _tcp;
     }
 
+    ConnectionState getState() {
+        return this._connectionState;
+    }
+
+    void setState(ConnectionState state) {
+        if(state == ConnectionState.Secured) {
+            _isSecured = true;
+        }
+        this._connectionState = state;
+    }
+
     ///
     AbstractConnection setHandler(ConnectionEventHandler handler) {
         this._eventHandler = handler;
@@ -79,6 +92,24 @@ abstract class AbstractConnection : Connection {
 
     ConnectionEventHandler getHandler() {
         return _eventHandler;
+    }
+
+    bool isConnected() {
+        return _tcp.isConnected();
+    }
+
+    bool isActive() {
+        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:04:44 PM
+        // 
+        return _tcp.isConnected();
+    }
+
+    bool isClosing() {
+        return _tcp.isClosing();
+    }
+
+    bool isSecured() {
+        return _isSecured;
     }
 
     protected void onDataReceived(ByteBuffer buffer) {
@@ -104,6 +135,7 @@ abstract class AbstractConnection : Connection {
 
     ///
     void close() {
+        setState(ConnectionState.Closing);
         _tcp.close();
     }
     
@@ -135,6 +167,51 @@ abstract class AbstractConnection : Connection {
 
     void write(ByteBuffer buffer) {
         _tcp.write(buffer);
+    }
+
+    void write(ByteBuffer buffer, Callback callback) {
+        version (HUNT_IO_MORE)
+            tracef("writting buffer: %s", buffer.toString());
+
+        // byte[] data = buffer.array;
+        // int start = buffer.position();
+        // int end = buffer.limit();
+
+        // write(cast(ubyte[]) data[start .. end]);
+
+        write(cast(ubyte[])buffer.getRemaining());
+        callback.succeeded();
+    }
+
+    // override
+    // void write(ByteBufferOutputEntry entry) {
+    //     ByteBuffer buffer = entry.getData();
+    //     Callback callback = entry.getCallback();
+    //     write(buffer, callback);
+    //     // version(HUNT_DEBUG)
+    //     // tracef("writting buffer: %s", buffer.toString());
+
+    //     // byte[] data = buffer.array;
+    //     // int start = buffer.position();
+    //     // int end = buffer.limit();
+
+    //     // super.write(cast(ubyte[])data[start .. end]);
+    //     // callback.succeeded();
+    // }
+
+    void write(ByteBuffer[] buffers, Callback callback) {
+        foreach (ByteBuffer buffer; buffers) {
+            version (HUNT_DEBUG)
+                tracef("writting buffer: %s", buffer.toString());
+
+            // byte[] data = buffer.array;
+            // int start = buffer.position();
+            // int end = buffer.limit();
+
+            // write(cast(ubyte[]) data[start .. end]);
+            write(cast(ubyte[])buffer.getRemaining());
+        }
+        callback.succeeded();
     }
 
     /**
@@ -284,6 +361,7 @@ abstract class AbstractConnection : Connection {
     // }
 
     protected void notifyClose() {
+        this._connectionState = ConnectionState.Closed;
         if(_eventHandler !is null)
             _eventHandler.connectionClosed(this);
     }

@@ -132,7 +132,6 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
             
         } catch (Exception e) {
             warning(e.message);
-            // result = new Result!Server(e);
             if (_eventHandler !is null)
                 _eventHandler.failedOpeningConnection(0, e);
         }
@@ -163,10 +162,9 @@ static if(threadModel == ThreadMode.Multi){
                 auto currentId = atomicOp!("+=")(_connectionId, 1);
                 version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
                 TcpConnection connection = new TcpConnection(currentId, _options, _eventHandler, stream);
+                connection.setState(ConnectionState.Opened);
                 if (_eventHandler !is null)
                     _eventHandler.notifyConnectionOpened(connection);
-                if (_handler !is null)
-                    _handler(connection);
             });
 		listener.start();
 
@@ -220,8 +218,9 @@ static if(threadModel == ThreadMode.Multi){
         auto currentId = atomicOp!("+=")(_connectionId, 1);
         version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
         Connection connection = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
+        connection.setState(ConnectionState.Opened);
         if (_eventHandler !is null) {
-                _eventHandler.connectionOpened(connection);
+            _eventHandler.connectionOpened(connection);
         }
 
         version(HUNT_METRIC) { 

@@ -19,11 +19,25 @@ deprecated("Using Connection instead.")
 alias Session = Connection;
 // alias Connection = Connection;
 
-alias NetEventHandler(E) = void delegate(E event);
+// alias NetEventHandler(E) = void delegate(E event);
 // alias ExceptionHandler = NetEventHandler!(Throwable);
 // alias ConnectHandler = NetEventHandler!Connection;
 // alias AsyncConnectHandler = NetEventHandler!(AsyncResult!Connection);
-alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
+// alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
+
+enum ConnectionState {
+    Ready,
+    Error,
+    Opening,
+    Opened,
+    Securing,
+    Secured,
+    // Idle,
+    // Active,
+    // Broken,
+    Closing,
+    Closed
+}
 
 /**
  * <p>
@@ -58,13 +72,14 @@ alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
  */
 interface Connection : Closeable {
 
-    // DisconnectionOutputEntry DISCONNECTION_FLAG = new DisconnectionOutputEntry(null, null);
-
     TcpStream getStream();
 
+    ConnectionState getState();
+    
+    void setState(ConnectionState state);
 
     /**
-     * @return the {@link IoHandler} which handles this connection.
+     * @return the EventHandler which handles this connection.
      */
     ConnectionEventHandler getHandler();    
 
@@ -248,13 +263,13 @@ deprecated("Using getAttribute instead.")
     void write(string str);
     void write(ByteBuffer buffer);
 
-    void write(ByteBuffer byteBuffer, AsyncVoidResultHandler callback);
+    void write(ByteBuffer byteBuffer, Callback callback);
 
-    void write(ByteBuffer[] buffers, AsyncVoidResultHandler callback);
+    // void write(ByteBuffer[] buffers, Callback callback);
 
-    void write(Collection!ByteBuffer buffers, AsyncVoidResultHandler callback);
+    // void write(Collection!ByteBuffer buffers, Callback callback);
 
-    // void write(FileRegion file, AsyncVoidResultHandler callback);
+    // void write(FileRegion file, Callback callback);
 
     int getId();
 

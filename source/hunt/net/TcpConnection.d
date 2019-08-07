@@ -19,9 +19,6 @@ import core.atomic;
 import core.time;
 import std.socket;
 
-deprecated("Using TcpConnection instead.")
-alias AsynchronousTcpConnection = TcpConnection;
-
 
 /**
  * Represents a socket-like interface to a TCP connection on either the
@@ -39,66 +36,16 @@ version(HUNT_METRIC) {
 } 
 
     protected TcpSslOptions _options;
-    // protected shared bool _isClosed = false;
     protected shared bool _isShutdownOutput = false;
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
-    this(int connectionId, TcpSslOptions options, ConnectionEventHandler eventHandler, Codec codec, TcpStream tcp) {
+    this(int connectionId, TcpSslOptions options, ConnectionEventHandler handler, Codec codec, TcpStream tcp) {
         this._options = options;
-        super(connectionId, tcp, codec, eventHandler);
+        super(connectionId, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("initializing TCP connection...");
     }  
-
-
-    void write(ByteBuffer buffer, AsyncVoidResultHandler callback) {
-        version (HUNT_IO_MORE)
-            tracef("writting buffer: %s", buffer.toString());
-
-        byte[] data = buffer.array;
-        int start = buffer.position();
-        int end = buffer.limit();
-
-        write(cast(ubyte[]) data[start .. end]);
-        // callback.succeeded();
-    }
-
-    // override
-    // void write(ByteBufferOutputEntry entry) {
-    //     ByteBuffer buffer = entry.getData();
-    //     AsyncVoidResultHandler callback = entry.getCallback();
-    //     write(buffer, callback);
-    //     // version(HUNT_DEBUG)
-    //     // tracef("writting buffer: %s", buffer.toString());
-
-    //     // byte[] data = buffer.array;
-    //     // int start = buffer.position();
-    //     // int end = buffer.limit();
-
-    //     // super.write(cast(ubyte[])data[start .. end]);
-    //     // callback.succeeded();
-    // }
-
-    void write(ByteBuffer[] buffers, AsyncVoidResultHandler callback) {
-        foreach (ByteBuffer buffer; buffers) {
-            version (HUNT_DEBUG)
-                tracef("writting buffer: %s", buffer.toString());
-
-            byte[] data = buffer.array;
-            int start = buffer.position();
-            int end = buffer.limit();
-
-            write(cast(ubyte[]) data[start .. end]);
-        }
-        // callback.succeeded();
-    }
-
-    void write(Collection!(ByteBuffer) buffers, AsyncVoidResultHandler callback) {
-        write(buffers.toArray(), callback); // BufferUtils.EMPTY_BYTE_BUFFER_ARRAY
-    }
-
-    alias write = AbstractConnection.write;
 
 version(HUNT_METRIC) {
 
@@ -107,10 +54,9 @@ version(HUNT_METRIC) {
         super.onDataReceived(buffer);
     }
 
-    override AsynchronousTcpConnection write(const ubyte[] data) {
+    override void write(const ubyte[] data) {
         writtenBytes += data.length;
         super.write(data);
-        return this;
     }
 
     long getOpenTime() {
@@ -190,7 +136,6 @@ version(HUNT_METRIC) {
     // }
 
     override protected void notifyClose() {
-        super.notifyClose();
         version(HUNT_METRIC) {
             closeTime = DateTimeHelper.currentTimeMillis();
             // version(HUNT_DEBUG) 
@@ -198,8 +143,7 @@ version(HUNT_METRIC) {
         } else {
             version(HUNT_DEBUG) tracef("The connection %d closed", _connectionId);
         }
-        if(_eventHandler !is null)
-            _eventHandler.connectionClosed(this);
+        super.notifyClose();
     }
 
     private void shutdownSocketChannel() {
@@ -239,25 +183,6 @@ version(HUNT_METRIC) {
         }
     }
 
-    bool isConnected() {
-        return _tcp.isConnected();
-    }
-
-    bool isActive() {
-        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:04:44 PM
-        // 
-        return _tcp.isConnected();
-    }
-
-    bool isClosing() {
-        return _tcp.isClosing();
-    }
-
-    bool isSecured() {
-        // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:09:26 PM
-        // 
-        return false;
-    }
     
 
     bool isShutdownOutput() {
