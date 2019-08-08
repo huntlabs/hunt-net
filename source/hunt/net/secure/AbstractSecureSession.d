@@ -132,7 +132,7 @@ abstract class AbstractSecureSession : SecureSession {
                 SSLEngineResult result = unwrap();
                 initialHSStatus = result.getHandshakeStatus();
 
-                version(HUNT_DEBUG) {
+                version(HUNT_NET_DEBUG_MORE) {
                     tracef("Connection %s handshake result -> %s, initialHSStatus -> %s, inNetRemain -> %s", 
                         session.getId(), result.toString(), initialHSStatus, receivedPacketBuf.remaining());
                 }
@@ -191,7 +191,7 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected void handshakeFinish() {
-        version(HUNT_DEBUG) infof("Connection %s handshake success. The application protocol is %s", 
+        version(HUNT_NET_DEBUG) infof("Connection %s handshake success. The application protocol is %s", 
             session.getId(), getApplicationProtocol());
         initialHSComplete = true;
         if(handshakeListener !is null)
@@ -210,7 +210,7 @@ abstract class AbstractSecureSession : SecureSession {
             while (true) {
                 result = sslEngine.wrap(hsBuffer, packetBuffer);
                 initialHSStatus = result.getHandshakeStatus();
-                version(HUNT_DEBUG) {
+                version(HUNT_NET_DEBUG) {
                     infof("session %s handshake response, init: %s | ret: %s | complete: %s ",
                             session.getId(), initialHSStatus, result.getStatus(), initialHSComplete);
                 }
@@ -290,7 +290,7 @@ abstract class AbstractSecureSession : SecureSession {
 
         if (receivedPacketBuf !is null) {
             if (receivedPacketBuf.hasRemaining()) {
-                version(HUNT_DEBUG) {
+                version(HUNT_NET_DEBUG) {
                     tracef("Connection %s read data, merge buffer -> %s, %s", session.getId(),
                             receivedPacketBuf.remaining(), now.remaining());
                 }
@@ -298,12 +298,22 @@ abstract class AbstractSecureSession : SecureSession {
                 ret.put(receivedPacketBuf).put(now).flip();
                 receivedPacketBuf = ret;
             } else {
-                version(HUNT_DEBUG) tracef("buffering data: %d, bytes", now.remaining());
-                receivedPacketBuf.clear();
-                receivedPacketBuf.put(now).flip();
+                version(HUNT_NET_DEBUG)  {
+                    tracef("buffering data: %s, bytes, current buffer: %s", 
+                        now.toString(), receivedPacketBuf.toString());
+                }
+
+                if(now.remaining() <= receivedPacketBuf.remaining()) {
+                    receivedPacketBuf.clear();
+                    receivedPacketBuf.put(now).flip();
+                } else {
+                    ByteBuffer ret = newBuffer(now.remaining());
+                    ret.put(now).flip();
+                    receivedPacketBuf = ret;
+                }
             }
         } else {
-            version(HUNT_DEBUG) tracef("buffering data: %d, bytes", now.remaining());
+            version(HUNT_NET_DEBUG) tracef("buffering data: %d, bytes", now.remaining());
             ByteBuffer ret = newBuffer(now.remaining());
             ret.put(now).flip();
             receivedPacketBuf = ret;
@@ -312,7 +322,7 @@ abstract class AbstractSecureSession : SecureSession {
 
     protected ByteBuffer getReceivedAppBuf() {
         receivedAppBuf.flip();
-        version(HUNT_DEBUG) {
+        version(HUNT_NET_DEBUG_MORE) {
             tracef("Connection %s read data, get app buf -> %s, %s", 
                 session.getId(), receivedAppBuf.position(), receivedAppBuf.limit());
         }
@@ -321,7 +331,7 @@ abstract class AbstractSecureSession : SecureSession {
             ByteBuffer buf = newBuffer(receivedAppBuf.remaining());
             buf.put(receivedAppBuf).flip();
             receivedAppBuf = newBuffer(sslEngine.getSession().getApplicationBufferSize());
-            version(HUNT_DEBUG) {
+            version(HUNT_NET_DEBUG_MORE) {
                 tracef("SSL session %s unwrap, app buffer -> %s", session.getId(), buf.remaining());
             }
             return buf;
@@ -402,18 +412,16 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected SSLEngineResult unwrap(ByteBuffer input) {
-        version(HUNT_DEBUG) {
+        version(HUNT_NET_DEBUG_MORE) {
             tracef("Connection %d read data, src -> %s, dst -> %s", 
                 session.getId(), input.isDirect(), receivedAppBuf.isDirect());
         }
-        // FIXME: Needing refactor or cleanup -@zxp at 8/21/2018, 9:42:47 AM
-        // to check this
         receivedAppBuf.clear(); 
-        version(HUNT_DEBUG_MORE) infof("receivedAppBuf=%s", receivedAppBuf.toString());
+        version(HUNT_NET_DEBUG_MORE) infof("receivedAppBuf=%s", receivedAppBuf.toString());
         SSLEngineResult result = sslEngine.unwrap(input, receivedAppBuf);
         if (input !is receivedPacketBuf) {
             int consumed = result.bytesConsumed();
-            version(HUNT_DEBUG_MORE) infof("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
+            version(HUNT_NET_DEBUG_MORE) infof("receivedAppBuf=%s, consumed=%d", receivedAppBuf.toString(), consumed);
             receivedPacketBuf.position(receivedPacketBuf.position() + consumed);
         }
         return result;
@@ -431,7 +439,7 @@ abstract class AbstractSecureSession : SecureSession {
         int packetBufferSize = sslEngine.getSession().getPacketBufferSize();
         //split net buffer when the net buffer remaining great than the net size
         ByteBuffer buf = splitBuffer(packetBufferSize);
-        version(HUNT_DEBUG) {
+        version(HUNT_NET_DEBUG_MORE) {
             tracef("Connection %s read data, buf -> %s, packet -> %s, appBuf -> %s",
                     session.getId(), buf.remaining(), packetBufferSize, receivedAppBuf.remaining());
         }
@@ -456,7 +464,7 @@ abstract class AbstractSecureSession : SecureSession {
         if (!initialHSComplete)
             throw new IllegalStateException("The initial handshake is not complete.");
 
-        version(HUNT_DEBUG) {
+        version(HUNT_NET_DEBUG_MORE) {
             tracef("session %s read data status -> %s, initialHSComplete -> %s", session.getId(),
                     session.isConnected(), initialHSComplete);
         }
@@ -470,7 +478,7 @@ abstract class AbstractSecureSession : SecureSession {
         while (true) {
             SSLEngineResult result = unwrap();
 
-            version(HUNT_DEBUG) {
+            version(HUNT_NET_DEBUG_MORE) {
                 tracef("Connection %s read data result -> %s, receivedPacketBuf -> %s, appBufSize -> %s",
                         session.getId(), result.toString().replace("\n", " "),
                         receivedPacketBuf.remaining(), receivedAppBuf.remaining());

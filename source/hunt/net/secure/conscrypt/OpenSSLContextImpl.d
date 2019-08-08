@@ -33,7 +33,7 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
      * SSLContext.getInstance("Default"). Protected by the
      * DefaultSSLContextImpl.class monitor.
      */
-    private static DefaultSSLContextImpl defaultSslContextImpl;
+    private __gshared DefaultSSLContextImpl defaultSslContextImpl;
 
     /** TLS algorithm to initialize all sockets. */
     private string[] algorithms;
@@ -220,7 +220,6 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      */
     this() {
         // warning("No certificates provided!");
-        // super("cert/server.crt", "cert/server.key");
         super();
     }
 

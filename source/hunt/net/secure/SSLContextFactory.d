@@ -22,9 +22,4 @@ interface SSLContextFactory {
     string[] getSupportedProtocols();
 
     void setSupportedProtocols(string[] supportedProtocols);
-
-    // string sslCertificate();
-    // void sslCertificate(string fileName);
-    // string sslPrivateKey();
-    // void sslPrivateKey(string fileName);
 }

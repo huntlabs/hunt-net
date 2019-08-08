@@ -107,8 +107,8 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
         version(HUNT_NET_DEBUG) {
-            sw.stop();
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
+            sw.stop();
         }
 
         // implementationMissing(false);

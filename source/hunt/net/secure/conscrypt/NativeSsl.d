@@ -335,18 +335,18 @@ return 0;
                     keyTypes.insertBack(keyType);
             }
 
-            X509KeyManager keyManager = parameters.getX509KeyManager();
-            if (keyManager !is null) {
-                foreach (string keyType ; keyTypes) {
-                    try {
-                        setCertificate(aliasChooser.chooseServerAlias(keyManager, keyType));
-                    } catch (CertificateEncodingException e) {
-                        throw new IOException(e.msg);
-                    }
-                }
-            } else {
-                warning("keyManager is null");
-            }
+            // X509KeyManager keyManager = parameters.getX509KeyManager();
+            // if (keyManager !is null) {
+            //     foreach (string keyType ; keyTypes) {
+            //         try {
+            //             setCertificate(aliasChooser.chooseServerAlias(keyManager, keyType));
+            //         } catch (CertificateEncodingException e) {
+            //             throw new IOException(e.msg);
+            //         }
+            //     }
+            // } else {
+            //     warning("keyManager is null");
+            // }
 
             NativeCrypto.SSL_set_options(ssl, SSL_OP_CIPHER_SERVER_PREFERENCE);
 
@@ -485,7 +485,9 @@ return 0;
         if (isClient()) 
             return ;
 
-        implementationMissing(false);
+        // TODO: Tasks pending completion -@zxp at 8/8/2019, 6:34:06 PM
+        // 
+        // implementationMissing(false);
         // needing client auth takes priority...
         // bool certRequested;
         // if (parameters.getNeedClientAuth()) {

@@ -1009,8 +1009,9 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
         appData.setApplicationProtocolSelector(cast(void*)selector);
         if (selector !is null) {
             version(Have_boringssl) SSL_CTX_set_alpn_select_cb(SSL_get_SSL_CTX(ssl), &alpn_select_callback, null);
-
-            version(Have_hunt_openssl) implementationMissing(false);
+            // FIXME: Needing refactor or cleanup -@zxp at 8/8/2019, 4:38:40 PM
+            // 
+            // version(Have_hunt_openssl) implementationMissing(false);
         }
     }
 
@@ -1214,7 +1215,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
             }
         }
 
-        version(HUNT_NET_DEBUG) {
+        version(HUNT_NET_DEBUG_MORE) {
             tracef("ssl=%s ENGINE_SSL_read_direct address=%s length=%d result=%d",
                     ssl, destPtr, length,  result);
         }

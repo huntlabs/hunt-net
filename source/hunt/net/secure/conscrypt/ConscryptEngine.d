@@ -59,11 +59,12 @@ import std.format;
                                                          SSLParametersImpl.PSKCallbacks  
  */
 final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, AliasChooser, PSKCallbacks {
-    private __gshared static SSLEngineResult NEED_UNWRAP_OK;
-    private __gshared static SSLEngineResult NEED_UNWRAP_CLOSED;
-    private __gshared static SSLEngineResult NEED_WRAP_OK;
-    private __gshared static SSLEngineResult NEED_WRAP_CLOSED;
-    private __gshared static SSLEngineResult CLOSED_NOT_HANDSHAKING;
+    private __gshared SSLEngineResult NEED_UNWRAP_OK;
+    private __gshared SSLEngineResult NEED_UNWRAP_CLOSED;
+    private __gshared SSLEngineResult NEED_WRAP_OK;
+    private __gshared SSLEngineResult NEED_WRAP_CLOSED;
+    private __gshared SSLEngineResult CLOSED_NOT_HANDSHAKING;
+    private __gshared ByteBuffer EMPTY;
     
     shared static this()
     {
@@ -74,7 +75,6 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         CLOSED_NOT_HANDSHAKING = new SSLEngineResult(SSLEngineResult.Status.CLOSED, HandshakeStatus.NOT_HANDSHAKING, 0, 0);
         EMPTY = new HeapByteBuffer(0, 0); // ByteBuffer.allocateDirect(0);
     }
-    private __gshared static ByteBuffer EMPTY;
 
     private static BufferAllocator defaultBufferAllocator = null;
 
@@ -1011,7 +1011,7 @@ return null;
     }
 
     private void finishHandshake() {
-        trace("Handshake finish.");
+        version(HUNT_DEBUG) info("Handshake finish.");
         handshakeFinished = true;
         // Notify the listener, if provided.
         if (handshakeListener !is null) {

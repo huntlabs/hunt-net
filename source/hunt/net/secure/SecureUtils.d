@@ -4,6 +4,7 @@ module hunt.net.secure.SecureUtils;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
+import hunt.net.ssl.SSLContext;
 import hunt.net.Connection;
 import hunt.net.secure.SecureSession;
 import hunt.net.secure.SecureSessionFactory;
@@ -32,6 +33,7 @@ struct SecureUtils {
             return;
         FileCredentialConscryptSSLContextFactory fc = 
             new FileCredentialConscryptSSLContextFactory(certificate, privateKey, keystorePassword, keyPassword);
+        SSLContext context = fc.getSSLContext();
         secureSessionFactory().setServerSSLContextFactory(fc);
     }
 
@@ -41,6 +43,12 @@ struct SecureUtils {
 
     static SecureSession createServerSession(Connection connection, SecureSessionHandshakeListener handler) {
         return secureSessionFactory().create(connection, false, handler);
+    }
+
+    SSLContext getServerSslContext() {
+        AbstractConscryptSSLContextFactory factory = 
+            cast(AbstractConscryptSSLContextFactory)secureSessionFactory().getServerSSLContextFactory();
+        return factory.getSSLContext();
     }
 
 }
