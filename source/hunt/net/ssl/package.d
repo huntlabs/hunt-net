@@ -1,8 +1,6 @@
 module hunt.net.ssl;
 
 public import hunt.net.ssl.KeyManager;
-public import hunt.net.ssl.SNIMatcher;
-public import hunt.net.ssl.SNIServerName;
 public import hunt.net.ssl.SSLContext;
 public import hunt.net.ssl.SSLContextSpi;
 public import hunt.net.ssl.SSLEngine;

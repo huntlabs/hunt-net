@@ -12,7 +12,6 @@ import hunt.net.secure.conscrypt.ActiveSession;
 import hunt.net.secure.conscrypt.AllocatedBuffer;
 import hunt.net.secure.conscrypt.ClientSessionContext;
 import hunt.net.secure.conscrypt.ConscryptSession;
-import hunt.net.secure.conscrypt.common;
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeSsl;
 import hunt.net.secure.conscrypt.NativeSslSession;
@@ -51,6 +50,7 @@ import deimos.openssl.ssl;
 import std.algorithm;
 import std.conv;
 import std.format;
+
 
 /**
  * Implements the {@link SSLEngine} API using OpenSSL's non-blocking interfaces.
@@ -131,6 +131,9 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
 
     private int _maxSealOverhead;
 
+    /**
+     * Called by the engine when the TLS handshake has completed.
+     */
     private HandshakeListener handshakeListener;
 
     private ByteBuffer[] singleSrcBuffer;
@@ -1012,7 +1015,7 @@ return null;
         handshakeFinished = true;
         // Notify the listener, if provided.
         if (handshakeListener !is null) {
-            handshakeListener.onHandshakeFinished();
+            handshakeListener();
         }
     }
 

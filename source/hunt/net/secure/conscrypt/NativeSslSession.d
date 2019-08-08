@@ -42,7 +42,8 @@ abstract class NativeSslSession {
      */
     static NativeSslSession newInstance(NativeRef.SSL_SESSION _ref, ConscryptSession session) {
         AbstractSessionContext context = cast(AbstractSessionContext) session.getSessionContext();
-        if (typeid(context) == typeid(ClientSessionContext)) {
+        ClientSessionContext con = cast(ClientSessionContext)context;
+        if (con !is null) {
             return new Impl(context, _ref, session.getPeerHost(), session.getPeerPort(),
                 cast(X509Certificate[])session.getPeerCertificates(), getOcspResponse(session),
                 session.getPeerSignedCertificateTimestamp());

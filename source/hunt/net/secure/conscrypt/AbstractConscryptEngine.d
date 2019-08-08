@@ -6,14 +6,14 @@ version(WITH_HUNT_SECURITY):
 
 import hunt.net.secure.conscrypt.AllocatedBuffer;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
-import hunt.net.secure.conscrypt.common;
-
-
 import hunt.net.ssl;
 
+import hunt.collection.ByteBuffer;
+import hunt.Functions;
 import hunt.security.Key;
 
-import hunt.collection.ByteBuffer;
+alias HandshakeListener = Action;
+
 
 /**
  * Abstract base class for all Conscrypt {@link SSLEngine} classes.

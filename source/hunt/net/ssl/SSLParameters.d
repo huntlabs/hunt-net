@@ -1,10 +1,7 @@
 module hunt.net.ssl.SSLParameters;
 
-import hunt.net.ssl.SNIMatcher;
-import hunt.net.ssl.SNIServerName;
 
 import hunt.Exceptions;
-
 import hunt.collection;
 
 import std.conv;
@@ -45,8 +42,8 @@ class SSLParameters {
     private bool wantClientAuth;
     private bool needClientAuth;
     private string identificationAlgorithm;
-    private Map!(int, SNIServerName) sniNames = null;
-    private Map!(int, SNIMatcher) sniMatchers = null;
+    // private Map!(int, SNIServerName) sniNames = null;
+    // private Map!(int, SNIMatcher) sniMatchers = null;
     private bool preferLocalCipherSuites;
 
     /**
@@ -264,25 +261,25 @@ class SSLParameters {
      *
      * @since 1.8
      */
-    void setServerNames(List!SNIServerName serverNames) {
-        if (serverNames !is null) {
-            if (!serverNames.isEmpty()) {
-                sniNames = new HashMap!(int, SNIServerName)(serverNames.size()); // LinkedHashMap<>(serverNames.size());
-                foreach (SNIServerName serverName ; serverNames) {
-                    if (sniNames.put(serverName.getType(),
-                                                serverName) !is null) {
-                        throw new IllegalArgumentException(
-                                    "Duplicated server name of type " ~
-                                    serverName.getType().to!string());
-                    }
-                }
-            } else {
-                sniNames = Collections.emptyMap!(int, SNIServerName)();
-            }
-        } else {
-            sniNames = null;
-        }
-    }
+    // void setServerNames(List!SNIServerName serverNames) {
+    //     if (serverNames !is null) {
+    //         if (!serverNames.isEmpty()) {
+    //             sniNames = new HashMap!(int, SNIServerName)(serverNames.size()); // LinkedHashMap<>(serverNames.size());
+    //             foreach (SNIServerName serverName ; serverNames) {
+    //                 if (sniNames.put(serverName.getType(),
+    //                                             serverName) !is null) {
+    //                     throw new IllegalArgumentException(
+    //                                 "Duplicated server name of type " ~
+    //                                 serverName.getType().to!string());
+    //                 }
+    //             }
+    //         } else {
+    //             sniNames = Collections.emptyMap!(int, SNIServerName)();
+    //         }
+    //     } else {
+    //         sniNames = null;
+    //     }
+    // }
 
     /**
      * Returns a {@link List} containing all {@link SNIServerName}s of the
@@ -322,17 +319,17 @@ class SSLParameters {
      *
      * @since 1.8
      */
-    List!SNIServerName getServerNames() {
-        if (sniNames !is null) {
-            if (!sniNames.isEmpty()) {
-                return new ArrayList!(SNIServerName)(sniNames.values());
-            } else {
-                return new EmptyList!(SNIServerName)();
-            }
-        }
+    // List!SNIServerName getServerNames() {
+    //     if (sniNames !is null) {
+    //         if (!sniNames.isEmpty()) {
+    //             return new ArrayList!(SNIServerName)(sniNames.values());
+    //         } else {
+    //             return new EmptyList!(SNIServerName)();
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     /**
      * Sets the {@link SNIMatcher}s of the Server Name Indication (SNI)
@@ -358,25 +355,25 @@ class SSLParameters {
      *
      * @since 1.8
      */
-    void setSNIMatchers(Collection!SNIMatcher matchers) {
-        if (matchers !is null) {
-            if (!matchers.isEmpty()) {
-                sniMatchers = new HashMap!(int, SNIMatcher)(matchers.size());
-                foreach (SNIMatcher matcher ; matchers) {
-                    if (sniMatchers.put(matcher.getType(),
-                                                matcher) !is null) {
-                        throw new IllegalArgumentException(
-                                    "Duplicated server name of type " ~
-                                    matcher.getType().to!string());
-                    }
-                }
-            } else {
-                sniMatchers = Collections.emptyMap!(int, SNIMatcher)(); 
-            }
-        } else {
-            sniMatchers = null;
-        }
-    }
+    // void setSNIMatchers(Collection!SNIMatcher matchers) {
+    //     if (matchers !is null) {
+    //         if (!matchers.isEmpty()) {
+    //             sniMatchers = new HashMap!(int, SNIMatcher)(matchers.size());
+    //             foreach (SNIMatcher matcher ; matchers) {
+    //                 if (sniMatchers.put(matcher.getType(),
+    //                                             matcher) !is null) {
+    //                     throw new IllegalArgumentException(
+    //                                 "Duplicated server name of type " ~
+    //                                 matcher.getType().to!string());
+    //                 }
+    //             }
+    //         } else {
+    //             sniMatchers = Collections.emptyMap!(int, SNIMatcher)(); 
+    //         }
+    //     } else {
+    //         sniMatchers = null;
+    //     }
+    // }
 
     /**
      * Returns a {@link Collection} containing all {@link SNIMatcher}s of the
@@ -396,17 +393,17 @@ class SSLParameters {
      *
      * @since 1.8
      */
-    Collection!SNIMatcher getSNIMatchers() {
-        if (sniMatchers !is null) {
-            if (!sniMatchers.isEmpty()) {
-                return new ArrayList!(SNIMatcher)(sniMatchers.values());
-            } else {
-                return new EmptyList!(SNIMatcher)();
-            }
-        }
+    // Collection!SNIMatcher getSNIMatchers() {
+    //     if (sniMatchers !is null) {
+    //         if (!sniMatchers.isEmpty()) {
+    //             return new ArrayList!(SNIMatcher)(sniMatchers.values());
+    //         } else {
+    //             return new EmptyList!(SNIMatcher)();
+    //         }
+    //     }
 
-        return null;
-    }
+    //     return null;
+    // }
 
     /**
      * Sets whether the local cipher suites preference should be honored.

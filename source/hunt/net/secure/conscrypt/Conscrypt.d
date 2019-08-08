@@ -440,12 +440,12 @@ final class Conscrypt {
     //     return toConscrypt(engine).maxSealOverhead();
     // }
 
-    // /**
-    //  * Sets a listener on the given engine for completion of the TLS handshake
-    //  */
-    // static void setHandshakeListener(SSLEngine engine, HandshakeListener handshakeListener) {
-    //     toConscrypt(engine).setHandshakeListener(handshakeListener);
-    // }
+    /**
+     * Sets a listener on the given engine for completion of the TLS handshake
+     */
+    static void setHandshakeListener(SSLEngine engine, HandshakeListener handshakeListener) {
+        toConscrypt(engine).setHandshakeListener(handshakeListener);
+    }
 
     // /**
     //  * Enables/disables TLS Channel ID for the given server-side engine.
