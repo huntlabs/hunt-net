@@ -7,9 +7,7 @@ version(WITH_HUNT_SECURITY):
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSessionContext;
-import hunt.net.ssl.SSLSocket;
 import hunt.net.ssl.SSLParameters;
-import hunt.net.ssl.SSLSocketFactory;
 
 import hunt.Exceptions;
 
@@ -46,7 +44,7 @@ abstract class SSLContextSpi {
      *         has not been called
      * @see javax.net.ssl.SSLContext#getSocketFactory()
      */
-    abstract SSLSocketFactory engineGetSocketFactory();
+    // abstract SSLSocketFactory engineGetSocketFactory();
 
     /**
      * Returns a <code>ServerSocketFactory</code> object for
@@ -122,16 +120,16 @@ abstract class SSLContextSpi {
      */
     abstract SSLSessionContext engineGetClientSessionContext();
 
-    private SSLSocket getDefaultSocket() {
-        implementationMissing(false);
-        return null;
-        // try {
-        //     SSLSocketFactory factory = engineGetSocketFactory();
-        //     return cast(SSLSocket)factory.createSocket();
-        // } catch (IOException e) {
-        //     throw new UnsupportedOperationException("Could not obtain parameters", e);
-        // }
-    }
+    // private SSLSocket getDefaultSocket() {
+    //     implementationMissing(false);
+    //     return null;
+    //     // try {
+    //     //     SSLSocketFactory factory = engineGetSocketFactory();
+    //     //     return cast(SSLSocket)factory.createSocket();
+    //     // } catch (IOException e) {
+    //     //     throw new UnsupportedOperationException("Could not obtain parameters", e);
+    //     // }
+    // }
 
     /**
      * Returns a copy of the SSLParameters indicating the default
@@ -151,12 +149,12 @@ abstract class SSLContextSpi {
      *
      * @since 1.6
      */
-    SSLParameters engineGetDefaultSSLParameters() {
-        SSLSocket socket = getDefaultSocket();
-        // return socket.getSSLParameters();
-        implementationMissing(false);
-        return null;
-    }
+    // SSLParameters engineGetDefaultSSLParameters() {
+    //     SSLSocket socket = getDefaultSocket();
+    //     // return socket.getSSLParameters();
+    //     implementationMissing(false);
+    //     return null;
+    // }
 
     /**
      * Returns a copy of the SSLParameters indicating the maximum supported
@@ -177,14 +175,14 @@ abstract class SSLContextSpi {
      *
      * @since 1.6
      */
-    SSLParameters engineGetSupportedSSLParameters() {
-        SSLSocket socket = getDefaultSocket();
-        SSLParameters params = new SSLParameters();
-        implementationMissing(false);
-        // params.setCipherSuites(socket.getSupportedCipherSuites());
-        // params.setProtocols(socket.getSupportedProtocols());
-        return params;
-    }
+    // SSLParameters engineGetSupportedSSLParameters() {
+    //     SSLSocket socket = getDefaultSocket();
+    //     SSLParameters params = new SSLParameters();
+    //     implementationMissing(false);
+    //     // params.setCipherSuites(socket.getSupportedCipherSuites());
+    //     // params.setProtocols(socket.getSupportedProtocols());
+    //     return params;
+    // }
 
 }
 

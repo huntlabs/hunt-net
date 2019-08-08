@@ -45,7 +45,6 @@ class SSLParameters {
     private bool wantClientAuth;
     private bool needClientAuth;
     private string identificationAlgorithm;
-    // private AlgorithmConstraints algorithmConstraints;
     private Map!(int, SNIServerName) sniNames = null;
     private Map!(int, SNIMatcher) sniMatchers = null;
     private bool preferLocalCipherSuites;

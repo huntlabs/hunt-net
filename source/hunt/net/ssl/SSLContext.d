@@ -404,9 +404,9 @@ class SSLContext {
      *   could not be obtained.
      * @since 1.6
      */
-    final SSLParameters getDefaultSSLParameters() {
-        return contextSpi.engineGetDefaultSSLParameters();
-    }
+    // final SSLParameters getDefaultSSLParameters() {
+    //     return contextSpi.engineGetDefaultSSLParameters();
+    // }
 
     /**
      * Returns a copy of the SSLParameters indicating the supported
@@ -421,8 +421,8 @@ class SSLContext {
      *   could not be obtained.
      * @since 1.6
      */
-    final SSLParameters getSupportedSSLParameters() {
-        return contextSpi.engineGetSupportedSSLParameters();
-    }
+    // final SSLParameters getSupportedSSLParameters() {
+    //     return contextSpi.engineGetSupportedSSLParameters();
+    // }
 
 }

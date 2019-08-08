@@ -4,7 +4,7 @@ module hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
-import hunt.net.ssl.SSLSocket;
+
 import hunt.net.ssl.SSLEngine;
 
 /**
@@ -39,6 +39,6 @@ abstract class ApplicationProtocolSelector {
      * "no_application_protocol" alert will be sent to the peer and the connection will be
      * terminated.
      */
-    abstract string selectApplicationProtocol(SSLSocket socket, string[] protocols);
+    // abstract string selectApplicationProtocol(SSLSocket socket, string[] protocols);
 }
 

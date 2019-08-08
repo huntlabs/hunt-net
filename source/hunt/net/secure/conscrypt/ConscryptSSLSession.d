@@ -6,7 +6,6 @@ version(WITH_HUNT_SECURITY):
 
 import hunt.net.Connection;
 
-import hunt.net.ssl.common;
 import hunt.net.ssl.SSLEngine;
 
 import hunt.net.secure.AbstractSecureSession;

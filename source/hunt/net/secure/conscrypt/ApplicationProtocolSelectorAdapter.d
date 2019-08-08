@@ -8,7 +8,7 @@ import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.ssl.SSLEngine;
-import hunt.net.ssl.SSLSocket;
+
 
 import hunt.text.Common;
 import std.array;
@@ -21,20 +21,20 @@ final class ApplicationProtocolSelectorAdapter {
     private enum int NO_PROTOCOL_SELECTED = -1;
 
     private SSLEngine engine;
-    private SSLSocket socket;
+    // private SSLSocket socket;
     private ApplicationProtocolSelector selector;
 
     this(SSLEngine engine, ApplicationProtocolSelector selector) {
         this.engine = engine;
-        this.socket = null;
+        // this.socket = null;
         this.selector = selector;
     }
 
-    this(SSLSocket socket, ApplicationProtocolSelector selector) {
-        this.engine = null;
-        this.socket = socket;
-        this.selector = selector;
-    }
+    // this(SSLSocket socket, ApplicationProtocolSelector selector) {
+    //     this.engine = null;
+    //     this.socket = socket;
+    //     this.selector = selector;
+    // }
 
     /**
      * Performs the ALPN protocol selection from the given list of length-delimited peer protocols.
@@ -53,11 +53,8 @@ final class ApplicationProtocolSelectorAdapter {
 
         // Select the protocol.
         string selected;
-        if (engine !is null ) {
-            selected = selector.selectApplicationProtocol(engine, protocols);
-        } else {
-            selected = selector.selectApplicationProtocol(socket, protocols);
-        }
+
+        selected = selector.selectApplicationProtocol(engine, protocols);
         if (selected.empty()) {
             return NO_PROTOCOL_SELECTED;
         }

@@ -9,7 +9,7 @@ import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.Conscrypt;
 
 import hunt.net.ssl.SSLEngine;
-import hunt.net.ssl.SSLSocket;
+
 
 import hunt.text.Common;
 import hunt.logging;
@@ -44,10 +44,10 @@ class ConscryptALPNSelector : ProtocolSelector {
             return select(protocols);
         }
 
-        override
-        string selectApplicationProtocol(SSLSocket sslSocket, string[] protocols) {
-            return select(protocols);
-        }
+        // override
+        // string selectApplicationProtocol(SSLSocket sslSocket, string[] protocols) {
+        //     return select(protocols);
+        // }
 
         string select(string[] clientProtocols) {
             if (clientProtocols is null)

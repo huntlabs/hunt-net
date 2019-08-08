@@ -14,8 +14,7 @@ import hunt.net.secure.conscrypt.ServerSessionContext;
 import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;
 import hunt.net.ssl.SSLEngine;
-import hunt.net.ssl.SSLServerSocketFactory;
-import hunt.net.ssl.SSLSocketFactory;
+
 
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
@@ -111,16 +110,16 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
                 kms, tms, clientSessionContext, serverSessionContext, algorithms);
     }
 
-    override
-    SSLSocketFactory engineGetSocketFactory() {
-        if (sslParameters is null) {
-            throw new IllegalStateException("SSLContext is not initialized.");
-        }
-        // return Platform.wrapSocketFactoryIfNeeded(new OpenSSLSocketFactoryImpl(sslParameters));
+    // override
+    // SSLSocketFactory engineGetSocketFactory() {
+    //     if (sslParameters is null) {
+    //         throw new IllegalStateException("SSLContext is not initialized.");
+    //     }
+    //     // return Platform.wrapSocketFactoryIfNeeded(new OpenSSLSocketFactoryImpl(sslParameters));
 
-        implementationMissing();
-        return null;
-    }
+    //     implementationMissing();
+    //     return null;
+    // }
 
     // override
     // SSLServerSocketFactory engineGetServerSocketFactory() {

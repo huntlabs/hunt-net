@@ -1,19 +1,17 @@
 module hunt.net.TcpConnection;
 
-import hunt.net.TcpSslOptions;
 import hunt.net.AbstractConnection;
 import hunt.net.Connection;
 import hunt.net.codec;
-import hunt.net.OutputEntry;
-// import hunt.net.Connection;
+import hunt.net.TcpSslOptions;
 
 import hunt.collection;
-import hunt.util.DateTime;
 import hunt.io.TcpStream;
 import hunt.Exceptions;
 import hunt.Functions;
 import hunt.logging;
 import hunt.util.Common;
+import hunt.util.DateTime;
 
 import core.atomic;
 import core.time;

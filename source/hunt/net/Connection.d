@@ -1,8 +1,6 @@
 module hunt.net.Connection;
 
 import hunt.net.AsyncResult;
-import hunt.net.OutputEntry;
-import hunt.net.OutputEntryType;
 import hunt.util.Common;
 import hunt.io.TcpStream;
 

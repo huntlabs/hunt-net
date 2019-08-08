@@ -9,7 +9,7 @@ import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.secure.conscrypt.NativeConstants;
 
 import hunt.net.ssl.SSLEngine;
-import hunt.net.ssl.SSLSocket;
+
 
 import hunt.net.Exceptions;
 import hunt.Exceptions;
