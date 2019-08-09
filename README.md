@@ -4,7 +4,7 @@
 A net library for dlang, hunt library based.
 
 ## How to use it?
-hunt-net have codec to encoding and decoding tcp streaming.
+hunt-net have codec to encoding and decoding tcp streaming frames.
 
 ### Use codec to build a TcpServer
 ```D
