@@ -10,10 +10,11 @@ hunt-net have codec to encoding and decoding tcp streaming.
 ```D
 import hunt.net;
 import hunt.net.codec.textline;
+
 import hunt.logging;
 
-void main() {
-
+void main()
+{
     NetServerOptions options = new NetServerOptions();
     NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
 
@@ -53,6 +54,7 @@ void main() {
 ```D
 import hunt.net;
 import hunt.net.codec.textline;
+
 import hunt.logging;
 
 void main()
@@ -94,7 +96,7 @@ void main()
 
             count++;
         }
-    }).connect("10.1.222.120", 9999);
+    }).connect("localhost", 9999);
 }
 ```
 
