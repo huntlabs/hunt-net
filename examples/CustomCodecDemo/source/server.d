@@ -12,24 +12,7 @@ void main() {
     NetServerOptions options = new NetServerOptions();
     NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
 
-    server.setCodec(new class Codec {
-
-        private TextLineEncoder encoder;
-        private TextLineDecoder decoder;
-
-        this() {
-            encoder = new TextLineEncoder();
-            decoder = new TextLineDecoder();
-        }
-
-        Encoder getEncoder() {
-            return encoder;
-        }
-
-        Decoder getDecoder() {
-            return decoder;
-        }
-    });
+    server.setCodec(new TextLineCodec);
 
     server.setHandler(new class ConnectionEventHandler {
 

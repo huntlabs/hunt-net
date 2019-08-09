@@ -7,12 +7,6 @@ import hunt.net.codec.Encoder;
 /**
  * Provides {@link Encoder} and {@link Decoder} which translates
  * binary or  specific data into message object and vice versa.
- * <p>
- * Please refer to
- * <a href="../../../../../xref-examples/org/apache/mina/examples/reverser/ReverseProvider.html"><code>ReverserProvider</code></a>
- * example.
- *
- * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 interface Codec {
     /**

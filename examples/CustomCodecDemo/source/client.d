@@ -14,24 +14,7 @@ void main() {
 
     NetClient client = NetUtil.createNetClient();
 
-    client.setCodec(new class Codec {
-
-        private TextLineEncoder encoder;
-        private TextLineDecoder decoder;
-
-        this() {
-            encoder = new TextLineEncoder();
-            decoder = new TextLineDecoder();
-        }
-
-        Encoder getEncoder() {
-            return encoder;
-        }
-
-        Decoder getDecoder() {
-            return decoder;
-        }
-    });
+    client.setCodec(new TextLineCodec);
 
     client.setHandler(new class ConnectionEventHandler {
 
@@ -70,9 +53,5 @@ void main() {
         override void failedAcceptingConnection(int connectionId, Exception t) {
             warning(t);
         }
-    }).connect("10.1.222.120", 8080);
-
-
-
-
+    }).connect("localhost, 8080);
 }

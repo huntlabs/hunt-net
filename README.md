@@ -18,25 +18,7 @@ void main()
     NetServerOptions options = new NetServerOptions();
     NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
 
-    server.setCodec(new class Codec {
-
-        private TextLineEncoder encoder;
-        private TextLineDecoder decoder;
-
-        this() {
-            encoder = new TextLineEncoder();
-            decoder = new TextLineDecoder();
-        }
-
-        Encoder getEncoder() {
-            return encoder;
-        }
-
-        Decoder getDecoder() {
-            return decoder;
-        }
-    });
-
+    server.setCodec(new TextLineCodec);
     server.setHandler(new class ConnectionEventHandler
     {
         override void messageReceived(Connection connection, Object message)
@@ -59,29 +41,9 @@ import hunt.logging;
 
 void main()
 {
-    int count = 0;
-
     NetClient client = NetUtil.createNetClient();
 
-    client.setCodec(new class Codec {
-
-        private TextLineEncoder encoder;
-        private TextLineDecoder decoder;
-
-        this() {
-            encoder = new TextLineEncoder();
-            decoder = new TextLineDecoder();
-        }
-
-        Encoder getEncoder() {
-            return encoder;
-        }
-
-        Decoder getDecoder() {
-            return decoder;
-        }
-    });
-
+    client.setCodec(new TextLineCodec);
     client.setHandler(new class ConnectionEventHandler
     {
         override void messageReceived(Connection connection, Object message)
@@ -90,11 +52,8 @@ void main()
             import hunt.String;
 
             string str = format("data received: %s", message.toString());
-            if(count < 10) {
-                connection.encode(new String(str));
-            }
-
-            count++;
+            
+            connection.write(new String(str));
         }
     }).connect("localhost", 9999);
 }
