@@ -29,7 +29,7 @@ void main()
 }
 ```
 
-### Use codec to build a client
+### Use codec to build a TcpClient
 ```D
 import hunt.net;
 import hunt.net.codec.textline;
