@@ -11,6 +11,9 @@
 			"path" :"../../"
 		}
 	},
+	"subConfigurations": {
+		"hunt-net" : "ssl"
+	},
     "configurations": [
 		{
 			"name": "client",
