@@ -122,10 +122,26 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
                 version(HUNT_DEBUG) infof("All the servers are listening on %s.", _address.toString());
             } else {
                 tcpListener = new TcpSocket();
-                tcpListener.setOption(SocketOptionLevel.SOCKET, SocketOption.REUSEADDR, true);
+
+                version (Windows) {
+                    import core.sys.windows.winsock2;
+                    bool flag = this._options.isReuseAddress() || this._options.isReusePort();
+                    tcpListener.setOption(SocketOptionLevel.SOCKET, cast(SocketOption) SO_EXCLUSIVEADDRUSE, !flag);
+                } else {
+                    tcpListener.setOption(SocketOptionLevel.SOCKET, 
+                        SocketOption.REUSEADDR, _options.isReuseAddress());
+
+                    tcpListener.setOption(SocketOptionLevel.SOCKET, 
+                        cast(SocketOption) SO_REUSEPORT, _options.isReusePort());
+                }
+
                 tcpListener.bind(_address);
                 tcpListener.listen(1000);
-                version(HUNT_DEBUG) infof("Servers is listening on %s.", _address.toString());
+
+                version(HUNT_DEBUG) {
+                    infof("Server is listening on %s%s.", _address.toString(), 
+                        _options.isSsl ? " (with SSL)" : "");
+                }
             }     
 
 		    _isStarted = true;

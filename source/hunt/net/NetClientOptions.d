@@ -16,6 +16,7 @@ import hunt.net.OpenSSLEngineOptions;
 import hunt.net.ProxyOptions;
 
 import hunt.Exceptions;
+import hunt.io.TcpStreamOptions;
 
 import core.time;
 import std.array;
@@ -30,12 +31,12 @@ class NetClientOptions : ClientOptionsBase {
     /**
      * The default value for reconnect attempts = 0
      */
-    enum int DEFAULT_RECONNECT_ATTEMPTS = 0;
+    enum int DEFAULT_RECONNECT_ATTEMPTS = 0;  // 5
 
     /**
      * The default value for reconnect interval = 1000 ms
      */
-    enum long DEFAULT_RECONNECT_INTERVAL = 1000;
+    enum Duration DEFAULT_RECONNECT_INTERVAL = 1.seconds;
 
     /**
      * Default value to determine hostname verification algorithm hostname verification (for SSL/TLS) = ""
@@ -44,7 +45,7 @@ class NetClientOptions : ClientOptionsBase {
 
 
     private int reconnectAttempts;
-    private long reconnectInterval;
+    private Duration reconnectInterval;
     private string hostnameVerificationAlgorithm;
 
         /**
@@ -263,6 +264,13 @@ class NetClientOptions : ClientOptionsBase {
     }
 
     /**
+     * @return  the value of reconnect attempts
+     */
+    int getReconnectAttempts() {
+        return reconnectAttempts;
+    }
+
+    /**
      * Set the value of reconnect attempts
      *
      * @param attempts  the maximum number of reconnect attempts
@@ -277,10 +285,10 @@ class NetClientOptions : ClientOptionsBase {
     }
 
     /**
-     * @return  the value of reconnect attempts
+     * @return  the value of reconnect interval
      */
-    int getReconnectAttempts() {
-        return reconnectAttempts;
+    Duration getReconnectInterval() {
+        return reconnectInterval;
     }
 
     /**
@@ -289,8 +297,8 @@ class NetClientOptions : ClientOptionsBase {
      * @param interval  the reconnect interval in ms
      * @return a reference to this, so the API can be used fluently
      */
-    NetClientOptions setReconnectInterval(long interval) {
-        if (interval < 1) {
+    NetClientOptions setReconnectInterval(Duration interval) {
+        if (interval <= Duration.zero) {
             throw new IllegalArgumentException("reconnect interval must be >= 1");
         }
         this.reconnectInterval = interval;
@@ -319,13 +327,6 @@ class NetClientOptions : ClientOptionsBase {
         return this;
     }
 
-    /**
-     * @return  the value of reconnect interval
-     */
-    long getReconnectInterval() {
-        return reconnectInterval;
-    }
-
     override
     NetClientOptions setLogActivity(bool logEnabled) {
         return cast(NetClientOptions) super.setLogActivity(logEnabled);
@@ -349,6 +350,12 @@ class NetClientOptions : ClientOptionsBase {
         return cast(NetClientOptions) super.setSslHandshakeTimeout(sslHandshakeTimeout);
     }
 
+    override TcpStreamOptions toStreamOptions() {
+        TcpStreamOptions options = super.toStreamOptions();
+        options.retryTimes = reconnectAttempts;
+        options.retryInterval = reconnectInterval;
+        return options;
+    }
 
     override
     bool opEquals(Object o) {
@@ -367,9 +374,10 @@ class NetClientOptions : ClientOptionsBase {
 
     override
     size_t toHash() @trusted nothrow {
+        size_t interval = cast(size_t)reconnectInterval.total!"msecs"();
         size_t result = super.toHash();
         result = 31 * result + reconnectAttempts;
-        result = 31 * result + cast(size_t) (reconnectInterval ^ (reconnectInterval >>> 32));
+        result = 31 * result + cast(size_t) (interval ^ (interval >>> 32));
         result = 31 * result + hostnameVerificationAlgorithm.hashOf();
         return result;
     }

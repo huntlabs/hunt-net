@@ -106,10 +106,6 @@ class TcpSslOptions : NetworkOptions {
      */
     enum Duration DEFAULT_SSL_HANDSHAKE_TIMEOUT = 10.seconds;
 
-    enum int DEFAULT_RETRY_TIMES = 5;
-    enum Duration DEFAULT_RETRY_INTERVAL = 2.seconds;
-
-
     private bool tcpNoDelay;
     private bool tcpKeepAlive;
     private int soLinger;
@@ -132,9 +128,7 @@ class TcpSslOptions : NetworkOptions {
     private bool tcpCork;
     private bool tcpQuickAck;
 
-    private int retryTimes = DEFAULT_RETRY_TIMES;
-    private Duration retryInterval = DEFAULT_RETRY_INTERVAL;
-
+ 
     /**
      * Default constructor
      */
@@ -173,9 +167,6 @@ class TcpSslOptions : NetworkOptions {
         this.tcpFastOpen = other.isTcpFastOpen();
         this.tcpCork = other.isTcpCork();
         this.tcpQuickAck = other.isTcpQuickAck();
-
-        this.retryTimes = other.retryTimes;
-        this.retryInterval = other.retryInterval;
     }
 
     private void init() {
@@ -732,42 +723,18 @@ class TcpSslOptions : NetworkOptions {
     }
 
     override
-    TcpSslOptions setReuseAddress(bool reuseAddress) {
-        return cast(TcpSslOptions) super.setReuseAddress(reuseAddress);
-    }
-
-    override
     TcpSslOptions setTrafficClass(int trafficClass) {
         return cast(TcpSslOptions) super.setTrafficClass(trafficClass);
     }
 
     override
+    TcpSslOptions setReuseAddress(bool reuseAddress) {
+        return cast(TcpSslOptions) super.setReuseAddress(reuseAddress);
+    }
+
+    override
     TcpSslOptions setReusePort(bool reusePort) {
         return cast(TcpSslOptions) super.setReusePort(reusePort);
-    }
-
-    TcpSslOptions setRetryTimes(int times) {
-        if (times <= 0) {
-            throw new IllegalArgumentException("retryTimes must be >= 1");
-        }
-        this.retryTimes = times;
-        return this;
-    }
-
-    int getRetryTimes() {
-        return retryTimes;
-    }
-
-    TcpSslOptions setRetryInterval(Duration timeout) {
-        if (retryInterval < Duration.zero) {
-            throw new IllegalArgumentException("retryInterval must be >= 0");
-        }
-        this.retryInterval = timeout;
-        return this;
-    }
-
-    Duration getRetryInterval() {
-        return retryInterval;
     }
 
     override
@@ -802,8 +769,6 @@ class TcpSslOptions : NetworkOptions {
         if (useAlpn != that.useAlpn) return false;
         // if (sslEngineOptions !is null ? !sslEngineOptions.equals(that.sslEngineOptions) : that.sslEngineOptions !is null) return false;
         // if (!enabledSecureTransportProtocols.equals(that.enabledSecureTransportProtocols)) return false;
-        if (retryTimes != that.retryTimes) return false;
-        if (retryInterval != that.retryInterval) return false;
 
         return true;
     }
@@ -833,8 +798,6 @@ class TcpSslOptions : NetworkOptions {
         // result = 31 * result + (sslEngineOptions !is null ? sslEngineOptions.toHash() : 0);
         // result = 31 * result + (enabledSecureTransportProtocols !is null ? enabledSecureTransportProtocols
         //         .toHash() : 0);
-        result = 31 * result + retryTimes;
-        result = 31 * result + retryInterval.total!"msecs";
         return result;
     }
 
@@ -844,8 +807,6 @@ class TcpSslOptions : NetworkOptions {
         streamOptions.isKeepalive = isTcpKeepAlive();
         streamOptions.keepaliveTime = cast(int)getKeepaliveWaitTime().total!"seconds";
         streamOptions.keepaliveInterval = cast(int)getKeepaliveInterval().total!"seconds";
-        streamOptions.retryTimes = getRetryTimes();
-        streamOptions.retryInterval = getRetryInterval();
         int size = getReceiveBufferSize();
         if(size > 0)
             streamOptions.bufferSize = size;

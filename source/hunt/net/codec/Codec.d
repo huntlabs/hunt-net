@@ -1,6 +1,5 @@
 module hunt.net.codec.Codec;
 
-// import hunt.net.Connection;
 import hunt.net.codec.Decoder;
 import hunt.net.codec.Encoder;
 

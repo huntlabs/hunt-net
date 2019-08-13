@@ -124,23 +124,6 @@ class NetworkOptions {
     }
 
     /**
-     * @return  the value of reuse address
-     */
-    bool isReuseAddress() {
-        return reuseAddress;
-    }
-
-    /**
-     * Set the value of reuse address
-     * @param reuseAddress  the value of reuse address
-     * @return a reference to this, so the API can be used fluently
-     */
-    NetworkOptions setReuseAddress(bool reuseAddress) {
-        this.reuseAddress = reuseAddress;
-        return this;
-    }
-
-    /**
      * @return  the value of traffic class
      */
     int getTrafficClass() {
@@ -175,6 +158,23 @@ class NetworkOptions {
      */
     NetworkOptions setLogActivity(bool logActivity) {
         this.logActivity = logActivity;
+        return this;
+    }
+
+    /**
+     * @return  the value of reuse address
+     */
+    bool isReuseAddress() {
+        return reuseAddress;
+    }
+
+    /**
+     * Set the value of reuse address
+     * @param reuseAddress  the value of reuse address
+     * @return a reference to this, so the API can be used fluently
+     */
+    NetworkOptions setReuseAddress(bool reuseAddress) {
+        this.reuseAddress = reuseAddress;
         return this;
     }
 
