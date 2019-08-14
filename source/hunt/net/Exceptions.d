@@ -19,3 +19,20 @@ class SSLPeerUnverifiedException : SSLException {
 class RecoverableProtocolDecoderException : SSLException {
     mixin basicExceptionCtors;
 }
+
+
+/**
+ * An {@link Exception} which is thrown by a codec.
+ */
+class CodecException : RuntimeException {
+    mixin basicExceptionCtors;
+}
+
+class DecoderException : CodecException {
+    mixin basicExceptionCtors;
+}
+
+class EncoderException : CodecException {
+    mixin basicExceptionCtors;
+}
+

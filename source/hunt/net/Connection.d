@@ -15,11 +15,13 @@ deprecated("Using Connection instead.")
 alias TcpSession = Connection;
 deprecated("Using Connection instead.")
 alias Session = Connection;
-// alias Connection = Connection;
 
-// alias NetEventHandler(E) = void delegate(E event);
-// alias ExceptionHandler = NetEventHandler!(Throwable);
-// alias ConnectHandler = NetEventHandler!Connection;
+alias NetEventHandler(E) = void delegate(E event);
+alias NetEventHandler(T, U) = void delegate(T t, U u);
+alias NetConnectHandler = NetEventHandler!Connection;
+alias NetMessageHandler = NetEventHandler!(Connection, Object);
+alias NetExceptionHandler = NetEventHandler!(Connection, Throwable);
+alias NetErrorHandler = NetEventHandler!(int, Throwable);
 // alias AsyncConnectHandler = NetEventHandler!(AsyncResult!Connection);
 // alias AsyncVoidResultHandler = NetEventHandler!(AsyncResult!(Void));
 
@@ -81,11 +83,7 @@ interface Connection : Closeable {
      */
     ConnectionEventHandler getHandler();    
 
-// deprecated("Using setAttribute instead.")
-//     void attachObject(Object attachment);
 
-// deprecated("Using getAttribute instead.")
-//     Object getAttachment();
 
     /**
      * Returns the value of the user-defined attribute of this connection.
@@ -362,8 +360,75 @@ abstract class ConnectionEventHandler {
 	void failedAcceptingConnection(int connectionId, Exception t) { }
 }
 
-deprecated("Using ConnectionEventHandler instead.")
-alias Handler = ConnectionEventHandler;
+/**
+*/
+class ConnectionEventHandlerAdapter : ConnectionEventHandler {
 
-// deprecated("Using ConnectionEventHandler instead.")
-// alias ConnectionEventHandler = ConnectionEventHandler;
+    private NetConnectHandler _openedHandler;
+    private NetConnectHandler _closedHandler;
+    private NetMessageHandler _messageHandler;
+    private NetExceptionHandler _exceptionHandler;
+    private NetErrorHandler _openFailedHandler;
+    private NetErrorHandler _acceptFailedHandler;
+
+
+    this() {
+
+    }
+
+    ////// Event Handlers
+
+    ///
+    void onOpened(NetConnectHandler handler) {
+        _openedHandler = handler;
+    }
+
+    void onClosed(NetConnectHandler handler) {
+        _closedHandler = handler;
+    }
+
+    void onMessageReceived(NetMessageHandler handler) {
+        _messageHandler = handler;
+    }
+
+    void onException(NetExceptionHandler handler) {
+        _exceptionHandler = handler;
+    }
+
+    void onOpeneFailed(NetConnectHandler handler) {
+        _openedHandler = handler;
+    }
+
+    ////// ConnectionEventHandler APIs
+
+    ///
+    void connectionOpened(Connection connection) {
+        if(_openedHandler !is null) 
+            _openedHandler(connection);
+    }
+
+	void connectionClosed(Connection connection) {
+        if(_closedHandler !is null)
+            _closedHandler(connection);
+    }
+
+	void messageReceived(Connection connection, Object message) {
+        if(_messageHandler !is null)
+            _messageHandler(connection, message);
+    }
+
+	void exceptionCaught(Connection connection, Exception e) {
+        if(_exceptionHandler !is null)
+            _exceptionHandler(connection, e);
+    }
+
+	void failedOpeningConnection(int connectionId, Exception e) { 
+        if(_openFailedHandler !is null)
+            _openFailedHandler(connectionId, e)
+    }
+
+	void failedAcceptingConnection(int connectionId, Exception e) { 
+        if(_acceptFailedHandler !is null) 
+            _acceptFailedHandler(connectionId, e);
+    }
+}

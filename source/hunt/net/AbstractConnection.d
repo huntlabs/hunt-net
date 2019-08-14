@@ -28,7 +28,7 @@ abstract class AbstractConnection : Connection {
     protected Decoder _decoder;
     protected ConnectionEventHandler _eventHandler;
     protected ConnectionState _connectionState;
-    protected Object attachment;
+    // protected Object attachment;
     private bool _isSecured = false;
 
 
@@ -55,15 +55,15 @@ abstract class AbstractConnection : Connection {
         this(connectionId, tcp);
     }
 
-    deprecated("Using setAttributes instead.")
-    void attachObject(Object attachment) {
-        this.attachment = attachment;
-    }
+    // deprecated("Using setAttributes instead.")
+    // void attachObject(Object attachment) {
+    //     this.attachment = attachment;
+    // }
 
-    deprecated("Using getAttributes instead.")
-    Object getAttachment() {
-        return attachment;
-    }
+    // deprecated("Using getAttributes instead.")
+    // Object getAttachment() {
+    //     return attachment;
+    // }
 
     int getId() {
         return _connectionId;
