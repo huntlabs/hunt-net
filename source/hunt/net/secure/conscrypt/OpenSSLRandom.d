@@ -19,8 +19,8 @@ public final class OpenSSLRandom : SecureRandomSpi  {
 
     override
     protected void engineSetSeed(byte[] seed) {
-        if (seed == null) {
-            throw new NullPointerException("seed == null");
+        if (seed is null) {
+            throw new NullPointerException("seed is null");
         }
     }
 

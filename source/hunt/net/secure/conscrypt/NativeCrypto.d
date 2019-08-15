@@ -349,7 +349,7 @@ final class NativeCrypto {
         if (inBuffer is null ||
             (appData.applicationProtocolsData is null
             && appData.applicationProtocolSelector is null)) {
-            if (outBuffer != null && outLen != null) {
+            if (outBuffer !is null && outLen !is null) {
                 *outBuffer = null;
                 *outLen = 0;
             }
@@ -357,7 +357,7 @@ final class NativeCrypto {
             return SSL_TLSEXT_ERR_NOACK;
         }
 
-        if (appData.applicationProtocolSelector != null) {
+        if (appData.applicationProtocolSelector !is null) {
             return selectApplicationProtocol(ssl, appData.applicationProtocolSelector,
                                     outBuffer, outLen, inBuffer, inLen);
         }
@@ -674,7 +674,7 @@ return null;
         // }
 
         // jbyteArray result = env.NewByteArray(static_cast<jsize>(data_len));
-        // if (result != null) {
+        // if (result !is null) {
         //     env.SetByteArrayRegion(result, 0, static_cast<jsize>(data_len), (const jbyte*)data);
         // }
         // return result;        
@@ -1035,7 +1035,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
         //     return null;
         // }
         // jbyteArray result = env.NewByteArray(static_cast<jsize>(protocolLength));
-        // if (result != null) {
+        // if (result !is null) {
         //     env.SetByteArrayRegion(result, 0, (static_cast<jsize>(protocolLength)), protocol);
         // }
         // return result;
@@ -2128,7 +2128,7 @@ implementationMissing(false);
                     min = protocol;
                 }
                 max = protocol;
-            } else if (min != null) {
+            } else if (min !is null) {
                 break;
             }
         }

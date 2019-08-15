@@ -199,7 +199,7 @@ final class SSLUtils {
     //     Set<string> result = new HashSet<string>(clientCertificateTypes.length);
     //     for (byte keyTypeCode : clientCertificateTypes) {
     //         string keyType = SSLUtils.getClientKeyType(keyTypeCode);
-    //         if (keyType == null) {
+    //         if (keyType is null) {
     //             // Unsupported client key type -- ignore
     //             continue;
     //         }
@@ -275,14 +275,14 @@ return null;
     }
 
     static string toProtocolString(byte[] bytes) {
-        if (bytes == null) {
+        if (bytes is null) {
             return null;
         }
         return cast(string)bytes.idup;
     }
 
     static byte[] toProtocolBytes(string protocol) {
-        if (protocol == null) {
+        if (protocol is null) {
             return null;
         }
         return cast(byte[] )protocol.dup;
@@ -336,7 +336,7 @@ return null;
      * {@code null} or an empty string.
      */
     static byte[] encodeProtocols(string[] protocols) {
-        if (protocols == null) {
+        if (protocols is null) {
             throw new IllegalArgumentException("protocols array must be non-null");
         }
 
@@ -348,7 +348,7 @@ return null;
         int length = 0;
         for (int i = 0; i < protocols.length; ++i) {
             string protocol = protocols[i];
-            if (protocol == null) {
+            if (protocol is null) {
                 throw new IllegalArgumentException("protocol[" ~  i.to!string() ~ "] is null");
             }
             int protocolLength = cast(int)protocols[i].length;

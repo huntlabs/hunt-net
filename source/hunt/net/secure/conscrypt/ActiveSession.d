@@ -60,7 +60,7 @@ final class ActiveSession : ConscryptSession {
                 id = ssl.getSessionId();
             }
         }
-        return id != null ? id.dup : [];
+        return id !is null ? id.dup : [];
     }
 
     /**
@@ -228,7 +228,7 @@ final class ActiveSession : ConscryptSession {
 
     override
     public Principal getLocalPrincipal() {
-        if (localCertificates != null && localCertificates.length > 0) {
+        if (localCertificates !is null && localCertificates.length > 0) {
             return localCertificates[0].getSubjectX500Principal();
         } else {
             return null;

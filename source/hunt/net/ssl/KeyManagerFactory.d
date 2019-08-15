@@ -51,7 +51,7 @@ import hunt.security.KeyStore;
 //         //             "ssl.KeyManagerFactory.algorithm");
 //         //     }
 //         // });
-//         // if (type == null) {
+//         // if (type is null) {
 //         //     type = "SunX509";
 //         // }
 //         // return type;

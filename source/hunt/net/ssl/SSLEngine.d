@@ -485,8 +485,8 @@ abstract class SSLEngine {
      */
     SSLEngineResult wrap(ByteBuffer [] srcs,
             ByteBuffer dst) {
-        if (srcs == null) {
-            throw new IllegalArgumentException("src == null");
+        if (srcs is null) {
+            throw new IllegalArgumentException("src is null");
         }
         return wrap(srcs, 0, cast(int)srcs.length, dst);
     }
@@ -1219,11 +1219,11 @@ abstract class SSLEngine {
     // void setSSLParameters(SSLParameters params) {
     //     string[] s;
     //     s = params.getCipherSuites();
-    //     if (s != null) {
+    //     if (s !is null) {
     //         setEnabledCipherSuites(s);
     //     }
     //     s = params.getProtocols();
-    //     if (s != null) {
+    //     if (s !is null) {
     //         setEnabledProtocols(s);
     //     }
     //     if (params.getNeedClientAuth()) {

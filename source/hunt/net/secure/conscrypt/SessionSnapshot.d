@@ -68,7 +68,7 @@ final class SessionSnapshot : ConscryptSession {
 
     override
     byte[] getPeerSignedCertificateTimestamp() {
-        return peerTlsSctData != null ? peerTlsSctData.dup : null;
+        return peerTlsSctData !is null ? peerTlsSctData.dup : null;
     }
 
     override

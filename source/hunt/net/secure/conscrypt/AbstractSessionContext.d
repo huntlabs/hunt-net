@@ -88,7 +88,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
 
         //     override
         //     bool hasMoreElements() {
-        //         if (next != null) {
+        //         if (next !is null) {
         //             return true;
         //         }
         //         while (iter.hasNext()) {
@@ -122,7 +122,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
      */
     override
     final SSLSession getSession(byte[] sessionId) {
-        if (sessionId == null) {
+        if (sessionId is null) {
             throw new NullPointerException("sessionId");
         }
         // ByteArray key = new ByteArray(sessionId);
@@ -130,7 +130,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
         // synchronized (sessions) {
         //     session = sessions.get(key);
         // }
-        // if (session != null && session.isValid()) {
+        // if (session !is null && session.isValid()) {
         //     return session.toSSLSession();
         // }
 
@@ -208,7 +208,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
      */
     final void cacheSession(NativeSslSession session) {
         byte[] id = session.getId();
-        if (id == null || id.length == 0) {
+        if (id is null || id.length == 0) {
             return;
         }
 
@@ -227,7 +227,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
      * {@link ServerSessionContext} to
      */
     final NativeSslSession getSessionFromCache(byte[] sessionId) {
-        if (sessionId == null) {
+        if (sessionId is null) {
             return null;
         }
 
@@ -239,7 +239,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
         // synchronized (sessions) {
         //     session = sessions.get(new ByteArray(sessionId));
         // }
-        // if (session != null && session.isValid()) {
+        // if (session !is null && session.isValid()) {
         //     return session;
         // }
 

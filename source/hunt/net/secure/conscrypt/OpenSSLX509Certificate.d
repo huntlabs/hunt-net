@@ -96,7 +96,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     //         bis.release();
     //     }
 
-    //     if (certRefs == null) {
+    //     if (certRefs is null) {
     //         return Collections.emptyList();
     //     }
 
@@ -225,12 +225,12 @@ final class OpenSSLX509Certificate : X509Certificate {
     //         CertificateNotYetValidException {
     //     if (getNotBefore().compareTo(date) > 0) {
     //         throw new CertificateNotYetValidException("Certificate not valid until "
-    //                 + getNotBefore().toString() + " (compared to " + date.toString() + ")");
+    //                 + getNotBefore().toString() ~ " (compared to " ~ date.toString() ~ ")");
     //     }
 
     //     if (getNotAfter().compareTo(date) < 0) {
     //         throw new CertificateExpiredException("Certificate expired at "
-    //                 + getNotAfter().toString() + " (compared to " + date.toString() + ")");
+    //                 + getNotAfter().toString() ~ " (compared to " ~ date.toString() ~ ")");
     //     }
     // }
 
@@ -278,7 +278,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     // string getSigAlgName() {
     //     string oid = getSigAlgOID();
     //     string algName = Platform.oidToAlgorithmName(oid);
-    //     if (algName != null) {
+    //     if (algName !is null) {
     //         return algName;
     //     }
     //     return oid;
@@ -307,7 +307,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     // override
     // boolean[] getKeyUsage() {
     //     final boolean[] kusage = NativeCrypto.get_X509_ex_kusage(mContext, this);
-    //     if (kusage == null) {
+    //     if (kusage is null) {
     //         return null;
     //     }
 
@@ -355,7 +355,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     //         NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException,
     //         SignatureException {
     //     final Signature sig;
-    //     if (sigProvider == null) {
+    //     if (sigProvider is null) {
     //         sig = Signature.getInstance(getSigAlgName());
     //     } else {
     //         sig = Signature.getInstance(getSigAlgName(), sigProvider);
@@ -400,7 +400,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     //     }
 
     //     final Signature sig;
-    //     if (sigProvider == null) {
+    //     if (sigProvider is null) {
     //         sig = Signature.getInstance(getSigAlgName());
     //     } else {
     //         sig = Signature.getInstance(getSigAlgName(), sigProvider);
@@ -467,7 +467,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     // override
     // List<string> getExtendedKeyUsage() throws CertificateParsingException {
     //     string[] extUsage = NativeCrypto.get_X509_ex_xkusage(mContext, this);
-    //     if (extUsage == null) {
+    //     if (extUsage is null) {
     //         return null;
     //     }
 
@@ -475,7 +475,7 @@ final class OpenSSLX509Certificate : X509Certificate {
     // }
 
     // private static Collection<List<?>> alternativeNameArrayToList(Object[][] altNameArray) {
-    //     if (altNameArray == null) {
+    //     if (altNameArray is null) {
     //         return null;
     //     }
 
@@ -512,7 +512,7 @@ final class OpenSSLX509Certificate : X509Certificate {
 
     // override
     // int hashCode() {
-    //     if (mHashCode != null) {
+    //     if (mHashCode !is null) {
     //         return mHashCode;
     //     }
     //     mHashCode = super.hashCode();

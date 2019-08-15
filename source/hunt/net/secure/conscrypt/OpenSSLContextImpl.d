@@ -229,7 +229,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
 
     // TODO javax.net.ssl.keyStoreProvider system property
     KeyManager[] getKeyManagers () {
-        if (KEY_MANAGERS != null) {
+        if (KEY_MANAGERS !is null) {
             return KEY_MANAGERS;
         }
         // find KeyStore, KeyManagers
@@ -246,7 +246,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
         //     is = new BufferedInputStream(new FileInputStream(keystore));
         //     ks.load(is, pwd);
         // } finally {
-        //     if (is != null) {
+        //     if (is !is null) {
         //         is.close();
         //     }
         // }
@@ -261,7 +261,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
 
     // TODO javax.net.ssl.trustStoreProvider system property
     TrustManager[] getTrustManagers() {
-        if (TRUST_MANAGERS != null) {
+        if (TRUST_MANAGERS !is null) {
             return TRUST_MANAGERS;
         }
 
@@ -280,7 +280,7 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
         //     is = new BufferedInputStream(new FileInputStream(keystore));
         //     ks.load(is, pwd);
         // } finally {
-        //     if (is != null) {
+        //     if (is !is null) {
         //         is.close();
         //     }
         // }

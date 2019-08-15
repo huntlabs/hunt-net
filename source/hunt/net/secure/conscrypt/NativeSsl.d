@@ -220,7 +220,7 @@ return 0;
         //     }
         // }
         // X509KeyManager keyManager = parameters.getX509KeyManager();
-        // string name = (keyManager != null)
+        // string name = (keyManager !is null)
         //         ? aliasChooser.chooseClientAlias(keyManager, issuers, keyTypes)
         //         : null;
         // setCertificate(name);
@@ -305,7 +305,7 @@ return 0;
             NativeCrypto.SSL_set_accept_state(ssl);
 
             // Configure OCSP for server
-            if (parameters.getOCSPResponse() != null) {
+            if (parameters.getOCSPResponse() !is null) {
                 version(Have_boringssl) NativeCrypto.SSL_enable_ocsp_stapling(ssl);
             }
         }
@@ -350,11 +350,11 @@ return 0;
 
             NativeCrypto.SSL_set_options(ssl, SSL_OP_CIPHER_SERVER_PREFERENCE);
 
-            if (parameters.sctExtension != null) {
+            if (parameters.sctExtension !is null) {
                 NativeCrypto.SSL_set_signed_cert_timestamp_list(ssl, parameters.sctExtension);
             }
 
-            if (parameters.ocspResponse != null) {
+            if (parameters.ocspResponse !is null) {
                 NativeCrypto.SSL_set_ocsp_response(ssl, parameters.ocspResponse);
             }
         }
@@ -443,10 +443,10 @@ return 0;
     // private void enablePSKKeyManagerIfRequested() {
     //     // Enable Pre-Shared Key (PSK) key exchange if requested
     //     PSKKeyManager pskKeyManager = parameters.getPSKKeyManager();
-    //     if (pskKeyManager != null) {
+    //     if (pskKeyManager !is null) {
     //         bool pskEnabled = false;
     //         for (string enabledCipherSuite : parameters.enabledCipherSuites) {
-    //             if ((enabledCipherSuite != null) && (enabledCipherSuite.contains("PSK"))) {
+    //             if ((enabledCipherSuite !is null) && (enabledCipherSuite.contains("PSK"))) {
     //                 pskEnabled = true;
     //                 break;
     //             }
@@ -507,7 +507,7 @@ return 0;
         // if (certRequested) {
         //     X509TrustManager trustManager = parameters.getX509TrustManager();
         //     X509Certificate[] issuers = trustManager.getAcceptedIssuers();
-        //     if (issuers != null && issuers.length != 0) {
+        //     if (issuers !is null && issuers.length != 0) {
         //         byte[][] issuersBytes;
         //         try {
         //             issuersBytes = SSLUtils.encodeSubjectX509Principals(issuers);

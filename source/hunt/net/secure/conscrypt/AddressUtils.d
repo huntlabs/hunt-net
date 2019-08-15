@@ -34,7 +34,7 @@ final class AddressUtils {
      * Returns true when the supplied hostname is valid for SNI purposes.
      */
     static bool isValidSniHostname(string sniHostname) {
-        if (sniHostname == null) {
+        if (sniHostname is null) {
             return false;
         }
 
@@ -56,7 +56,7 @@ final class AddressUtils {
     // static bool isLiteralIpAddress(string hostname) {
     //     /* This is here for backwards compatibility for pre-Honeycomb devices. */
     //     Pattern ipPattern = AddressUtils.ipPattern;
-    //     if (ipPattern == null) {
+    //     if (ipPattern is null) {
     //         AddressUtils.ipPattern = ipPattern = Pattern.compile(IP_PATTERN);
     //     }
     //     return ipPattern.matcher(hostname).matches();

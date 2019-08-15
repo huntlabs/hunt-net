@@ -71,10 +71,10 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // ks.load(inputStream, keystorePassword !is null ? keystorePassword.toCharArray() : null);
 
         // // PKIX,SunX509
-        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType == null ? "SunX509" : keyManagerFactoryType);
+        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType is null ? "SunX509" : keyManagerFactoryType);
         // kmf.init(ks, keyPassword !is null ? keyPassword.toCharArray() : null);
 
-        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType == null ? "SunX509" : trustManagerFactoryType);
+        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType is null ? "SunX509" : trustManagerFactoryType);
         // tmf.init(ks);
 
         // TLSv1 TLSv1.2
@@ -96,10 +96,10 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         SSLContext sslContext;
 
         // // PKIX,SunX509
-        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType == null ? "SunX509" : keyManagerFactoryType);
+        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType is null ? "SunX509" : keyManagerFactoryType);
         // kmf.init(ks, keyPassword !is null ? keyPassword.toCharArray() : null);
 
-        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType == null ? "SunX509" : trustManagerFactoryType);
+        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType is null ? "SunX509" : trustManagerFactoryType);
         // tmf.init(ks);
 
         // TLSv1 TLSv1.2

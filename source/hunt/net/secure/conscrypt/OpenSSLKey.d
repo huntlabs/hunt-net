@@ -47,14 +47,14 @@ final class OpenSSLKey {
     //     }
 
     //     string keyFormat = key.getFormat();
-    //     if (keyFormat == null) {
+    //     if (keyFormat is null) {
     //         return wrapPrivateKey(key);
     //     } else if (!"PKCS#8".equals(key.getFormat())) {
-    //         throw new InvalidKeyException("Unknown key format " + keyFormat);
+    //         throw new InvalidKeyException("Unknown key format " ~ keyFormat);
     //     }
 
     //     byte[] encoded = key.getEncoded();
-    //     if (encoded == null) {
+    //     if (encoded is null) {
     //         throw new InvalidKeyException("Key encoding is null");
     //     }
 
@@ -165,7 +165,7 @@ final class OpenSSLKey {
             return null;
         }
         byte[] encoded = key.getEncoded();
-        if (encoded == null) {
+        if (encoded is null) {
             return null;
         }
         try {
@@ -194,7 +194,7 @@ final class OpenSSLKey {
         // } else if ("EC".equals(keyAlgorithm)) {
         //     return OpenSSLECPrivateKey.wrapJCAPrivateKeyForTLSStackOnly(privateKey, publicKey);
         // } else {
-        //     throw new InvalidKeyException("Unsupported key algorithm: " + keyAlgorithm);
+        //     throw new InvalidKeyException("Unsupported key algorithm: " ~ keyAlgorithm);
         // }
     }
 
@@ -204,7 +204,7 @@ final class OpenSSLKey {
     //     } else if (key instanceof ECPrivateKey) {
     //         return OpenSSLECPrivateKey.wrapPlatformKey((ECPrivateKey) key);
     //     } else {
-    //         throw new InvalidKeyException("Unknown key type: " + key.toString());
+    //         throw new InvalidKeyException("Unknown key type: " ~ key.toString());
     //     }
     // }
 
@@ -214,11 +214,11 @@ final class OpenSSLKey {
     //     }
 
     //     if (!"X.509".equals(key.getFormat())) {
-    //         throw new InvalidKeyException("Unknown key format " + key.getFormat());
+    //         throw new InvalidKeyException("Unknown key format " ~ key.getFormat());
     //     }
 
     //     byte[] encoded = key.getEncoded();
-    //     if (encoded == null) {
+    //     if (encoded is null) {
     //         throw new InvalidKeyException("Key encoding is null");
     //     }
 

@@ -123,7 +123,7 @@ class UrlEncoded  : MultiMap!string {
                     string val = list.get(i);
                     result.append(encodeString(key, charset));
 
-                    if (val != null) {
+                    if (val !is null) {
                         if (val.length > 0) {
                             result.append('=');
                             result.append(encodeString(val, charset));
@@ -163,16 +163,16 @@ class UrlEncoded  : MultiMap!string {
                                 (encoded ? decodeString(content, mark + 1, l) : content.substring(mark + 1, i));
                         mark = i;
                         encoded = false;
-                        if (key != null) {
+                        if (key !is null) {
                             map.add(key, value);
-                        } else if (value != null && value.length > 0) {
+                        } else if (value !is null && value.length > 0) {
                             map.add(value, "");
                         }
                         key = null;
                         value = null;
                         break;
                     case '=':
-                        if (key != null)
+                        if (key !is null)
                             break;
                         key = encoded ? decodeString(content, mark + 1, i - mark - 1) : content.substring(mark + 1, i);
                         mark = i;
@@ -190,7 +190,7 @@ class UrlEncoded  : MultiMap!string {
 
             int contentLen = cast(int)content.length;
 
-            if (key != null) {
+            if (key !is null) {
                 int l =  contentLen - mark - 1;
                 value = l == 0 ? "" : (encoded ? decodeString(content, mark + 1, l) : content.substring(mark + 1));
                 version(HUNT_HTTP_DEBUG) tracef("key=%s, value=%s", key, value);

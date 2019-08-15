@@ -120,14 +120,14 @@ class HttpURI {
 
 	// 	_scheme = uri.getScheme();
 	// 	_host = uri.getHost();
-	// 	if (_host == null && uri.getRawSchemeSpecificPart().startsWith("//"))
+	// 	if (_host is null && uri.getRawSchemeSpecificPart().startsWith("//"))
 	// 		_host = "";
 	// 	_port = uri.getPort();
 	// 	_user = uri.getUserInfo();
 	// 	_path = uri.getRawPath();
 
 	// 	_decodedPath = uri.getPath();
-	// 	if (_decodedPath != null) {
+	// 	if (_decodedPath !is null) {
 	// 		int p = _decodedPath.lastIndexOf(';');
 	// 		if (p >= 0)
 	// 			_param = _decodedPath.substring(p + 1);
@@ -230,7 +230,7 @@ class HttpURI {
 
 				default:
 					mark = i;
-					if (_scheme == null)
+					if (_scheme is null)
 						state = State.SCHEME_OR_PATH;
 					else {
 						path_mark = i;
@@ -334,7 +334,7 @@ class HttpURI {
 					state = State.PORT;
 					break;
 				case '@':
-					if (_user != null)
+					if (_user !is null)
 						throw new IllegalArgumentException("Bad authority");
 					_user = uri.substring(mark, i);
 					mark = i + 1;
@@ -375,7 +375,7 @@ class HttpURI {
 
 			case State.PORT: {
 				if (c == '@') {
-					if (_user != null)
+					if (_user !is null)
 						throw new IllegalArgumentException("Bad authority");
 					// It wasn't a port, but a password!
 					_user = _host ~ ":" ~ uri.substring(mark, i);
@@ -518,7 +518,7 @@ class HttpURI {
 		}
 
 		if (!encoded) {
-			if (_param == null)
+			if (_param is null)
 				_decodedPath = _path;
 			else
 				_decodedPath = _path[0 .. _path.length - _param.length - 1];
@@ -531,7 +531,7 @@ class HttpURI {
 
 	string getHost() {
 		// Return null for empty host to retain compatibility with java.net.URI
-		if (_host != null && _host.length == 0)
+		if (_host !is null && _host.length == 0)
 			return null;
 		return _host;
 	}
@@ -564,7 +564,7 @@ class HttpURI {
 	}
 
 	bool hasQuery() {
-		return _query != null && _query.length > 0;
+		return _query !is null && _query.length > 0;
 	}
 
 	string getFragment() {
@@ -593,7 +593,7 @@ class HttpURI {
 	}
 
 	bool isAbsolute() {
-		return _scheme != null && _scheme.length > 0;
+		return _scheme !is null && _scheme.length > 0;
 	}
 
 	override
@@ -601,12 +601,12 @@ class HttpURI {
 		if (_uri is null) {
 			StringBuilder ot = new StringBuilder();
 
-			if (_scheme != null)
+			if (_scheme !is null)
 				ot.append(_scheme).append(':');
 
-			if (_host != null) {
+			if (_host !is null) {
 				ot.append("//");
-				if (_user != null)
+				if (_user !is null)
 					ot.append(_user).append('@');
 				ot.append(_host);
 			}
@@ -614,13 +614,13 @@ class HttpURI {
 			if (_port > 0)
 				ot.append(':').append(_port);
 
-			if (_path != null)
+			if (_path !is null)
 				ot.append(_path);
 
-			if (_query != null)
+			if (_query !is null)
 				ot.append('?').append(_query);
 
-			if (_fragment != null)
+			if (_fragment !is null)
 				ot.append('#').append(_fragment);
 
 			if (ot.length > 0)
@@ -682,7 +682,7 @@ class HttpURI {
 		_decodedPath = null;
 		_param = null;
 		_fragment = null;
-		if (path != null)
+		if (path !is null)
 			parse(State.PATH, path);
 	}
 
@@ -692,18 +692,18 @@ class HttpURI {
 	}
 
 	// URI toURI() {
-	// 	return new URI(_scheme, null, _host, _port, _path, _query == null ? null : UrlEncoded.decodestring(_query),
+	// 	return new URI(_scheme, null, _host, _port, _path, _query is null ? null : UrlEncoded.decodestring(_query),
 	// 			_fragment);
 	// }
 
 	string getPathQuery() {
-		if (_query == null)
+		if (_query is null)
 			return _path;
 		return _path ~ "?" ~ _query;
 	}
 
 	bool hasAuthority() {
-		return _host != null;
+		return _host !is null;
 	}
 
 	string getAuthority() {
@@ -794,7 +794,7 @@ class URIUtils
                 return path;
             return path.substring(offset, end);
         } catch (Exception e) {
-            // System.err.println(path.substring(offset, offset + length) + " " + e);
+            // System.err.println(path.substring(offset, offset + length) ~ " " ~ e);
 			error(e.toString);
             return decodeISO88591Path(path, offset, length);
         }
@@ -1091,7 +1091,7 @@ class URIUtils
      * @return the compacted path
      */
     static string compactPath(string path) {
-        if (path == null || path.length == 0)
+        if (path is null || path.length == 0)
             return path;
 
         int state = 0;

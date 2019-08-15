@@ -101,7 +101,7 @@ class SSLContext {
         }
         implementationMissing();
         // SecurityManager sm = System.getSecurityManager();
-        // if (sm != null) {
+        // if (sm !is null) {
         //     sm.checkPermission(new SSLPermission("setDefaultSSLContext"));
         // }
         defaultContext = context;

@@ -284,10 +284,10 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         // synchronized (ssl) {
         //     if (isHandshakeStarted()) {
         //         throw new IllegalStateException("Could not change Channel ID private key "
-        //                 + "after the initial handshake has begun.");
+        //                 ~ "after the initial handshake has begun.");
         //     }
 
-        //     if (privateKey == null) {
+        //     if (privateKey is null) {
         //         sslParameters.channelIdEnabled = false;
         //         channelIdPrivateKey = null;
         //         return;
@@ -299,7 +299,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         //         if (privateKey instanceof ECKey) {
         //             ecParams = ((ECKey) privateKey).getParams();
         //         }
-        //         if (ecParams == null) {
+        //         if (ecParams is null) {
         //             // Assume this is a P-256 key, as specified in the contract of this method.
         //             ecParams =
         //                     OpenSSLECGroupContext.getCurveByName("prime256v1").getECParameterSpec();
@@ -1699,13 +1699,13 @@ implementationMissing(false);
     void verifyCertificateChain(byte[][] certChain, string authMethod) {
 implementationMissing(false);
         // try {
-        //     if (certChain == null || certChain.length == 0) {
+        //     if (certChain is null || certChain.length == 0) {
         //         throw new CertificateException("Peer sent no certificate");
         //     }
         //     X509Certificate[] peerCertChain = SSLUtils.decodeX509CertificateChain(certChain);
 
         //     X509TrustManager x509tm = sslParameters.getX509TrustManager();
-        //     if (x509tm == null) {
+        //     if (x509tm is null) {
         //         throw new CertificateException("No X.509 TrustManager");
         //     }
 

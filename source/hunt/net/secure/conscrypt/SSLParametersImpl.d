@@ -467,7 +467,7 @@ version(Have_boringssl) {
     //     for (KeyManager km : kms) {
     //         if (km instanceof PSKKeyManager) {
     //             return (PSKKeyManager)km;
-    //         } else if (km != null) {
+    //         } else if (km !is null) {
     //             try {
     //                 return DuckTypedPSKKeyManager.getInstance(km);
     //             } catch (NoSuchMethodException ignored) {}

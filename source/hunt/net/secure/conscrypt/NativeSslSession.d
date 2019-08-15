@@ -311,7 +311,7 @@ implementationMissing();
             //         daos.write(data);
             //     }
 
-            //     if (peerOcspStapledResponse != null) {
+            //     if (peerOcspStapledResponse !is null) {
             //         daos.writeInt(1);
             //         daos.writeInt(peerOcspStapledResponse.length);
             //         daos.write(peerOcspStapledResponse);
@@ -319,7 +319,7 @@ implementationMissing();
             //         daos.writeInt(0);
             //     }
 
-            //     if (peerSignedCertificateTimestamp != null) {
+            //     if (peerSignedCertificateTimestamp !is null) {
             //         daos.writeInt(peerSignedCertificateTimestamp.length);
             //         daos.write(peerSignedCertificateTimestamp);
             //     } else {
@@ -457,7 +457,7 @@ implementationMissing();
     // private static void log(Throwable t) {
     //     // TODO(nathanmittler): Better error handling?
     //     logger.log(Level.INFO, "Error inflating SSL session: {0}",
-    //             (t.getMessage() != null ? t.getMessage() : t.getClass().getName()));
+    //             (t.getMessage() !is null ? t.getMessage() : t.getClass().getName()));
     // }
 
     private static void checkRemaining(ByteBuffer buf, int length) {
