@@ -163,7 +163,7 @@ abstract class AbstractSessionContext : SSLSessionContext {
         //     if (seconds > 0) {
         //         NativeCrypto.SSL_CTX_set_timeout(sslCtxNativePointer, this, seconds);
         //     } else {
-        //         NativeCrypto.SSL_CTX_set_timeout(sslCtxNativePointer, this, Integer.MAX_VALUE);
+        //         NativeCrypto.SSL_CTX_set_timeout(sslCtxNativePointer, this, int.max);
         //     }
 
         //     Iterator<NativeSslSession> i = sessions.values().iterator();

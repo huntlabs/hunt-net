@@ -402,32 +402,32 @@ class ConnectionEventHandlerAdapter : ConnectionEventHandler {
     ////// ConnectionEventHandler APIs
 
     ///
-    void connectionOpened(Connection connection) {
+    override void connectionOpened(Connection connection) {
         if(_openedHandler !is null) 
             _openedHandler(connection);
     }
 
-	void connectionClosed(Connection connection) {
+	override void connectionClosed(Connection connection) {
         if(_closedHandler !is null)
             _closedHandler(connection);
     }
 
-	void messageReceived(Connection connection, Object message) {
+	override void messageReceived(Connection connection, Object message) {
         if(_messageHandler !is null)
             _messageHandler(connection, message);
     }
 
-	void exceptionCaught(Connection connection, Exception e) {
+	override void exceptionCaught(Connection connection, Exception e) {
         if(_exceptionHandler !is null)
             _exceptionHandler(connection, e);
     }
 
-	void failedOpeningConnection(int connectionId, Exception e) { 
+	override void failedOpeningConnection(int connectionId, Exception e) { 
         if(_openFailedHandler !is null)
-            _openFailedHandler(connectionId, e)
+            _openFailedHandler(connectionId, e);
     }
 
-	void failedAcceptingConnection(int connectionId, Exception e) { 
+	override void failedAcceptingConnection(int connectionId, Exception e) { 
         if(_acceptFailedHandler !is null) 
             _acceptFailedHandler(connectionId, e);
     }
