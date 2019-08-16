@@ -1,0 +1,215 @@
+/*
+ * Copyright 2013 The Netty Project
+ *
+ * The Netty Project licenses this file to you under the Apache License,
+ * version 2.0 (the "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at:
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" ~BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
+module hunt.net.buffer.ReferenceCountUtil;
+
+import hunt.net.buffer.ReferenceCounted;
+import hunt.logging.ConsoleLogger;
+
+
+/**
+ * Collection of method to handle objects that may implement {@link ReferenceCounted}.
+ */
+final class ReferenceCountUtil {
+
+
+    // static {
+    //     ResourceLeakDetector.addExclusions(ReferenceCountUtil.class, "touch");
+    // }
+
+    // /**
+    //  * Try to call {@link ReferenceCounted#retain()} if the specified message implements {@link ReferenceCounted}.
+    //  * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+    //  */
+    // static <T> T retain(T msg) {
+    //     if (msg instanceof ReferenceCounted) {
+    //         return (T) ((ReferenceCounted) msg).retain();
+    //     }
+    //     return msg;
+    // }
+
+    // /**
+    //  * Try to call {@link ReferenceCounted#retain(int)} if the specified message implements {@link ReferenceCounted}.
+    //  * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+    //  */
+
+    // static <T> T retain(T msg, int increment) {
+    //     if (msg instanceof ReferenceCounted) {
+    //         return (T) ((ReferenceCounted) msg).retain(increment);
+    //     }
+    //     return msg;
+    // }
+
+    // /**
+    //  * Tries to call {@link ReferenceCounted#touch()} if the specified message implements {@link ReferenceCounted}.
+    //  * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+    //  */
+
+    // static <T> T touch(T msg) {
+    //     if (msg instanceof ReferenceCounted) {
+    //         return (T) ((ReferenceCounted) msg).touch();
+    //     }
+    //     return msg;
+    // }
+
+    // /**
+    //  * Tries to call {@link ReferenceCounted#touch(Object)} if the specified message implements
+    //  * {@link ReferenceCounted}.  If the specified message doesn't implement {@link ReferenceCounted},
+    //  * this method does nothing.
+    //  */
+
+    // static <T> T touch(T msg, Object hint) {
+    //     if (msg instanceof ReferenceCounted) {
+    //         return (T) ((ReferenceCounted) msg).touch(hint);
+    //     }
+    //     return msg;
+    // }
+
+    /**
+     * Try to call {@link ReferenceCounted#release()} if the specified message implements {@link ReferenceCounted}.
+     * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+     */
+    static bool release(Object msg) {
+        ReferenceCounted rc = cast(ReferenceCounted) msg;
+        if (rc !is null) {
+            return rc.release();
+        }
+        return false;
+    }
+
+    /**
+     * Try to call {@link ReferenceCounted#release(int)} if the specified message implements {@link ReferenceCounted}.
+     * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+     */
+    static bool release(Object msg, int decrement) {
+        ReferenceCounted rc = cast(ReferenceCounted) msg;
+        if (rc !is null) {
+            return rc.release(decrement);
+        }
+        return false;
+    }
+
+    /**
+     * Try to call {@link ReferenceCounted#release()} if the specified message implements {@link ReferenceCounted}.
+     * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+     * Unlike {@link #release(Object)} this method catches an exception raised by {@link ReferenceCounted#release()}
+     * and logs it, rather than rethrowing it to the caller.  It is usually recommended to use {@link #release(Object)}
+     * instead, unless you absolutely need to swallow an exception.
+     */
+    static void safeRelease(Object msg) {
+        try {
+            release(msg);
+        } catch (Throwable t) {
+            version(HUNT_DEBUG) {
+                warningf("Failed to release a message: %s, exception: %s", 
+                    msg.toString(), t);
+            } else {
+                warningf("Failed to release a message: %s, exception: %s", 
+                    msg.toString(), t.msg);
+            }
+        }
+    }
+
+    /**
+     * Try to call {@link ReferenceCounted#release(int)} if the specified message implements {@link ReferenceCounted}.
+     * If the specified message doesn't implement {@link ReferenceCounted}, this method does nothing.
+     * Unlike {@link #release(Object)} this method catches an exception raised by {@link ReferenceCounted#release(int)}
+     * and logs it, rather than rethrowing it to the caller.  It is usually recommended to use
+     * {@link #release(Object, int)} instead, unless you absolutely need to swallow an exception.
+     */
+    static void safeRelease(Object msg, int decrement) {
+        try {
+            release(msg, decrement);
+        } catch (Throwable t) {
+
+            version(HUNT_DEBUG) {
+                warningf("Failed to release a message: %s (decrement: %d), exception: %s", 
+                    msg.toString(), decrement, t);
+            } else {
+                warningf("Failed to release a message: %s (decrement: %d), exception: %s", 
+                    msg.toString(), decrement, t.msg);
+            }      
+        }
+    }
+
+    // /**
+    //  * Schedules the specified object to be released when the caller thread terminates. Note that this operation is
+    //  * intended to simplify reference counting of ephemeral objects during unit tests. Do not use it beyond the
+    //  * intended use case.
+    //  *
+    //  * deprecated("") this may introduce a lot of memory usage so it is generally preferable to manually release objects.
+    //  */
+    // deprecated("")
+    // static <T> T releaseLater(T msg) {
+    //     return releaseLater(msg, 1);
+    // }
+
+    // /**
+    //  * Schedules the specified object to be released when the caller thread terminates. Note that this operation is
+    //  * intended to simplify reference counting of ephemeral objects during unit tests. Do not use it beyond the
+    //  * intended use case.
+    //  *
+    //  * deprecated("") this may introduce a lot of memory usage so it is generally preferable to manually release objects.
+    //  */
+    // deprecated("")
+    // static <T> T releaseLater(T msg, int decrement) {
+    //     if (msg instanceof ReferenceCounted) {
+    //         ThreadDeathWatcher.watch(Thread.currentThread(), new ReleasingTask((ReferenceCounted) msg, decrement));
+    //     }
+    //     return msg;
+    // }
+
+    // /**
+    //  * Returns reference count of a {@link ReferenceCounted} object. If object is not type of
+    //  * {@link ReferenceCounted}, {@code -1} is returned.
+    //  */
+    // static int refCnt(Object msg) {
+    //     return msg instanceof ReferenceCounted ? ((ReferenceCounted) msg).refCnt() : -1;
+    // }
+
+    // /**
+    //  * Releases the objects when the thread that called {@link #releaseLater(Object)} has been terminated.
+    //  */
+    // private static final class ReleasingTask implements Runnable {
+
+    //     private final ReferenceCounted obj;
+    //     private final int decrement;
+
+    //     ReleasingTask(ReferenceCounted obj, int decrement) {
+    //         this.obj = obj;
+    //         this.decrement = decrement;
+    //     }
+
+    //     override
+    //     void run() {
+    //         try {
+    //             if (!obj.release(decrement)) {
+    //                 warning("Non-zero refCnt: {}", this);
+    //             } else {
+    //                 logger.debug("Released: {}", this);
+    //             }
+    //         } catch (Exception ex) {
+    //             warning("Failed to release an object: {}", obj, ex);
+    //         }
+    //     }
+
+    //     override
+    //     String toString() {
+    //         return StringUtil.simpleClassName(obj) ~ ".release(" ~ decrement ~ ") refCnt: " ~ obj.refCnt();
+    //     }
+    // }
+
+    private this() { }
+}
