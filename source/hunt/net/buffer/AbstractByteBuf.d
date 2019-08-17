@@ -1262,9 +1262,9 @@ abstract class AbstractByteBuf : ByteBuf {
     override
     ByteBuf slice(int index, int length) {
         ensureAccessible();
-        // return new UnpooledSlicedByteBuf(this, index, length);
-        implementationMissing(false);
-        return null;
+        return new UnpooledSlicedByteBuf(this, index, length);
+        // implementationMissing(false);
+        // return null;
     }
 
     override

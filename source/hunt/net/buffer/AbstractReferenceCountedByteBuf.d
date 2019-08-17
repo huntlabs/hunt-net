@@ -16,9 +16,11 @@
 
 module hunt.net.buffer.AbstractReferenceCountedByteBuf;
 
-import hunt.net.buffer.ByteBuf;
 import hunt.net.buffer.AbstractByteBuf;
+import hunt.net.buffer.ByteBuf;
 import hunt.net.buffer.ByteBufUtil;
+import hunt.net.buffer.ReferenceCountUpdater;
+
 
 import hunt.collection.ByteBuffer;
 import hunt.Exceptions;
@@ -28,6 +30,7 @@ import hunt.text.StringBuilder;
 
 import std.conv;
 import std.format;
+import std.concurrency : initOnce;
 
 // import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -37,51 +40,53 @@ import std.format;
  * Abstract base class for {@link ByteBuf} implementations that count references.
  */
 abstract class AbstractReferenceCountedByteBuf : AbstractByteBuf {
-    // private static final long REFCNT_FIELD_OFFSET =
-    //         ReferenceCountUpdater.getUnsafeOffset(AbstractReferenceCountedByteBuf.class, "refCnt");
-    // private static final AtomicIntegerFieldUpdater!(AbstractReferenceCountedByteBuf) AIF_UPDATER =
-    //         AtomicIntegerFieldUpdater.newUpdater(AbstractReferenceCountedByteBuf.class, "refCnt");
 
-    // private static final ReferenceCountUpdater!(AbstractReferenceCountedByteBuf) updater =
-    //         new ReferenceCountUpdater!(AbstractReferenceCountedByteBuf)() {
-    //     override
-    //     protected AtomicIntegerFieldUpdater!(AbstractReferenceCountedByteBuf) updater() {
-    //         return AIF_UPDATER;
-    //     }
-    //     override
-    //     protected long unsafeOffset() {
-    //         return REFCNT_FIELD_OFFSET;
-    //     }
-    // };
+    alias IntegerFieldUpdater = AtomicIntegerFieldUpdater!(AbstractReferenceCountedByteBuf, "_refCnt");
+    alias RefCntUpdater = ReferenceCountUpdater!(AbstractReferenceCountedByteBuf, "_refCnt");
+
+    private static IntegerFieldUpdater AIF_UPDATER() {
+        __gshared IntegerFieldUpdater inst;
+        return initOnce!inst(new IntegerFieldUpdater());
+    }
+
+    private static RefCntUpdater updater() {
+        __gshared RefCntUpdater inst;
+        return initOnce!inst(new class RefCntUpdater {
+                override
+                protected IntegerFieldUpdater updater() {
+                    return AIF_UPDATER;
+            }
+        });
+
+    }
+            
+
 
     // Value might not equal "real" reference count, all access should be via the updater
-    // private volatile int refCnt = updater.initialValue();
+    private shared int _refCnt; // = updater.initialValue();
 
     protected this(int maxCapacity) {
         super(maxCapacity);
+        _refCnt = updater.initialValue();
     }
 
     override
     bool isAccessible() {
         // Try to do non-volatile read for performance as the ensureAccessible() is racy anyway and only provide
         // a best-effort guard.
-        // return updater.isLiveNonVolatile(this);
-        // implementationMissing(false);
-        return true;
+        return updater.isLiveNonVolatile(this);
     }
 
     // override
     int refCnt() {
-        // return updater.refCnt(this);
-        implementationMissing(false);
-        return 0;
+        return updater.refCnt(this);
     }
 
     /**
      * An unsafe operation intended for use by a subclass that sets the reference count of the buffer directly
      */
     protected final void setRefCnt(int refCnt) {
-        // updater.setRefCnt(this, refCnt);
+        updater.setRefCnt(this, refCnt);
     }
 
     /**
@@ -117,21 +122,12 @@ abstract class AbstractReferenceCountedByteBuf : AbstractByteBuf {
 
     // override
     bool release() {
-        // return handleRelease(updater.release(this));
-        // FIXME: Needing refactor or cleanup -@zxp at 8/16/2019, 6:25:50 PM
-        // 
-        // implementationMissing(false);
-        return true;
+        return handleRelease(updater.release(this));
     }
 
     // override
     bool release(int decrement) {
-        // return handleRelease(updater.release(this, decrement));
-
-        // FIXME: Needing refactor or cleanup -@zxp at 8/16/2019, 6:25:50 PM
-        // 
-        // implementationMissing(false);
-        return true;
+        return handleRelease(updater.release(this, decrement));
     }
 
     private bool handleRelease(bool result) {

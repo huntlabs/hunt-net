@@ -42,6 +42,29 @@ static T checkNotNull(T)(T arg, string text) {
 }
 
 /**
+ * Checks that the given argument is strictly positive. If it is not, throws {@link IllegalArgumentException}.
+ * Otherwise, returns the argument.
+ */
+int checkPositive(int i, string name) {
+    if (i <= 0) {
+        throw new IllegalArgumentException(name ~ ": " ~ i.to!string() ~ " (expected: > 0)");
+    }
+    return i;
+}
+
+
+/**
+ * Checks that the given argument is strictly positive. If it is not, throws {@link IllegalArgumentException}.
+ * Otherwise, returns the argument.
+ */
+long checkPositive(long i, string name) {
+    if (i <= 0) {
+        throw new IllegalArgumentException(name ~ ": " ~ i.to!string() ~ " (expected: > 0)");
+    }
+    return i;
+}
+
+/**
  * Checks that the given argument is positive or zero. If it is not , throws {@link IllegalArgumentException}.
  * Otherwise, returns the argument.
  */

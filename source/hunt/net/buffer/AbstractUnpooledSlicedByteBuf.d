@@ -92,11 +92,10 @@ abstract class AbstractUnpooledSlicedByteBuf : AbstractByteBuf {
         return unwrap().alloc();
     }
 
-    // override
-    // deprecated("")
-    // ByteOrder order() {
-    //     return unwrap().order();
-    // }
+    override
+    ByteOrder order() {
+        return unwrap().order();
+    }
 
     override
     bool isDirect() {
@@ -444,9 +443,81 @@ abstract class AbstractUnpooledSlicedByteBuf : AbstractByteBuf {
     //     return unwrap().setBytes(idx(index), input, position, length);
     // }
 
+    // override
+    final int refCnt() {
+        return refCnt0();
+    }
+
+    int refCnt0() {
+        return unwrap().refCnt();
+    }
+
+    override
+    final ByteBuf retain() {
+        return retain0();
+    }
+
+    ByteBuf retain0() {
+        unwrap().retain();
+        return this;
+    }
+
+    override
+    final ByteBuf retain(int increment) {
+        return retain0(increment);
+    }
+
+    ByteBuf retain0(int increment) {
+        unwrap().retain(increment);
+        return this;
+    }
+
+    override
+    final ByteBuf touch() {
+        return touch0();
+    }
+
+    ByteBuf touch0() {
+        unwrap().touch();
+        return this;
+    }
+
+    override
+    final ByteBuf touch(Object hint) {
+        return touch0(hint);
+    }
+
+    ByteBuf touch0(Object hint) {
+        unwrap().touch(hint);
+        return this;
+    }    
+
+    // override
+    final bool release() {
+        return release0();
+    }
+
+    bool release0() {
+        return unwrap().release();
+    }
+
+    // override
+    final bool release(int decrement) {
+        return release0(decrement);
+    }
+
+    bool release0(int decrement) {
+        return unwrap().release(decrement);
+    }
+
     override
     int nioBufferCount() {
         return unwrap().nioBufferCount();
+    }
+
+    override
+    ByteBuffer internalNioBuffer(int index, int length) {
+        return nioBuffer(index, length);
     }
 
     override
