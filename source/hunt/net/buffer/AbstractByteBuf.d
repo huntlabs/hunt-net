@@ -35,41 +35,6 @@ import hunt.text.StringBuilder;
 import std.conv;
 import std.format;
 
-// import io.netty.util.AsciiString;
-// import io.netty.util.ByteProcessor;
-// import io.netty.util.CharsetUtil;
-// import io.netty.util.IllegalReferenceCountException;
-// import io.netty.util.ResourceLeakDetector;
-// import io.netty.util.ResourceLeakDetectorFactory;
-// import io.netty.util.internal.PlatformDependent;
-// import io.netty.util.internal.StringUtil;
-// import io.netty.util.internal.SystemPropertyUtil;
-
-
-// import java.io.IOException;
-// import java.io.InputStream;
-// import java.io.OutputStream;
-// import java.nio.ByteBuffer;
-// import java.nio.ByteOrder;
-// import java.nio.channels.FileChannel;
-// import java.nio.channels.GatheringByteChannel;
-// import java.nio.channels.ScatteringByteChannel;
-// import java.nio.charset.Charset;
-
-// import static io.netty.util.internal.MathUtil.isOutOfBounds;
-// import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
-
-/**
- * Checks that the given argument is positive or zero. If it is not , throws {@link IllegalArgumentException}.
- * Otherwise, returns the argument.
- */
-int checkPositiveOrZero(int i, string name) {
-    if (i < 0) {
-        throw new IllegalArgumentException(name ~ ": " ~ i.to!string() ~ " (expected: >= 0)");
-    }
-    return i;
-}
-
 /**
  * A skeletal implementation of a buffer.
  */

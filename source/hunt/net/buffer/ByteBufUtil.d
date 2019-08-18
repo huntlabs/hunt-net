@@ -35,43 +35,10 @@ import hunt.Short;
 import hunt.text.StringBuilder;
 
 import std.algorithm;
+import std.ascii;
 import std.conv;
 import std.format;
 import std.concurrency : initOnce;
-
-
-// import io.netty.util.AsciiString;
-// import io.netty.util.ByteProcessor;
-// import io.netty.util.CharsetUtil;
-// import io.netty.util.Recycler;
-// import io.netty.util.Recycler.Handle;
-// import io.netty.util.concurrent.FastThreadLocal;
-// import io.netty.util.internal.MathUtil;
-// import io.netty.util.internal.PlatformDependent;
-// import io.netty.util.internal.StringUtil;
-// import io.netty.util.internal.SystemPropertyUtil;
-// import io.netty.util.internal.logging.InternalLogger;
-// import io.netty.util.internal.logging.InternalLoggerFactory;
-
-// import java.io.IOException;
-// import java.io.OutputStream;
-// import java.nio.ByteBuffer;
-// import java.nio.ByteOrder;
-// import java.nio.CharBuffer;
-// import java.nio.charset.CharacterCodingException;
-// import java.nio.charset.Charset;
-// import java.nio.charset.CharsetDecoder;
-// import java.nio.charset.CharsetEncoder;
-// import java.nio.charset.CoderResult;
-// import java.nio.charset.CodingErrorAction;
-// import java.util.Arrays;
-// import java.util.Locale;
-
-// import static io.netty.util.internal.MathUtil.isOutOfBounds;
-// import static io.netty.util.internal.ObjectUtil.checkNotNull;
-// import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
-// import static io.netty.util.internal.StringUtil.NEWLINE;
-// import static io.netty.util.internal.StringUtil.isSurrogate;
 
 
 /**
@@ -79,13 +46,6 @@ import std.concurrency : initOnce;
  * such as the generation of hex dump and swapping an integer's byte order.
  */
 final class ByteBufUtil {
-
-    // private static FastThreadLocal!(byte[]) BYTE_ARRAYS = new FastThreadLocal!(byte[])() {
-    //     override
-    //     protected byte[] initialValue() {
-    //         return PlatformDependent.allocateUninitializedArray(MAX_TL_ARRAY_LEN);
-    //     }
-    // };
 
     private static byte[] BYTE_ARRAYS() {
         static byte[] data;
@@ -145,37 +105,37 @@ final class ByteBufUtil {
             : new byte[minLength];
     }
 
-    // /**
-    //  * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-    //  * of the specified buffer's readable bytes.
-    //  */
-    // static string hexDump(ByteBuf buffer) {
-    //     return hexDump(buffer, buffer.readerIndex(), buffer.readableBytes());
-    // }
+    /**
+     * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
+     * of the specified buffer's readable bytes.
+     */
+    static string hexDump(ByteBuf buffer) {
+        return hexDump(buffer, buffer.readerIndex(), buffer.readableBytes());
+    }
 
-    // /**
-    //  * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-    //  * of the specified buffer's sub-region.
-    //  */
-    // static string hexDump(ByteBuf buffer, int fromIndex, int length) {
-    //     return HexUtil.hexDump(buffer, fromIndex, length);
-    // }
+    /**
+     * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
+     * of the specified buffer's sub-region.
+     */
+    static string hexDump(ByteBuf buffer, int fromIndex, int length) {
+        return HexUtil.hexDump(buffer, fromIndex, length);
+    }
 
-    // /**
-    //  * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-    //  * of the specified byte array.
-    //  */
-    // static string hexDump(byte[] array) {
-    //     return hexDump(array, 0, array.length);
-    // }
+    /**
+     * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
+     * of the specified byte array.
+     */
+    static string hexDump(byte[] array) {
+        return hexDump(array, 0, array.length);
+    }
 
-    // /**
-    //  * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
-    //  * of the specified byte array's sub-region.
-    //  */
-    // static string hexDump(byte[] array, int fromIndex, int length) {
-    //     return HexUtil.hexDump(array, fromIndex, length);
-    // }
+    /**
+     * Returns a <a href="http://en.wikipedia.org/wiki/Hex_dump">hex dump</a>
+     * of the specified byte array's sub-region.
+     */
+    static string hexDump(byte[] array, size_t fromIndex, size_t length) {
+        return HexUtil.hexDump(array, fromIndex, length);
+    }
 
     // /**
     //  * Decode a 2-digit hex byte from within a string.
@@ -1328,192 +1288,203 @@ final class ByteBufUtil {
 
 
 /* Separate class so that the expensive static initialization is only done when needed */
-// private final class HexUtil {
+final class HexUtil {
 
-//     private enum char[] BYTE2CHAR = new char[256];
-//     private enum char[] HEXDUMP_TABLE = new char[256 * 4];
-//     private enum string[] HEXPADDING = new string[16];
-//     private enum string[] HEXDUMP_ROWPREFIXES = new string[65536 >>> 4];
-//     private enum string[] BYTE2HEX = new string[256];
-//     private enum string[] BYTEPADDING = new string[16];
+    private __gshared char[] BYTE2CHAR;
+    private __gshared char[] HEXDUMP_TABLE;
+    private __gshared string[] HEXPADDING;
+    private __gshared string[] HEXDUMP_ROWPREFIXES;
+    private __gshared string[] BYTE2HEX;
+    private __gshared string[] BYTEPADDING;
 
-//     static {
-//         char[] DIGITS = "0123456789abcdef".toCharArray();
-//         for (int i = 0; i < 256; i ++) {
-//             HEXDUMP_TABLE[ i << 1     ] = DIGITS[i >>> 4 & 0x0F];
-//             HEXDUMP_TABLE[(i << 1) + 1] = DIGITS[i       & 0x0F];
-//         }
+    shared static this() {
+        BYTE2CHAR = new char[256];
+        HEXDUMP_TABLE = new char[256 * 4];
+        HEXPADDING = new string[16];
+        HEXDUMP_ROWPREFIXES = new string[65536 >>> 4];
+        BYTE2HEX = new string[256];
+        BYTEPADDING = new string[16];
 
-//         int i;
+        for (int i = 0; i < 256; i ++) {
+            HEXDUMP_TABLE[ i << 1     ] = lowerHexDigits[i >>> 4 & 0x0F];
+            HEXDUMP_TABLE[(i << 1) + 1] = lowerHexDigits[i       & 0x0F];
+        }
 
-//         // Generate the lookup table for hex dump paddings
-//         for (i = 0; i < HEXPADDING.length; i ++) {
-//             int padding = HEXPADDING.length - i;
-//             StringBuilder buf = new StringBuilder(padding * 3);
-//             for (int j = 0; j < padding; j ++) {
-//                 buf.append("   ");
-//             }
-//             HEXPADDING[i] = buf.toString();
-//         }
+        size_t i;
 
-//         // Generate the lookup table for the start-offset header in each row (up to 64KiB).
-//         for (i = 0; i < HEXDUMP_ROWPREFIXES.length; i ++) {
-//             StringBuilder buf = new StringBuilder(12);
-//             buf.append(NEWLINE);
-//             buf.append(Long.toHexString(i << 4 & 0xFFFFFFFFL | 0x100000000L));
-//             buf.setCharAt(buf.length() - 9, '|');
-//             buf.append('|');
-//             HEXDUMP_ROWPREFIXES[i] = buf.toString();
-//         }
+        // Generate the lookup table for hex dump paddings
+        for (i = 0; i < HEXPADDING.length; i ++) {
+            size_t padding = HEXPADDING.length - i;
+            StringBuilder buf = new StringBuilder(padding * 3);
+            for (size_t j = 0; j < padding; j ++) {
+                buf.append("   ");
+            }
+            HEXPADDING[i] = buf.toString();
+        }
 
-//         // Generate the lookup table for byte-to-hex-dump conversion
-//         for (i = 0; i < BYTE2HEX.length; i ++) {
-//             BYTE2HEX[i] = ' ' + StringUtil.byteToHexStringPadded(i);
-//         }
+        // Generate the lookup table for the start-offset header in each row (up to 64KiB).
+        for (i = 0; i < HEXDUMP_ROWPREFIXES.length; i ++) {
+            StringBuilder buf = new StringBuilder(12);
+            buf.append(newline);
+            buf.append(Long.toHexString(i << 4 & 0xFFFFFFFFL | 0x100000000L));
+            buf.setCharAt(buf.length() - 9, '|');
+            buf.append('|');
+            HEXDUMP_ROWPREFIXES[i] = buf.toString();
+        }
 
-//         // Generate the lookup table for byte dump paddings
-//         for (i = 0; i < BYTEPADDING.length; i ++) {
-//             int padding = BYTEPADDING.length - i;
-//             StringBuilder buf = new StringBuilder(padding);
-//             for (int j = 0; j < padding; j ++) {
-//                 buf.append(' ');
-//             }
-//             BYTEPADDING[i] = buf.toString();
-//         }
+        // Generate the lookup table for byte-to-hex-dump conversion
+        for (i = 0; i < BYTE2HEX.length; i ++) {
+            BYTE2HEX[i] = " " ~ format("%02x", i); // StringUtil.byteToHexStringPadded(i);
+        }
 
-//         // Generate the lookup table for byte-to-char conversion
-//         for (i = 0; i < BYTE2CHAR.length; i ++) {
-//             if (i <= 0x1f || i >= 0x7f) {
-//                 BYTE2CHAR[i] = '.';
-//             } else {
-//                 BYTE2CHAR[i] = (char) i;
-//             }
-//         }
-//     }
+        // Generate the lookup table for byte dump paddings
+        for (i = 0; i < BYTEPADDING.length; i ++) {
+            size_t padding = BYTEPADDING.length - i;
+            StringBuilder buf = new StringBuilder(padding);
+            for (size_t j = 0; j < padding; j ++) {
+                buf.append(' ');
+            }
+            BYTEPADDING[i] = buf.toString();
+        }
 
-//     private static string hexDump(ByteBuf buffer, int fromIndex, int length) {
-//         checkPositiveOrZero(length, "length");
-//         if (length == 0) {
-//           return "";
-//         }
+        // Generate the lookup table for byte-to-char conversion
+        for (i = 0; i < BYTE2CHAR.length; i ++) {
+            if (i <= 0x1f || i >= 0x7f) {
+                BYTE2CHAR[i] = '.';
+            } else {
+                BYTE2CHAR[i] = cast(char) i;
+            }
+        }
+    }
 
-//         int endIndex = fromIndex + length;
-//         char[] buf = new char[length << 1];
+    private static string hexDump(ByteBuf buffer, size_t fromIndex, size_t length) {
+        checkPositiveOrZero(cast(int)length, "length");
+        if (length == 0) {
+          return "";
+        }
 
-//         int srcIdx = fromIndex;
-//         int dstIdx = 0;
-//         for (; srcIdx < endIndex; srcIdx ++, dstIdx += 2) {
-//           System.arraycopy(
-//               HEXDUMP_TABLE, buffer.getUnsignedByte(srcIdx) << 1,
-//               buf, dstIdx, 2);
-//         }
+        size_t endIndex = fromIndex + length;
+        char[] buf = new char[length << 1];
 
-//         return new string(buf);
-//     }
+        size_t srcIdx = fromIndex;
+        size_t dstIdx = 0;
+        for (; srcIdx < endIndex; srcIdx++, dstIdx += 2) {
+        //   System.arraycopy(
+        //       HEXDUMP_TABLE, buffer.getUnsignedByte(srcIdx) << 1,
+        //       buf, dstIdx, 2);
+            size_t srcPos = buffer.getUnsignedByte(cast(int)srcIdx) << 1;
+            buf[dstIdx .. dstIdx+2] = HEXDUMP_TABLE[srcPos .. srcPos + 2];
+        }
 
-//     private static string hexDump(byte[] array, int fromIndex, int length) {
-//         checkPositiveOrZero(length, "length");
-//         if (length == 0) {
-//             return "";
-//         }
+        return cast(string)(buf);
+    }
 
-//         int endIndex = fromIndex + length;
-//         char[] buf = new char[length << 1];
+    private static string hexDump(byte[] array, size_t fromIndex, size_t length) {
+        checkPositiveOrZero(cast(int)length, "length");
+        if (length == 0) {
+            return "";
+        }
 
-//         int srcIdx = fromIndex;
-//         int dstIdx = 0;
-//         for (; srcIdx < endIndex; srcIdx ++, dstIdx += 2) {
-//             System.arraycopy(
-//                 HEXDUMP_TABLE, (array[srcIdx] & 0xFF) << 1,
-//                 buf, dstIdx, 2);
-//         }
+        size_t endIndex = fromIndex + length;
+        char[] buf = new char[length << 1];
 
-//         return new string(buf);
-//     }
+        size_t srcIdx = fromIndex;
+        size_t dstIdx = 0;
+        for (; srcIdx < endIndex; srcIdx ++, dstIdx += 2) {
+            // System.arraycopy(
+            //     HEXDUMP_TABLE, (array[srcIdx] & 0xFF) << 1,
+            //     buf, dstIdx, 2);
+            
+            size_t srcPos = (array[srcIdx] & 0xFF) << 1;
+            buf[dstIdx .. dstIdx+2] = HEXDUMP_TABLE[srcPos .. srcPos + 2];
+        }
 
-//     private static string prettyHexDump(ByteBuf buffer, int offset, int length) {
-//         if (length == 0) {
-//           return StringUtil.EMPTY_STRING;
-//         } else {
-//             int rows = length / 16 + ((length & 15) == 0? 0 : 1) + 4;
-//             StringBuilder buf = new StringBuilder(rows * 80);
-//             appendPrettyHexDump(buf, buffer, offset, length);
-//             return buf.toString();
-//         }
-//     }
+        return cast(string)(buf);
+    }
 
-//     private static void appendPrettyHexDump(StringBuilder dump, ByteBuf buf, int offset, int length) {
-//         if (isOutOfBounds(offset, length, buf.capacity())) {
-//             throw new IndexOutOfBoundsException(
-//                     "expected: " ~ "0 <= offset(" ~ offset ~ ") <= offset + length(" ~ length
-//                                                 ~ ") <= " ~ "buf.capacity(" ~ buf.capacity() + ')');
-//         }
-//         if (length == 0) {
-//             return;
-//         }
-//         dump.append(
-//                           "         +-------------------------------------------------+" ~
-//                 NEWLINE ~ "         |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |" ~
-//                 NEWLINE ~ "+--------+-------------------------------------------------+----------------+");
+    private static string prettyHexDump(ByteBuf buffer, size_t offset, size_t length) {
+        if (length == 0) {
+          return "";
+        } else {
+            size_t rows = length / 16 + ((length & 15) == 0? 0 : 1) + 4;
+            StringBuilder buf = new StringBuilder(rows * 80);
+            appendPrettyHexDump(buf, buffer, offset, length);
+            return buf.toString();
+        }
+    }
 
-//         int startIndex = offset;
-//         int fullRows = length >>> 4;
-//         int remainder = length & 0xF;
+    private static void appendPrettyHexDump(StringBuilder dump, ByteBuf buf, size_t offset, size_t length) {
+        if (isOutOfBounds(cast(int)offset, cast(int)length, buf.capacity())) {
+            string msg = format("expected: " ~ "0 <= offset(%d) <= offset + length(%d) <= buf.capacity(%d)", 
+                    offset, length, buf.capacity());
+            throw new IndexOutOfBoundsException(msg);
+        }
+        if (length == 0) {
+            return;
+        }
+        dump.append(
+                          "         +-------------------------------------------------+" ~
+                newline ~ "         |  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f |" ~
+                newline ~ "+--------+-------------------------------------------------+----------------+");
 
-//         // Dump the rows which have 16 bytes.
-//         for (int row = 0; row < fullRows; row ++) {
-//             int rowStartIndex = (row << 4) + startIndex;
+        size_t startIndex = offset;
+        size_t fullRows = length >>> 4;
+        size_t remainder = length & 0xF;
 
-//             // Per-row prefix.
-//             appendHexDumpRowPrefix(dump, row, rowStartIndex);
+        // Dump the rows which have 16 bytes.
+        for (size_t row = 0; row < fullRows; row ++) {
+            size_t rowStartIndex = (row << 4) + startIndex;
 
-//             // Hex dump
-//             int rowEndIndex = rowStartIndex + 16;
-//             for (int j = rowStartIndex; j < rowEndIndex; j ++) {
-//                 dump.append(BYTE2HEX[buf.getUnsignedByte(j)]);
-//             }
-//             dump.append(" |");
+            // Per-row prefix.
+            appendHexDumpRowPrefix(dump, row, rowStartIndex);
 
-//             // ASCII dump
-//             for (int j = rowStartIndex; j < rowEndIndex; j ++) {
-//                 dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
-//             }
-//             dump.append('|');
-//         }
+            // Hex dump
+            size_t rowEndIndex = rowStartIndex + 16;
+            for (size_t j = rowStartIndex; j < rowEndIndex; j ++) {
+                dump.append(BYTE2HEX[buf.getUnsignedByte(cast(int)j)]);
+            }
+            dump.append(" |");
 
-//         // Dump the last row which has less than 16 bytes.
-//         if (remainder != 0) {
-//             int rowStartIndex = (fullRows << 4) + startIndex;
-//             appendHexDumpRowPrefix(dump, fullRows, rowStartIndex);
+            // ASCII dump
+            for (size_t j = rowStartIndex; j < rowEndIndex; j ++) {
+                dump.append(BYTE2CHAR[buf.getUnsignedByte(cast(int)j)]);
+            }
+            dump.append('|');
+        }
 
-//             // Hex dump
-//             int rowEndIndex = rowStartIndex + remainder;
-//             for (int j = rowStartIndex; j < rowEndIndex; j ++) {
-//                 dump.append(BYTE2HEX[buf.getUnsignedByte(j)]);
-//             }
-//             dump.append(HEXPADDING[remainder]);
-//             dump.append(" |");
+        // Dump the last row which has less than 16 bytes.
+        if (remainder != 0) {
+            size_t rowStartIndex = (fullRows << 4) + startIndex;
+            appendHexDumpRowPrefix(dump, fullRows, rowStartIndex);
 
-//             // Ascii dump
-//             for (int j = rowStartIndex; j < rowEndIndex; j ++) {
-//                 dump.append(BYTE2CHAR[buf.getUnsignedByte(j)]);
-//             }
-//             dump.append(BYTEPADDING[remainder]);
-//             dump.append('|');
-//         }
+            // Hex dump
+            size_t rowEndIndex = rowStartIndex + remainder;
+            for (size_t j = rowStartIndex; j < rowEndIndex; j ++) {
+                dump.append(BYTE2HEX[buf.getUnsignedByte(cast(int)j)]);
+            }
+            dump.append(HEXPADDING[remainder]);
+            dump.append(" |");
 
-//         dump.append(NEWLINE +
-//                     "+--------+-------------------------------------------------+----------------+");
-//     }
+            // Ascii dump
+            for (size_t j = rowStartIndex; j < rowEndIndex; j ++) {
+                dump.append(BYTE2CHAR[buf.getUnsignedByte(cast(int)j)]);
+            }
+            dump.append(BYTEPADDING[remainder]);
+            dump.append('|');
+        }
 
-//     private static void appendHexDumpRowPrefix(StringBuilder dump, int row, int rowStartIndex) {
-//         if (row < HEXDUMP_ROWPREFIXES.length) {
-//             dump.append(HEXDUMP_ROWPREFIXES[row]);
-//         } else {
-//             dump.append(NEWLINE);
-//             dump.append(Long.toHexString(rowStartIndex & 0xFFFFFFFFL | 0x100000000L));
-//             dump.setCharAt(dump.length() - 9, '|');
-//             dump.append('|');
-//         }
-//     }
-// }
+        dump.append(newline ~
+                    "+--------+-------------------------------------------------+----------------+");
+    }
+
+    private static void appendHexDumpRowPrefix(StringBuilder dump, size_t row, size_t rowStartIndex) {
+        if (row < HEXDUMP_ROWPREFIXES.length) {
+            dump.append(HEXDUMP_ROWPREFIXES[row]);
+        } else {
+            dump.append(newline);
+            dump.append(Long.toHexString(rowStartIndex & 0xFFFFFFFFL | 0x100000000L));
+            dump.setCharAt(dump.length() - 9, '|');
+            dump.append('|');
+        }
+    }
+}

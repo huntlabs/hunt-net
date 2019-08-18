@@ -478,7 +478,7 @@ final class Unpooled {
                 }
             
             default: 
-                implementationMissing(false);
+                break; // do nothing
         }
 
         // Merge the specified arrays into one array.
@@ -754,25 +754,25 @@ final class Unpooled {
     /**
      * Creates a new 2-byte big-endian buffer that holds the specified 16-bit integer.
      */
-    static ByteBuf copyShort(int value) {
-        ByteBuf buf = buffer(2);
-        buf.writeShort(value);
-        return buf;
-    }
+    // static ByteBuf copyShort(int value) {
+    //     ByteBuf buf = buffer(2);
+    //     buf.writeShort(value);
+    //     return buf;
+    // }
 
     /**
      * Create a new big-endian buffer that holds a sequence of the specified 16-bit integers.
      */
-    static ByteBuf copyShort(short[] values...) {
-        if (values is null || values.length == 0) {
-            return EMPTY_BUFFER;
-        }
-        ByteBuf buffer = buffer(cast(int)values.length * 2);
-        foreach(int v; values) {
-            buffer.writeShort(v);
-        }
-        return buffer;
-    }
+    // static ByteBuf copyShort(short[] values...) {
+    //     if (values is null || values.length == 0) {
+    //         return EMPTY_BUFFER;
+    //     }
+    //     ByteBuf buffer = buffer(cast(int)values.length * 2);
+    //     foreach(int v; values) {
+    //         buffer.writeShort(v);
+    //     }
+    //     return buffer;
+    // }
 
     /**
      * Create a new big-endian buffer that holds a sequence of the specified 16-bit integers.
@@ -814,11 +814,11 @@ final class Unpooled {
     /**
      * Creates a new 8-byte big-endian buffer that holds the specified 64-bit integer.
      */
-    static ByteBuf copyLong(long value) {
-        ByteBuf buf = buffer(8);
-        buf.writeLong(value);
-        return buf;
-    }
+    // static ByteBuf copyLong(long value) {
+    //     ByteBuf buf = buffer(8);
+    //     buf.writeLong(value);
+    //     return buf;
+    // }
 
     /**
      * Create a new big-endian buffer that holds a sequence of the specified 64-bit integers.
@@ -860,11 +860,11 @@ final class Unpooled {
     /**
      * Creates a new 4-byte big-endian buffer that holds the specified 32-bit floating point number.
      */
-    static ByteBuf copyFloat(float value) {
-        ByteBuf buf = buffer(4);
-        buf.writeFloat(value);
-        return buf;
-    }
+    // static ByteBuf copyFloat(float value) {
+    //     ByteBuf buf = buffer(4);
+    //     buf.writeFloat(value);
+    //     return buf;
+    // }
 
     /**
      * Create a new big-endian buffer that holds a sequence of the specified 32-bit floating point numbers.
@@ -883,11 +883,11 @@ final class Unpooled {
     /**
      * Creates a new 8-byte big-endian buffer that holds the specified 64-bit floating point number.
      */
-    static ByteBuf copyDouble(double value) {
-        ByteBuf buf = buffer(8);
-        buf.writeDouble(value);
-        return buf;
-    }
+    // static ByteBuf copyDouble(double value) {
+    //     ByteBuf buf = buffer(8);
+    //     buf.writeDouble(value);
+    //     return buf;
+    // }
 
     /**
      * Create a new big-endian buffer that holds a sequence of the specified 64-bit floating point numbers.
