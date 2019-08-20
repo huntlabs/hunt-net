@@ -120,7 +120,7 @@ final class Unpooled {
     // }
 
     /**
-     * Creates a new big-endian Java heap buffer with reasonably small initial capacity, which
+     * Creates a new big-endian heap buffer with reasonably small initial capacity, which
      * expands its capacity boundlessly on demand.
      */
     static ByteBuf buffer() {
@@ -136,7 +136,7 @@ final class Unpooled {
     }
 
     /**
-     * Creates a new big-endian Java heap buffer with the specified {@code capacity}, which
+     * Creates a new big-endian heap buffer with the specified {@code capacity}, which
      * expands its capacity boundlessly on demand.  The new buffer's {@code readerIndex} and
      * {@code writerIndex} are {@code 0}.
      */
@@ -154,7 +154,7 @@ final class Unpooled {
     }
 
     /**
-     * Creates a new big-endian Java heap buffer with the specified
+     * Creates a new big-endian heap buffer with the specified
      * {@code initialCapacity}, that may grow up to {@code maxCapacity}
      * The new buffer's {@code readerIndex} and {@code writerIndex} are
      * {@code 0}.

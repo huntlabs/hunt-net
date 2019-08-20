@@ -400,11 +400,11 @@ final class EmptyByteBuf : ByteBuf {
     //     return 0;
     // }
 
-    // override
-    // CharSequence getCharSequence(int index, int length, Charset charset) {
-    //     checkIndex(index, length);
-    //     return null;
-    // }
+    override
+    CharSequence getCharSequence(int index, int length, Charset charset) {
+        checkIndex(index, length);
+        return null;
+    }
 
     override
     ByteBuf setBoolean(int index, bool value) {
@@ -524,10 +524,10 @@ final class EmptyByteBuf : ByteBuf {
         return checkIndex(index, length);
     }
 
-    // override
-    // int setCharSequence(int index, CharSequence sequence, Charset charset) {
-    //     throw new IndexOutOfBoundsException();
-    // }
+    override
+    int setCharSequence(int index, CharSequence sequence, Charset charset) {
+        throw new IndexOutOfBoundsException();
+    }
 
     override
     bool readBoolean() {
@@ -691,11 +691,11 @@ final class EmptyByteBuf : ByteBuf {
     //     return 0;
     // }
 
-    // override
-    // CharSequence readCharSequence(int length, Charset charset) {
-    //     checkLength(length);
-    //     return StringUtil.EMPTY_STRING;
-    // }
+    override
+    CharSequence readCharSequence(int length, Charset charset) {
+        checkLength(length);
+        return "";
+    }
 
     override
     ByteBuf skipBytes(int length) {
@@ -820,10 +820,10 @@ final class EmptyByteBuf : ByteBuf {
         return checkLength(length);
     }
 
-    // override
-    // int writeCharSequence(CharSequence sequence, Charset charset) {
-    //     throw new IndexOutOfBoundsException();
-    // }
+    override
+    int writeCharSequence(CharSequence sequence, Charset charset) {
+        throw new IndexOutOfBoundsException();
+    }
 
     override
     int indexOf(int fromIndex, int toIndex, byte value) {

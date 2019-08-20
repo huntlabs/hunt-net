@@ -511,21 +511,23 @@ abstract class AbstractByteBuf : ByteBuf {
         return this;
     }
 
-    // override
-    // string getCharSequence(int index, int length, Charset charset) {
-    //     // if (CharsetUtil.US_ASCII == charset || CharsetUtil.ISO_8859_1 == charset) {
-    //     //     // ByteBufUtil.getBytes(...) will return a new copy which the AsciiString uses directly
-    //     //     return new AsciiString(ByteBufUtil.getBytes(this, index, length, true), false);
-    //     // }
-    //     return toString(index, length, charset);
-    // }
+    override
+    string getCharSequence(int index, int length, Charset charset) {
+        // if (CharsetUtil.US_ASCII == charset || CharsetUtil.ISO_8859_1 == charset) {
+        //     // ByteBufUtil.getBytes(...) will return a new copy which the AsciiString uses directly
+        //     return new AsciiString(ByteBufUtil.getBytes(this, index, length, true), false);
+        // }
+        // FIXME: Needing refactor or cleanup -@zxp at 8/20/2019, 5:02:08 PM
+        // 
+        return toString(index, length, charset);
+    }
 
-    // override
-    // string readCharSequence(int length, Charset charset) {
-    //     string sequence = getCharSequence(_readerIndex, length, charset);
-    //     _readerIndex += length;
-    //     return sequence;
-    // }
+    override
+    string readCharSequence(int length, Charset charset) {
+        string sequence = getCharSequence(_readerIndex, length, charset);
+        _readerIndex += length;
+        return sequence;
+    }
 
     override
     ByteBuf setByte(int index, int value) {
@@ -700,40 +702,44 @@ abstract class AbstractByteBuf : ByteBuf {
         return this;
     }
 
-    // override
-    // int setCharSequence(int index, CharSequence sequence, Charset charset) {
-    //     return setCharSequence0(index, sequence, charset, false);
-    // }
+    override
+    int setCharSequence(int index, CharSequence sequence, Charset charset) {
+        return setCharSequence0(index, sequence, charset, false);
+    }
 
-    // private int setCharSequence0(int index, CharSequence sequence, Charset charset, bool expand) {
-    //     if (charset == CharsetUtil.UTF_8) {
-    //         int length = ByteBufUtil.utf8MaxBytes(sequence);
-    //         if (expand) {
-    //             ensureWritable0(length);
-    //             checkIndex0(index, length);
-    //         } else {
-    //             checkIndex(index, length);
-    //         }
-    //         return ByteBufUtil.writeUtf8(this, index, sequence, sequence.length());
-    //     }
-    //     if (charset == CharsetUtil.US_ASCII || charset == CharsetUtil.ISO_8859_1) {
-    //         int length = sequence.length();
-    //         if (expand) {
-    //             ensureWritable0(length);
-    //             checkIndex0(index, length);
-    //         } else {
-    //             checkIndex(index, length);
-    //         }
-    //         return ByteBufUtil.writeAscii(this, index, sequence, length);
-    //     }
-    //     byte[] bytes = sequence.toString().getBytes(charset);
-    //     if (expand) {
-    //         ensureWritable0(bytes.length);
-    //         // setBytes(...) will take care of checking the indices.
-    //     }
-    //     setBytes(index, bytes);
-    //     return bytes.length;
-    // }
+    private int setCharSequence0(int index, CharSequence sequence, Charset charset, bool expand) {
+        // if (charset == CharsetUtil.UTF_8) {
+        //     int length = ByteBufUtil.utf8MaxBytes(sequence);
+        //     if (expand) {
+        //         ensureWritable0(length);
+        //         checkIndex0(index, length);
+        //     } else {
+        //         checkIndex(index, length);
+        //     }
+        //     return ByteBufUtil.writeUtf8(this, index, sequence, sequence.length());
+        // }
+
+        // if (charset == CharsetUtil.US_ASCII || charset == CharsetUtil.ISO_8859_1) {
+        //     int length = sequence.length();
+        //     if (expand) {
+        //         ensureWritable0(length);
+        //         checkIndex0(index, length);
+        //     } else {
+        //         checkIndex(index, length);
+        //     }
+        //     return ByteBufUtil.writeAscii(this, index, sequence, length);
+        // }
+
+        // FIXME: Needing refactor or cleanup -@zxp at 8/20/2019, 5:28:09 PM
+        // 
+        byte[] bytes = cast(byte[])sequence; // sequence.toString().getBytes(charset);
+        if (expand) {
+            ensureWritable0(cast(int)bytes.length);
+            // setBytes(...) will take care of checking the indices.
+        }
+        setBytes(index, bytes);
+        return cast(int)bytes.length;
+    }
 
     override
     byte readByte() {
@@ -1190,12 +1196,12 @@ abstract class AbstractByteBuf : ByteBuf {
         return this;
     }
 
-    // override
-    // int writeCharSequence(CharSequence sequence, Charset charset) {
-    //     int written = setCharSequence0(_writerIndex, sequence, charset, true);
-    //     _writerIndex += written;
-    //     return written;
-    // }
+    override
+    int writeCharSequence(CharSequence sequence, Charset charset) {
+        int written = setCharSequence0(_writerIndex, sequence, charset, true);
+        _writerIndex += written;
+        return written;
+    }
 
     override
     ByteBuf copy() {

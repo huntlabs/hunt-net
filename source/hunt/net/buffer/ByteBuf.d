@@ -31,6 +31,8 @@ import hunt.text.Charset;
 
 import std.conv;
 
+alias CharSequence = string;
+
 /**
  * Checks that the given argument is not null. If it is, throws {@link NullPointerException}.
  * Otherwise, returns the argument.
@@ -1042,7 +1044,7 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      * @throws IndexOutOfBoundsException
      *         if {@code length} is greater than {@code this.readableBytes}
      */
-    // abstract CharSequence getCharSequence(int index, int length, Charset charset);
+    abstract CharSequence getCharSequence(int index, int length, Charset charset);
 
     /**
      * Sets the specified bool at the specified absolute {@code index} in this
@@ -1417,7 +1419,7 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      * @throws IndexOutOfBoundsException
      *         if {@code this.writableBytes} is not large enough to write the whole sequence
      */
-    // abstract int setCharSequence(int index, CharSequence sequence, Charset charset);
+    abstract int setCharSequence(int index, CharSequence sequence, Charset charset);
 
     /**
      * Gets a bool at the current {@code readerIndex} and increases
@@ -1803,7 +1805,7 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      * @throws IndexOutOfBoundsException
      *         if {@code length} is greater than {@code this.readableBytes}
      */
-    // abstract CharSequence readCharSequence(int length, Charset charset);
+    abstract CharSequence readCharSequence(int length, Charset charset);
 
     /**
      * Transfers this buffer's data starting at the current {@code readerIndex}
@@ -2125,7 +2127,7 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      * @param charset that should be used
      * @return the written number of bytes
      */
-    // abstract int writeCharSequence(CharSequence sequence, Charset charset);
+    abstract int writeCharSequence(CharSequence sequence, Charset charset);
 
     /**
      * Locates the first occurrence of the specified {@code value} in this
