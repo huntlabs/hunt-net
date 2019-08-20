@@ -19,7 +19,6 @@ module hunt.net.buffer.ByteBufUtil;
 import hunt.net.buffer.AbstractByteBuf;
 import hunt.net.buffer.ByteBuf;
 import hunt.net.buffer.ByteBufAllocator;
-import hunt.net.buffer.ByteBufUtil;
 import hunt.net.buffer.ByteProcessor;
 import hunt.net.buffer.EmptyByteBuf;
 import hunt.net.buffer.UnpooledByteBufAllocator;
@@ -33,6 +32,7 @@ import hunt.Long;
 import hunt.net.Exceptions;
 import hunt.Short;
 import hunt.text.StringBuilder;
+import hunt.text.Charset;
 
 import std.algorithm;
 import std.ascii;
@@ -814,28 +814,30 @@ final class ByteBufUtil {
     //     }
     // }
 
-    // @SuppressWarnings("deprecation")
-    // static string decodeString(ByteBuf src, int readerIndex, int len, Charset charset) {
-    //     if (len == 0) {
-    //         return StringUtil.EMPTY_STRING;
-    //     }
-    //     byte[] array;
-    //     int offset;
+    static string decodeString(ByteBuf src, int readerIndex, int len, Charset charset) {
+        if (len == 0) {
+            return "";
+        }
+        byte[] array;
+        int offset;
 
-    //     if (src.hasArray()) {
-    //         array = src.array();
-    //         offset = src.arrayOffset() + readerIndex;
-    //     } else {
-    //         array = threadLocalTempArray(len);
-    //         offset = 0;
-    //         src.getBytes(readerIndex, array, 0, len);
-    //     }
-    //     if (CharsetUtil.US_ASCII == charset) {
-    //         // Fast-path for US-ASCII which is used frequently.
-    //         return new string(array, 0, offset, len);
-    //     }
-    //     return new string(array, offset, len, charset);
-    // }
+        if (src.hasArray()) {
+            array = src.array();
+            offset = src.arrayOffset() + readerIndex;
+        } else {
+            array = threadLocalTempArray(len);
+            offset = 0;
+            src.getBytes(readerIndex, array, 0, len);
+        }
+        // if (CharsetUtil.US_ASCII == charset) {
+        //     // Fast-path for US-ASCII which is used frequently.
+        //     return new string(array, 0, offset, len);
+        // }
+        // return new string(array, offset, len, charset);
+        // FIXME: Needing refactor or cleanup -@zxp at 8/20/2019, 4:45:20 PM
+        // dup here for safe
+        return cast(string) array.idup;
+    }
 
     /**
      * Returns a cached thread-local direct buffer, if available.

@@ -31,6 +31,7 @@ import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
 import hunt.io.Common;
 import hunt.text.StringBuilder;
+import hunt.text.Charset;
 
 import std.conv;
 import std.format;
@@ -511,17 +512,17 @@ abstract class AbstractByteBuf : ByteBuf {
     }
 
     // override
-    // CharSequence getCharSequence(int index, int length, Charset charset) {
-    //     if (CharsetUtil.US_ASCII == charset || CharsetUtil.ISO_8859_1 == charset) {
-    //         // ByteBufUtil.getBytes(...) will return a new copy which the AsciiString uses directly
-    //         return new AsciiString(ByteBufUtil.getBytes(this, index, length, true), false);
-    //     }
+    // string getCharSequence(int index, int length, Charset charset) {
+    //     // if (CharsetUtil.US_ASCII == charset || CharsetUtil.ISO_8859_1 == charset) {
+    //     //     // ByteBufUtil.getBytes(...) will return a new copy which the AsciiString uses directly
+    //     //     return new AsciiString(ByteBufUtil.getBytes(this, index, length, true), false);
+    //     // }
     //     return toString(index, length, charset);
     // }
 
     // override
-    // CharSequence readCharSequence(int length, Charset charset) {
-    //     CharSequence sequence = getCharSequence(_readerIndex, length, charset);
+    // string readCharSequence(int length, Charset charset) {
+    //     string sequence = getCharSequence(_readerIndex, length, charset);
     //     _readerIndex += length;
     //     return sequence;
     // }
@@ -645,8 +646,9 @@ abstract class AbstractByteBuf : ByteBuf {
 
     private static void checkReadableBounds(ByteBuf src, int length) {
         if (length > src.readableBytes()) {
-            throw new IndexOutOfBoundsException(format(
-                    "length(%d) exceeds src.readableBytes(%d) where src is: %s", length, src.readableBytes(), src));
+            string msg = format("length(%d) exceeds src.readableBytes(%d) where src is: %s", 
+                    length, src.readableBytes(), (cast(Object)src).toString());
+            throw new IndexOutOfBoundsException(msg);
         }
     }
 
@@ -922,8 +924,9 @@ abstract class AbstractByteBuf : ByteBuf {
     ByteBuf readBytes(ByteBuf dst, int length) {
         if (checkBounds) {
             if (length > dst.writableBytes()) {
-                throw new IndexOutOfBoundsException(format(
-                        "length(%d) exceeds dst.writableBytes(%d) where dst is: %s", length, dst.writableBytes(), dst));
+                string msg = format("length(%d) exceeds dst.writableBytes(%d) where dst is: %s", 
+                    length, dst.writableBytes(), (cast(Object)dst).toString());
+                throw new IndexOutOfBoundsException(msg);
             }
         }
         readBytes(dst, dst.writerIndex(), length);
@@ -1228,8 +1231,6 @@ abstract class AbstractByteBuf : ByteBuf {
     ByteBuf slice(int index, int length) {
         ensureAccessible();
         return new UnpooledSlicedByteBuf(this, index, length);
-        // implementationMissing(false);
-        // return null;
     }
 
     override
@@ -1250,15 +1251,15 @@ abstract class AbstractByteBuf : ByteBuf {
         return nioBuffers(_readerIndex, readableBytes());
     }
 
-    // override
-    // string toString(Charset charset) {
-    //     return toString(_readerIndex, readableBytes(), charset);
-    // }
+    override
+    string toString(Charset charset) {
+        return toString(_readerIndex, readableBytes(), charset);
+    }
 
-    // override
-    // string toString(int index, int length, Charset charset) {
-    //     return ByteBufUtil.decodeString(this, index, length, charset);
-    // }
+    override
+    string toString(int index, int length, Charset charset) {
+        return ByteBufUtil.decodeString(this, index, length, charset);
+    }
 
     override
     int indexOf(int fromIndex, int toIndex, byte value) {

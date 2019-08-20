@@ -24,6 +24,7 @@ abstract class AbstractConnection : Connection {
     protected TcpStream _tcp;
     protected DataReceivedHandler _dataReceivedHandler;
     protected Object[string] attributes;
+    private Codec _codec;
     protected Encoder _encoder;
     protected Decoder _decoder;
     protected ConnectionEventHandler _eventHandler;
@@ -47,8 +48,7 @@ abstract class AbstractConnection : Connection {
         assert(eventHandler !is null);
 
         if(codec !is null) {
-            this._encoder = codec.getEncoder();
-            this._decoder = codec.getDecoder;
+            this.setCodec(codec);
         }
         
         this._eventHandler = eventHandler;
@@ -83,6 +83,19 @@ abstract class AbstractConnection : Connection {
         }
         this._connectionState = state;
     }
+
+    AbstractConnection setCodec(Codec codec) {
+        this._codec = codec;
+        if(codec !is null) {
+            this._encoder = codec.getEncoder();
+            this._decoder = codec.getDecoder;
+        }
+        return this;
+    }
+
+    Codec getCodec() {
+        return this._codec;
+    }    
 
     ///
     AbstractConnection setHandler(ConnectionEventHandler handler) {

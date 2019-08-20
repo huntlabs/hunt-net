@@ -27,6 +27,7 @@ import hunt.Exceptions;
 import hunt.Float;
 import hunt.io.Common;
 import hunt.logging.ConsoleLogger;
+import hunt.text.Charset;
 
 import std.conv;
 
@@ -2459,14 +2460,14 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      *         if the specified character set name is not supported by the
      *         current VM
      */
-    // abstract string toString(Charset charset);
+    abstract string toString(Charset charset);
 
     /**
      * Decodes this buffer's sub-region into a string with the specified
      * character set.  This method does not modify {@code readerIndex} or
      * {@code writerIndex} of this buffer.
      */
-    // abstract string toString(int index, int length, Charset charset);
+    abstract string toString(int index, int length, Charset charset);
 
     /**
      * Returns a hash code which was calculated from the content of this
@@ -2507,7 +2508,7 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      * the values of the key properties such as {@link #readerIndex()},
      * {@link #writerIndex()} and {@link #capacity()}.
      */
-    // abstract string toString();
+    override abstract string toString();
 
     abstract ByteBuf retain(int increment);
 

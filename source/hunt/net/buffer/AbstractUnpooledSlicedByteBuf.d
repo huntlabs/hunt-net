@@ -563,8 +563,9 @@ abstract class AbstractUnpooledSlicedByteBuf : AbstractByteBuf {
 
     static void checkSliceOutOfBounds(int index, int length, ByteBuf buffer) {
         if (isOutOfBounds(index, length, buffer.capacity())) {
-            throw new IndexOutOfBoundsException(buffer.toString() ~ ".slice(" ~ 
-                index.to!string() ~ ", " ~ length.to!string() ~ ")");
+            string msg = (cast(Object)buffer).toString() ~ ".slice(" ~ 
+                index.to!string() ~ ", " ~ length.to!string() ~ ")";
+            throw new IndexOutOfBoundsException(msg);
         }
     }
 }

@@ -29,27 +29,12 @@ import hunt.Exceptions;
 import hunt.io.Common;
 import hunt.net.Exceptions;
 import hunt.text.StringBuilder;
+import hunt.text.Charset;
 
 import std.conv;
 import std.format;
 import std.concurrency : initOnce;
 
-// import static io.netty.util.internal.ObjectUtil.checkPositiveOrZero;
-
-// import io.netty.util.ByteProcessor;
-// import io.netty.util.internal.EmptyArrays;
-// import io.netty.util.internal.PlatformDependent;
-// import io.netty.util.internal.StringUtil;
-
-// import java.io.InputStream;
-// import java.io.OutputStream;
-// import java.nio.ByteBuffer;
-// import java.nio.ByteOrder;
-// import java.nio.ReadOnlyBufferException;
-// import java.nio.channels.FileChannel;
-// import java.nio.channels.GatheringByteChannel;
-// import java.nio.channels.ScatteringByteChannel;
-// import java.nio.charset.Charset;
 
 /**
  * An empty {@link ByteBuf} whose capacity and maximum capacity are all {@code 0}.
@@ -987,16 +972,16 @@ final class EmptyByteBuf : ByteBuf {
         }
     }
 
-    // override
-    // string toString(Charset charset) {
-    //     return "";
-    // }
+    override
+    string toString(Charset charset) {
+        return "";
+    }
 
-    // override
-    // string toString(int index, int length, Charset charset) {
-    //     checkIndex(index, length);
-    //     return toString(charset);
-    // }
+    override
+    string toString(int index, int length, Charset charset) {
+        checkIndex(index, length);
+        return toString(charset);
+    }
 
     override
     size_t toHash() @trusted nothrow {
