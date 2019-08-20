@@ -32,9 +32,11 @@ import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
 import hunt.io.Common;
 import hunt.text.StringBuilder;
+import hunt.text.Charset;
 
 import std.conv;
 import std.format;
+import std.range;
 import std.concurrency : initOnce;
 
 // import io.netty.buffer.CompositeByteBuf.ByteWrapper;
@@ -632,17 +634,20 @@ final class Unpooled {
      * The new buffer's {@code readerIndex} and {@code writerIndex} are
      * {@code 0} and the length of the encoded string respectively.
      */
-    // static ByteBuf copiedBuffer(CharSequence string, Charset charset) {
-    //     if (string is null) {
-    //         throw new NullPointerException("string");
-    //     }
+    static ByteBuf copiedBuffer(CharSequence data, Charset charset) {
+        if (data.empty()) {
+            throw new NullPointerException("data");
+        }
 
-    //     if (string instanceof CharBuffer) {
-    //         return copiedBuffer((CharBuffer) string, charset);
-    //     }
+        return copiedBuffer(cast(char[])data, charset);
+        // FIXME: Needing refactor or cleanup -@zxp at 8/20/2019, 6:39:37 PM
+        // 
+        // if (string instanceof CharBuffer) {
+        //     return copiedBuffer((CharBuffer) string, charset);
+        // }
 
-    //     return copiedBuffer(CharBuffer.wrap(string), charset);
-    // }
+        // return copiedBuffer(CharBuffer.wrap(data), charset);
+    }
 
     /**
      * Creates a new big-endian buffer whose content is a subregion of
@@ -683,12 +688,12 @@ final class Unpooled {
      * The new buffer's {@code readerIndex} and {@code writerIndex} are
      * {@code 0} and the length of the encoded string respectively.
      */
-    // static ByteBuf copiedBuffer(char[] array, Charset charset) {
-    //     if (array is null) {
-    //         throw new NullPointerException("array");
-    //     }
-    //     return copiedBuffer(array, 0, array.length, charset);
-    // }
+    static ByteBuf copiedBuffer(char[] array, Charset charset) {
+        if (array is null) {
+            throw new NullPointerException("array");
+        }
+        return copiedBuffer(array, 0, array.length, charset);
+    }
 
     /**
      * Creates a new big-endian buffer whose content is a subregion of
@@ -696,15 +701,18 @@ final class Unpooled {
      * The new buffer's {@code readerIndex} and {@code writerIndex} are
      * {@code 0} and the length of the encoded string respectively.
      */
-    // static ByteBuf copiedBuffer(char[] array, int offset, int length, Charset charset) {
-    //     if (array is null) {
-    //         throw new NullPointerException("array");
-    //     }
-    //     if (length == 0) {
-    //         return EMPTY_BUFFER;
-    //     }
-    //     return copiedBuffer(CharBuffer.wrap(array, offset, length), charset);
-    // }
+    static ByteBuf copiedBuffer(char[] array, int offset, int length, Charset charset) {
+        if (array is null) {
+            throw new NullPointerException("array");
+        }
+        if (length == 0) {
+            return EMPTY_BUFFER;
+        }
+        // return copiedBuffer(CharBuffer.wrap(array, offset, length), charset);
+        //ALLOC.wrap()
+        
+        return wrappedBuffer(cast(byte[])array[offset .. offset + length].dup);
+    }
 
     // private static ByteBuf copiedBuffer(CharBuffer buffer, Charset charset) {
     //     return ByteBufUtil.encodeString0(ALLOC, true, buffer, charset, 0);
