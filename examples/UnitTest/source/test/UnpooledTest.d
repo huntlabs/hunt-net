@@ -26,17 +26,17 @@ import hunt.io.Common;
 
 import hunt.net.buffer;
 
-alias copiedBuffer = Unpooled.copiedBuffer;
-alias copyInt = Unpooled.copyInt;
-alias copyShort = Unpooled.copyShort;
-alias copyMedium = Unpooled.copyMedium;
-alias copyLong = Unpooled.copyLong;
-alias copyBoolean = Unpooled.copyBoolean;
-alias copyFloat = Unpooled.copyFloat;
-alias copyDouble = Unpooled.copyDouble;
-alias EMPTY_BUFFER = Unpooled.EMPTY_BUFFER;
-alias wrappedUnmodifiableBuffer = Unpooled.wrappedUnmodifiableBuffer;
-alias wrappedBuffer = Unpooled.wrappedBuffer;
+// alias copiedBuffer = Unpooled.copiedBuffer;
+// alias copyInt = Unpooled.copyInt;
+// alias copyShort = Unpooled.copyShort;
+// alias copyMedium = Unpooled.copyMedium;
+// alias copyLong = Unpooled.copyLong;
+// alias copyBoolean = Unpooled.copyBoolean;
+// alias copyFloat = Unpooled.copyFloat;
+// alias copyDouble = Unpooled.copyDouble;
+// alias EMPTY_BUFFER = Unpooled.EMPTY_BUFFER;
+// alias wrappedUnmodifiableBuffer = Unpooled.wrappedUnmodifiableBuffer;
+// alias wrappedBuffer = Unpooled.wrappedBuffer;
 
 enum ByteBuffer[] EMPTY_BYTE_BUFFERS = [];
 enum byte[] EMPTY_BYTES = [];

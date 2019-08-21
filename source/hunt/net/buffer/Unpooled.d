@@ -701,7 +701,7 @@ final class Unpooled {
      * The new buffer's {@code readerIndex} and {@code writerIndex} are
      * {@code 0} and the length of the encoded string respectively.
      */
-    static ByteBuf copiedBuffer(char[] array, int offset, int length, Charset charset) {
+    static ByteBuf copiedBuffer(char[] array, size_t offset, size_t length, Charset charset) {
         if (array is null) {
             throw new NullPointerException("array");
         }
@@ -961,3 +961,17 @@ final class Unpooled {
         // Unused
     }
 }
+
+
+
+alias copiedBuffer = Unpooled.copiedBuffer;
+alias copyInt = Unpooled.copyInt;
+alias copyShort = Unpooled.copyShort;
+alias copyMedium = Unpooled.copyMedium;
+alias copyLong = Unpooled.copyLong;
+alias copyBoolean = Unpooled.copyBoolean;
+alias copyFloat = Unpooled.copyFloat;
+alias copyDouble = Unpooled.copyDouble;
+alias EMPTY_BUFFER = Unpooled.EMPTY_BUFFER;
+alias wrappedUnmodifiableBuffer = Unpooled.wrappedUnmodifiableBuffer;
+alias wrappedBuffer = Unpooled.wrappedBuffer;
