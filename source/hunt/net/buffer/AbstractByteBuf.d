@@ -1244,6 +1244,14 @@ abstract class AbstractByteBuf : ByteBuf {
         return slice(index, length).retain();
     }
 
+    override byte[] getReadableBytes() {
+        if(hasArray()) {
+            return array()[_readerIndex .. _readerIndex+readableBytes()];
+        } else {
+            throw new Exception("Unsupported.");
+        }
+    }
+
     override
     ByteBuffer nioBuffer() {
         return nioBuffer(_readerIndex, readableBytes());

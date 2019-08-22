@@ -2428,6 +2428,8 @@ abstract class ByteBuf : ReferenceCounted { // implements ReferenceCounted, Comp
      */
     abstract byte[] array();
 
+    abstract byte[] getReadableBytes();
+
     /**
      * Returns the offset of the first byte within the backing byte array of
      * this buffer.

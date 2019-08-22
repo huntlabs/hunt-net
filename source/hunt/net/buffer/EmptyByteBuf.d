@@ -953,6 +953,10 @@ final class EmptyByteBuf : ByteBuf {
         return [];
     }
 
+    override byte[] getReadableBytes() {
+        return [];
+    }
+
     override
     int arrayOffset() {
         return 0;
