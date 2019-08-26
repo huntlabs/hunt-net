@@ -27,11 +27,12 @@ import hunt.collection.ByteBuffer;
 import hunt.Double;
 import hunt.Exceptions;
 import hunt.Float;
+import hunt.io.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
-import hunt.io.Common;
 import hunt.text.StringBuilder;
 import hunt.text.Charset;
+import hunt.util.TypeUtils;
 
 import std.conv;
 import std.format;
@@ -1394,7 +1395,7 @@ abstract class AbstractByteBuf : ByteBuf {
         }
 
         StringBuilder buf = new StringBuilder()
-            .append(typeid(this).name)
+            .append(TypeUtils.getSimpleName(typeid(this)))
             .append("(ridx: ").append(_readerIndex)
             .append(", widx: ").append(_writerIndex)
             .append(", cap: ").append(capacity());

@@ -130,6 +130,8 @@ abstract class AbstractConnection : Connection {
             auto data = cast(ubyte[]) buffer.getRemaining();
             infof("data received (%d bytes): ", data.length); 
             version(HUNT_NET_DEBUG_MORE) {
+                infof("%(%02X %)", data[0 .. $]);
+            } else version(HUNT_NET_DEBUG) {
                 if(data.length<=64)
                     infof("%(%02X %)", data[0 .. $]);
                 else
@@ -138,6 +140,9 @@ abstract class AbstractConnection : Connection {
         }      
 
         if(_decoder !is null) {
+            version(HUNT_NET_DEBUG) {
+                trace("running decoder...");
+            }
             _decoder.decode(buffer, this);
         } else {
             if(_eventHandler !is null) {

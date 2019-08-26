@@ -833,10 +833,9 @@ final class ByteBufUtil {
         //     // Fast-path for US-ASCII which is used frequently.
         //     return new string(array, 0, offset, len);
         // }
-        // return new string(array, offset, len, charset);
         // FIXME: Needing refactor or cleanup -@zxp at 8/20/2019, 4:45:20 PM
         // dup here for safe
-        return cast(string) array.idup;
+        return cast(string) array[offset .. offset+len].idup;
     }
 
     /**
