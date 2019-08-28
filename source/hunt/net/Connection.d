@@ -353,11 +353,11 @@ abstract class ConnectionEventHandler {
 
 	void messageReceived(Connection connection, Object message) ;
 
-	void exceptionCaught(Connection connection, Exception t) ;
+	void exceptionCaught(Connection connection, Throwable t) ;
 
-	void failedOpeningConnection(int connectionId, Exception t) { }
+	void failedOpeningConnection(int connectionId, Throwable t) { }
 
-	void failedAcceptingConnection(int connectionId, Exception t) { }
+	void failedAcceptingConnection(int connectionId, Throwable t) { }
 }
 
 /**
@@ -417,17 +417,17 @@ class ConnectionEventHandlerAdapter : ConnectionEventHandler {
             _messageHandler(connection, message);
     }
 
-	override void exceptionCaught(Connection connection, Exception e) {
+	override void exceptionCaught(Connection connection, Throwable e) {
         if(_exceptionHandler !is null)
             _exceptionHandler(connection, e);
     }
 
-	override void failedOpeningConnection(int connectionId, Exception e) { 
+	override void failedOpeningConnection(int connectionId, Throwable e) { 
         if(_openFailedHandler !is null)
             _openFailedHandler(connectionId, e);
     }
 
-	override void failedAcceptingConnection(int connectionId, Exception e) { 
+	override void failedAcceptingConnection(int connectionId, Throwable e) { 
         if(_acceptFailedHandler !is null) 
             _acceptFailedHandler(connectionId, e);
     }
