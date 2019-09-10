@@ -78,11 +78,13 @@ interface NetClient {
     NetClient setOptions(NetClientOptions options);
 
     Codec getCodec();
-    
+
     NetClient setCodec(Codec codec);
 
     ConnectionEventHandler getHandler();
 
     NetClient setHandler(ConnectionEventHandler handler);
+
+    void setOnClosed (void delegate());
 }
 

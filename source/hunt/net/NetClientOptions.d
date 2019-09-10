@@ -327,6 +327,13 @@ class NetClientOptions : ClientOptionsBase {
         return this;
     }
 
+    /**
+     * @return  the value of reconnect interval
+     */
+    //long getReconnectInterval() {
+    //    return reconnectInterval;
+    //}
+
     override
     NetClientOptions setLogActivity(bool logEnabled) {
         return cast(NetClientOptions) super.setLogActivity(logEnabled);

@@ -15,9 +15,13 @@ import hunt.util.Lifecycle;
 
 import core.atomic;
 import std.format;
+import core.thread;
+import std.parallelism;
 
 ///
 class NetClientImpl : AbstractLifecycle, NetClient {
+
+    alias void delegate() CallBack;
     enum string DefaultLocalHost = "127.0.0.1";
     enum int DefaultLocalPort = 8080;
     
@@ -33,6 +37,8 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private TcpStream _client;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
+    private CallBack _onClosed = null;
+    private bool _isConnected = false;
 
     this() {
         this(new EventLoop());
@@ -102,6 +108,14 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         return this._codec;
     }
 
+    void setOnClosed(CallBack callback)
+    {
+        if (_onClosed is null)
+        {
+            _onClosed = callback;
+        }
+    }
+
     ConnectionEventHandler getHandler() {
         return this._eventHandler;
     }
@@ -150,6 +164,19 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             }
             _tcpConnection.setState(ConnectionState.Closed);
             this.close();
+            if (_onClosed !is null)
+            {
+                _onClosed();
+            }
+
+            _isConnected = false;
+
+            //auto runTask = task((){
+            //    Thread.sleep(options.retryInterval);
+            //    _client.reconnect();
+            //});
+            //taskPool.put(runTask);
+
         });
 
         _client.onError((string message) {
@@ -164,13 +191,19 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 trace("connected to: ", _client.remoteAddress.toString()); 
                 // _tcpConnection.setState(ConnectionState.Opened);
                 if (_eventHandler !is null)
+                {
                     _eventHandler.connectionOpened(_tcpConnection);
+                }
+                _isConnected = true;
             }
             else {
                 string msg = format("Failed to connect to %s:%d", _host, _port);
                 warning(msg); 
-
-                _tcpConnection.setState(ConnectionState.Error);
+                _isConnected = false;
+                if(_tcpConnection !is null)
+                {
+                    _tcpConnection.setState(ConnectionState.Error);
+                }
                 if(_eventHandler !is null)
                     _eventHandler.failedOpeningConnection(_currentId, new IOException(msg));
             }
@@ -182,6 +215,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void close() {
+        _isConnected = false;
         this.stop();
     }
 
@@ -200,12 +234,14 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             _tcpConnection = null;
             _loop.stop();
         }
+        _isConnected = false;
     }
 
     bool isConnected() {
-        if(_tcpConnection is null)
-            return false;
-        else
-            return _tcpConnection.isConnected();
+        return _isConnected;
+        //if(_tcpConnection is null)
+        //    return false;
+        //else
+        //    return _tcpConnection.isConnected();
     }
 }

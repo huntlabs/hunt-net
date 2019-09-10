@@ -1,0 +1,9 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"hunt": {"path":"../../../hunt"},
+		"hunt-net": {"path":"../../"},
+		"hunt-openssl": "1.0.0",
+		"hunt-security": "0.3.2"
+	}
+}
