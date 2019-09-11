@@ -136,7 +136,12 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     void connect(string host, int port, string serverName) {
         if(isConnected()) {
-            throw new IOException("The options can't be set after the connection created.");
+            throw new IOException("The connection has been created.");
+        }
+
+        if(isRunning()) {
+            warning("Connecting repeatedly!");
+            return;
         }
 
         this._host = host;

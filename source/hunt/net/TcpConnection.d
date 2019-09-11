@@ -42,7 +42,7 @@ version(HUNT_METRIC) {
         this._options = options;
         super(connectionId, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
-        version(HUNT_DEBUG) trace("initializing TCP connection...");
+        version(HUNT_DEBUG) trace("Initializing a TCP connection...");
     }  
 
 version(HUNT_METRIC) {
