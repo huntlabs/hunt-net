@@ -1214,9 +1214,7 @@ abstract class AbstractByteBuf : ByteBuf {
     override
     ByteBuf duplicate() {
         ensureAccessible();
-        // return new UnpooledDuplicatedByteBuf(this);
-        implementationMissing(false);
-        return null;
+        return new UnpooledDuplicatedByteBuf(this);
     }
 
     override

@@ -2,6 +2,7 @@ module hunt.net.buffer;
 
 public import hunt.net.buffer.AbstractByteBuf;
 public import hunt.net.buffer.AbstractByteBufAllocator;
+public import hunt.net.buffer.AbstractDerivedByteBuf;
 public import hunt.net.buffer.AbstractReferenceCountedByteBuf;
 public import hunt.net.buffer.AbstractUnpooledSlicedByteBuf;
 public import hunt.net.buffer.ByteBuf;
@@ -9,6 +10,7 @@ public import hunt.net.buffer.ByteBufAllocator;
 public import hunt.net.buffer.ByteBufUtil;
 public import hunt.net.buffer.ByteProcessor;
 public import hunt.net.buffer.CompositeByteBuf;
+public import hunt.net.buffer.DuplicatedByteBuf;
 public import hunt.net.buffer.EmptyByteBuf;
 public import hunt.net.buffer.FixedCompositeByteBuf;
 public import hunt.net.buffer.HeapByteBufUtil;
