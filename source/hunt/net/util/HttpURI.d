@@ -53,7 +53,9 @@ class HttpURI {
 	}
 
 	private string _scheme;
+	private string _userInfo;
 	private string _user;
+	private string _password;
 	private string _host;
 	private int _port;
 	private string _path;
@@ -183,7 +185,7 @@ class HttpURI {
 	void parse(string uri, int offset, int length) {
 		clear();
 		int end = offset + length;
-		_uri = uri.substring(offset, end);
+		_uri = uri[offset .. end];
 		parse(State.START, uri);
 	}
 
@@ -246,7 +248,7 @@ class HttpURI {
 				switch (c) {
 				case ':':
 					// must have been a scheme
-					_scheme = uri.substring(mark, i);
+					_scheme = uri[mark .. i];
 					// Start again with scheme set
 					state = State.START;
 					break;
@@ -264,7 +266,7 @@ class HttpURI {
 
 				case '?':
 					// must have been in a path
-					_path = uri.substring(mark, i);
+					_path = uri[mark .. i];
 					mark = i + 1;
 					state = State.QUERY;
 					break;
@@ -277,7 +279,7 @@ class HttpURI {
 
 				case '#':
 					// must have been in a path
-					_path = uri.substring(mark, i);
+					_path = uri[mark .. i];
 					state = State.FRAGMENT;
 					break;
 
@@ -323,20 +325,25 @@ class HttpURI {
 			case State.HOST: {
 				switch (c) {
 				case '/':
-					_host = uri.substring(mark, i);
+					_host = uri[mark .. i];
 					path_mark = mark = i;
 					state = State.PATH;
 					break;
 				case ':':
 					if (i > mark)
-						_host = uri.substring(mark, i);
+						_host = uri[mark .. i];
 					mark = i + 1;
 					state = State.PORT;
 					break;
 				case '@':
-					if (_user !is null)
+					if (!_userInfo.empty())
 						throw new IllegalArgumentException("Bad authority");
-					_user = uri.substring(mark, i);
+					_userInfo = uri[mark .. i];
+					string[] parts = _userInfo.split(":");
+					if(parts.length>0)
+						_user = parts[0];
+					if(parts.length>1)
+						_password = parts[1];
 					mark = i + 1;
 					break;
 
@@ -356,7 +363,7 @@ class HttpURI {
 					throw new IllegalArgumentException("No closing ']' for ipv6 in " ~ uri);
 				case ']':
 					c = uri.charAt(++i);
-					_host = uri.substring(mark, i);
+					_host = uri[mark .. i];
 					if (c == ':') {
 						mark = i + 1;
 						state = State.PORT;
@@ -375,10 +382,16 @@ class HttpURI {
 
 			case State.PORT: {
 				if (c == '@') {
-					if (_user !is null)
+					if (_userInfo !is null)
 						throw new IllegalArgumentException("Bad authority");
 					// It wasn't a port, but a password!
-					_user = _host ~ ":" ~ uri.substring(mark, i);
+					_userInfo = _host ~ ":" ~ uri[mark .. i];
+					string[] parts = _userInfo.split(":");
+					if(parts.length>0)
+						_user = parts[0];
+					if(parts.length>1)
+						_password = parts[1];
+
 					mark = i + 1;
 					state = State.HOST;
 				} else if (c == '/') {
@@ -397,12 +410,12 @@ class HttpURI {
 					state = State.PARAM;
 					break;
 				case '?':
-					_path = uri.substring(path_mark, i);
+					_path = uri[path_mark .. i];
 					mark = i + 1;
 					state = State.QUERY;
 					break;
 				case '#':
-					_path = uri.substring(path_mark, i);
+					_path = uri[path_mark .. i];
 					mark = i + 1;
 					state = State.FRAGMENT;
 					break;
@@ -423,14 +436,14 @@ class HttpURI {
 			case State.PARAM: {
 				switch (c) {
 				case '?':
-					_path = uri.substring(path_mark, i);
-					_param = uri.substring(mark, i);
+					_path = uri[path_mark .. i];
+					_param = uri[mark .. i];
 					mark = i + 1;
 					state = State.QUERY;
 					break;
 				case '#':
-					_path = uri.substring(path_mark, i);
-					_param = uri.substring(mark, i);
+					_path = uri[path_mark .. i];
+					_param = uri[mark .. i];
 					mark = i + 1;
 					state = State.FRAGMENT;
 					break;
@@ -452,7 +465,7 @@ class HttpURI {
 
 			case State.QUERY: {
 				if (c == '#') {
-					_query = uri.substring(mark, i);
+					_query = uri[mark .. i];
 					mark = i + 1;
 					state = State.FRAGMENT;
 				}
@@ -464,7 +477,7 @@ class HttpURI {
 			}
 
 			case State.FRAGMENT: {
-				_fragment = uri.substring(mark, end);
+				_fragment = uri[mark .. end];
 				i = end;
 				break;
 			}
@@ -476,16 +489,16 @@ class HttpURI {
 		case State.START:
 			break;
 		case State.SCHEME_OR_PATH:
-			_path = uri.substring(mark, end);
+			_path = uri[mark .. end];
 			break;
 
 		case State.HOST_OR_PATH:
-			_path = uri.substring(mark, end);
+			_path = uri[mark .. end];
 			break;
 
 		case State.HOST:
 			if (end > mark)
-				_host = uri.substring(mark, end);
+				_host = uri[mark .. end];
 			break;
 
 		case State.IPV6:
@@ -500,20 +513,20 @@ class HttpURI {
 			break;
 
 		case State.FRAGMENT:
-			_fragment = uri.substring(mark, end);
+			_fragment = uri[mark .. end];
 			break;
 
 		case State.PARAM:
-			_path = uri.substring(path_mark, end);
-			_param = uri.substring(mark, end);
+			_path = uri[path_mark .. end];
+			_param = uri[mark .. end];
 			break;
 
 		case State.PATH:
-			_path = uri.substring(path_mark, end);
+			_path = uri[path_mark .. end];
 			break;
 
 		case State.QUERY:
-			_query = uri.substring(mark, end);
+			_query = uri[mark .. end];
 			break;
 		}
 
@@ -606,8 +619,8 @@ class HttpURI {
 
 			if (_host !is null) {
 				ot.append("//");
-				if (_user !is null)
-					ot.append(_user).append('@');
+				if (_userInfo !is null)
+					ot.append(_userInfo).append('@');
 				ot.append(_host);
 			}
 
@@ -712,8 +725,17 @@ class HttpURI {
 		return _host;
 	}
 
+	string getUserInfo() {
+		return _userInfo;
+	}
+
+	deprecated("It's only return the user's name.")
 	string getUser() {
 		return _user;
+	}
+
+	string getPassword() {
+		return _password;
 	}
 
 }
@@ -792,7 +814,7 @@ class URIUtils
                 return builder.toString();
             if (offset == 0 && length == path.length)
                 return path;
-            return path.substring(offset, end);
+            return path[offset .. end];
         } catch (Exception e) {
             // System.err.println(path.substring(offset, offset + length) ~ " " ~ e);
 			error(e.toString);
@@ -856,7 +878,7 @@ class URIUtils
             return builder.toString();
         if (offset == 0 && length == path.length)
             return path;
-        return path.substring(offset, end);
+        return path[offset .. end];
     }
 
 	/* ------------------------------------------------------------ */
