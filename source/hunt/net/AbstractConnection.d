@@ -29,7 +29,6 @@ abstract class AbstractConnection : Connection {
     protected Decoder _decoder;
     protected ConnectionEventHandler _eventHandler;
     protected shared ConnectionState _connectionState;
-    // protected Object attachment;
     private bool _isSecured = false;
 
 
@@ -55,16 +54,6 @@ abstract class AbstractConnection : Connection {
         this(connectionId, tcp);
     }
 
-    // deprecated("Using setAttributes instead.")
-    // void attachObject(Object attachment) {
-    //     this.attachment = attachment;
-    // }
-
-    // deprecated("Using getAttributes instead.")
-    // Object getAttachment() {
-    //     return attachment;
-    // }
-
     int getId() {
         return _connectionId;
     }
@@ -77,6 +66,9 @@ abstract class AbstractConnection : Connection {
         return this._connectionState;
     }
 
+    /**
+     * 
+     */
     void setState(ConnectionState state) {
         if(state == ConnectionState.Secured) {
             _isSecured = true;
@@ -394,6 +386,12 @@ abstract class AbstractConnection : Connection {
     void notifyException(Exception t) {
         if(_eventHandler !is null)
             _eventHandler.exceptionCaught(this, t);
+    }
+
+    version(HUNT_METRIC) {
+        override string toString() {
+            return "";
+        }
     }
 }
 

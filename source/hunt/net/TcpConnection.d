@@ -56,6 +56,7 @@ version(HUNT_METRIC) {
         writtenBytes += data.length;
         super.write(data);
     }
+    alias write = AbstractConnection.write; 
 
     long getOpenTime() {
         return openTime;
@@ -179,9 +180,7 @@ version(HUNT_METRIC) {
                 errorf("The connection %d shutdown input I/O exception. %s", _connectionId, e.message);
             }
         }
-    }
-
-    
+    }    
 
     bool isShutdownOutput() {
         return _isShutdownOutput;
