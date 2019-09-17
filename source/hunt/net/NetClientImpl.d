@@ -169,8 +169,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             }
             _tcpConnection.setState(ConnectionState.Closed);
             this.close();
-            if (_onClosed !is null)
-            {
+            if (_onClosed !is null) {
                 _onClosed();
             }
 
@@ -192,8 +191,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         _client.onConnected((bool suc) {
             if (suc) {
-			    version (HUNT_DEBUG) 
-                trace("connected to: ", _client.remoteAddress.toString()); 
+			    version (HUNT_DEBUG) trace("connected to: ", _client.remoteAddress.toString()); 
                 // _tcpConnection.setState(ConnectionState.Opened);
                 if (_eventHandler !is null)
                 {
@@ -220,8 +218,14 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void close() {
-        _isConnected = false;
-        this.stop();
+        // FIXME: Needing refactor or cleanup -@zxp at 9/17/2019, 6:38:37 PM
+        // Keep thread-safe
+        if(_isConnected) {
+            _isConnected = false;
+            this.stop();
+        } else {
+            version(HUNT_NET_DEBUG) trace("Closed already.");
+        }
     }
 
     override protected void destroy() {

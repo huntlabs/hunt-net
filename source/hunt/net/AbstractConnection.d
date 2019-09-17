@@ -28,7 +28,7 @@ abstract class AbstractConnection : Connection {
     protected Encoder _encoder;
     protected Decoder _decoder;
     protected ConnectionEventHandler _eventHandler;
-    protected ConnectionState _connectionState;
+    protected shared ConnectionState _connectionState;
     // protected Object attachment;
     private bool _isSecured = false;
 
@@ -153,6 +153,9 @@ abstract class AbstractConnection : Connection {
 
     ///
     void close() {
+        version(HUNT_NET_DEBUG) infof("Closing connection...state=%s", _connectionState);
+        if(_connectionState == ConnectionState.Closing || _connectionState == ConnectionState.Closed)
+            return;
         setState(ConnectionState.Closing);
         _tcp.close();
     }

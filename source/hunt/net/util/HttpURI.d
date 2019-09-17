@@ -729,7 +729,7 @@ class HttpURI {
 		return _userInfo;
 	}
 
-	deprecated("It's only return the user's name.")
+	deprecated("It only returns the user's name now.")
 	string getUser() {
 		return _user;
 	}
