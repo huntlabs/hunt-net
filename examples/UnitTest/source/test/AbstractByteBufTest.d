@@ -16,15 +16,16 @@
 module test.AbstractByteBufTest;
 
 import hunt.Assert;
+import hunt.collection;
 import hunt.Exceptions;
+import hunt.io.Common;
 import hunt.logging.ConsoleLogger;
+import hunt.net.buffer;
+import hunt.text.Charset;
 import hunt.util.Common;
 import hunt.util.UnitTest;
 
-import hunt.collection;
-import hunt.io.Common;
 
-import hunt.net.buffer;
 
 /**
  * An abstract test class for channel buffers
@@ -3526,15 +3527,15 @@ abstract class AbstractByteBufTest {
     //     }
     // }
 
-    // @Test
-    // void testWriteUsAsciiCharSequenceExpand() {
-    //     testWriteCharSequenceExpand(CharsetUtil.US_ASCII);
-    // }
+    @Test
+    void testWriteUsAsciiCharSequenceExpand() {
+        testWriteCharSequenceExpand(StandardCharsets.US_ASCII);
+    }
 
-    // @Test
-    // void testWriteUtf8CharSequenceExpand() {
-    //     testWriteCharSequenceExpand(CharsetUtil.UTF_8);
-    // }
+    @Test
+    void testWriteUtf8CharSequenceExpand() {
+        testWriteCharSequenceExpand(StandardCharsets.UTF_8);
+    }
 
     // @Test
     // void testWriteIso88591CharSequenceExpand() {
@@ -3545,17 +3546,17 @@ abstract class AbstractByteBufTest {
     //     testWriteCharSequenceExpand(CharsetUtil.UTF_16);
     // }
 
-    // private void testWriteCharSequenceExpand(Charset charset) {
-    //     ByteBuf buf = newBuffer(1);
-    //     try {
-    //         int writerIndex = buf.capacity() - 1;
-    //         buf.writerIndex(writerIndex);
-    //         int written = buf.writeCharSequence("AB", charset);
-    //         assertEquals(writerIndex, buf.writerIndex() - written);
-    //     } finally {
-    //         buf.release();
-    //     }
-    // }
+    private void testWriteCharSequenceExpand(Charset charset) {
+        ByteBuf buf = newBuffer(1);
+        try {
+            int writerIndex = buf.capacity() - 1;
+            buf.writerIndex(writerIndex);
+            int written = buf.writeCharSequence("AB", charset);
+            assertEquals(writerIndex, buf.writerIndex() - written);
+        } finally {
+            buf.release();
+        }
+    }
 
     // @Test(expected = IndexOutOfBoundsException.class)
     // void testSetUsAsciiCharSequenceNoExpand() {
@@ -4847,4 +4848,14 @@ abstract class AbstractByteBufTest {
     //     assertEquals(50, buffer.maxFastWritableBytes());
     //     buffer.release();
     // }
+
+    @Test
+    void testCapacityExpand() {
+        auto outBuffer = newBuffer(2);
+        int pos = outBuffer.writerIndex();
+        outBuffer.writeByte('Q');
+        assert(ByteBufUtil.hexDump(outBuffer) == "51");
+        outBuffer.writeInt(4);
+        assert(ByteBufUtil.hexDump(outBuffer) == "5100000004");
+    }    
 }

@@ -175,13 +175,6 @@ class HttpURI {
 			parse(uri.startsWith("/") ? State.PATH : State.START, uri);
 	}
 
-	// deprecated("")
-	// void parseConnect(string uri) {
-	// 	clear();
-	// 	_uri = uri;
-	// 	_path = uri;
-	// }
-
 	void parse(string uri, int offset, int length) {
 		clear();
 		int end = offset + length;
@@ -729,7 +722,6 @@ class HttpURI {
 		return _userInfo;
 	}
 
-	deprecated("It only returns the user's name now.")
 	string getUser() {
 		return _user;
 	}
