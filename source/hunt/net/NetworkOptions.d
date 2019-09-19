@@ -26,6 +26,17 @@ class NetworkOptions {
      */
     enum int DEFAULT_RECEIVE_BUFFER_SIZE = -1;
 
+
+    /**
+     * The default value of decoder buffer size
+     */
+    enum int DEFAULT_DECODER_BUFFER_SIZE = -1;
+
+    /**
+     * The default value of encoder buffer size
+     */
+    enum int DEFAULT_ENCODER_BUFFER_SIZE = -1;
+
     /**
      * The default value of traffic class
      */
@@ -48,6 +59,8 @@ class NetworkOptions {
 
     private int sendBufferSize;
     private int receiveBufferSize;
+    private int encoderBufferSize;
+    private int decoderBufferSize;
     private int trafficClass;
     private bool reuseAddress;
     private bool logActivity;
@@ -59,6 +72,8 @@ class NetworkOptions {
     this() {
         sendBufferSize = DEFAULT_SEND_BUFFER_SIZE;
         receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
+        encoderBufferSize = DEFAULT_ENCODER_BUFFER_SIZE;
+        decoderBufferSize = DEFAULT_DECODER_BUFFER_SIZE;
         reuseAddress = DEFAULT_REUSE_ADDRESS;
         trafficClass = DEFAULT_TRAFFIC_CLASS;
         logActivity = DEFAULT_LOG_ENABLED;
@@ -73,6 +88,8 @@ class NetworkOptions {
     this(NetworkOptions other) {
         this.sendBufferSize = other.getSendBufferSize();
         this.receiveBufferSize = other.getReceiveBufferSize();
+        this.encoderBufferSize = other.getEncoderBufferSize();
+        this.decoderBufferSize = other.getDecoderBufferSize();
         this.reuseAddress = other.isReuseAddress();
         this.reusePort = other.isReusePort();
         this.trafficClass = other.getTrafficClass();
@@ -120,6 +137,51 @@ class NetworkOptions {
         assert(receiveBufferSize > 0 || receiveBufferSize == DEFAULT_RECEIVE_BUFFER_SIZE,
                 "receiveBufferSize must be > 0");
         this.receiveBufferSize = receiveBufferSize;
+        return this;
+    }
+
+
+    /**
+     * Return the encoder buffer size, in bytes
+     *
+     * @return the receive buffer size
+     */
+    int getEncoderBufferSize() {
+        return encoderBufferSize;
+    }
+
+    /**
+     * Set the encoder buffer size
+     *
+     * @param size  the buffers size, in bytes
+     * @return a reference to this, so the API can be used fluently
+     */
+    NetworkOptions setEncoderBufferSize(int size) {
+        assert(size > 0 || size == DEFAULT_ENCODER_BUFFER_SIZE,
+                "encoderBufferSize must be > 0");
+        this.encoderBufferSize = size;
+        return this;
+    }
+
+    /**
+     * Return the decoder buffer size, in bytes
+     *
+     * @return the receive buffer size
+     */
+    int getDecoderBufferSize() {
+        return decoderBufferSize;
+    }
+
+    /**
+     * Set the decoder buffer size
+     *
+     * @param size  the buffers size, in bytes
+     * @return a reference to this, so the API can be used fluently
+     */
+    NetworkOptions setDecoderBufferSize(int size) {
+        assert(size > 0 || size == DEFAULT_DECODER_BUFFER_SIZE,
+                "decoderBufferSize must be > 0");
+        this.decoderBufferSize = size;
         return this;
     }
 

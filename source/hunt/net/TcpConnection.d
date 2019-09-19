@@ -33,14 +33,12 @@ version(HUNT_METRIC) {
     private size_t writtenBytes = 0;
 } 
 
-    protected TcpSslOptions _options;
     protected shared bool _isShutdownOutput = false;
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
     this(int connectionId, TcpSslOptions options, ConnectionEventHandler handler, Codec codec, TcpStream tcp) {
-        this._options = options;
-        super(connectionId, tcp, codec, handler);
+        super(connectionId, options, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
         version(HUNT_DEBUG) trace("Initializing a TCP connection...");
     }  

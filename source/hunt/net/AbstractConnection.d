@@ -1,6 +1,7 @@
 module hunt.net.AbstractConnection;
 
 import hunt.net.Connection;
+import hunt.net.TcpSslOptions;
 import hunt.net.codec;
 
 import hunt.Boolean;
@@ -22,6 +23,7 @@ import std.socket;
 abstract class AbstractConnection : Connection {
     protected int _connectionId;
     protected TcpStream _tcp;
+    protected TcpSslOptions _options;
     protected DataReceivedHandler _dataReceivedHandler;
     protected Object[string] attributes;
     private Codec _codec;
@@ -32,9 +34,10 @@ abstract class AbstractConnection : Connection {
     private bool _isSecured = false;
 
 
-    this(int connectionId, TcpStream tcp) {
+    this(int connectionId, TcpSslOptions options, TcpStream tcp) {
         assert(tcp !is null);
         _tcp = tcp;
+        this._options = options;
         this._connectionId = connectionId;
         this._connectionState = ConnectionState.Ready;
 
@@ -43,7 +46,8 @@ abstract class AbstractConnection : Connection {
     }
 
     ///
-    this(int connectionId, TcpStream tcp, Codec codec, ConnectionEventHandler eventHandler) {
+    this(int connectionId, TcpSslOptions options, TcpStream tcp, 
+            Codec codec, ConnectionEventHandler eventHandler) {
         assert(eventHandler !is null);
 
         if(codec !is null) {
@@ -51,11 +55,15 @@ abstract class AbstractConnection : Connection {
         }
         
         this._eventHandler = eventHandler;
-        this(connectionId, tcp);
+        this(connectionId, options, tcp);
     }
 
     int getId() {
         return _connectionId;
+    }
+
+    TcpSslOptions getOptions() {
+        return _options;
     }
 
     TcpStream getStream() {
@@ -80,6 +88,7 @@ abstract class AbstractConnection : Connection {
         this._codec = codec;
         if(codec !is null) {
             this._encoder = codec.getEncoder();
+            this._encoder.setBufferSize(_options.getEncoderBufferSize());
             this._decoder = codec.getDecoder;
         }
         return this;
