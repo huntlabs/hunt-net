@@ -206,8 +206,9 @@ static if(threadModel == ThreadMode.Multi){
 					trace("Waiting for accept...");
 				Socket client = tcpListener.accept();
                 processClient(client);
-			} catch (Exception e) {
-				warningf("Failure on accept %s", e);
+			} catch (Throwable e) {
+				warningf("Failure on accept %s", e.msg);
+				version(HUNT_DEBUG) warning(e);
 				_isStarted = false;
 			}
 		}

@@ -50,12 +50,12 @@ abstract class AbstractConnection : Connection {
             Codec codec, ConnectionEventHandler eventHandler) {
         assert(eventHandler !is null);
 
+        this._eventHandler = eventHandler;
+        this(connectionId, options, tcp);
         if(codec !is null) {
             this.setCodec(codec);
         }
-        
-        this._eventHandler = eventHandler;
-        this(connectionId, options, tcp);
+
     }
 
     int getId() {

@@ -31,7 +31,7 @@ class EncoderChain : Encoder {
 	}
 
     void setBufferSize(int size) {
-		assert(size>0, "The size must be > 0.");
+		assert(size>0 || size == -1, "The size must be > 0.");
         this._bufferSize = size;
     }
 
