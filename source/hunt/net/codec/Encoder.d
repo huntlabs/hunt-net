@@ -32,7 +32,8 @@ class EncoderChain : Encoder {
 
     void setBufferSize(int size) {
 		assert(size>0 || size == -1, "The size must be > 0.");
-        this._bufferSize = size;
+		if(size > 0)
+        	this._bufferSize = size;
     }
 
 	void encode(Object message, Connection connection) {
