@@ -14,8 +14,8 @@ import hunt.logging;
 import hunt.util.Lifecycle;
 
 import core.atomic;
-import std.format;
 import core.thread;
+import std.format;
 import std.parallelism;
 
 ///
@@ -38,7 +38,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private EventLoop _loop;
     private int _loopIdleTime = -1;
     private CallBack _onClosed = null;
-    private bool _isConnected = false;
+    private shared bool _isConnected = false;
 
     this() {
         this(new EventLoop());
@@ -61,8 +61,8 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             tracef("Client ID: %d", _currentId);
     }
 
-    ~this() {
-        this.stop();
+    ~this() @nogc {
+        // this.stop();
     }
 
     int getId() {
@@ -165,7 +165,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         _client.onClosed(() {
             version(HUNT_NET_DEBUG) {
-                info("connection closed");
+                infof("connection %d closed", _tcpConnection.getId());
             }
             _tcpConnection.setState(ConnectionState.Closed);
             this.close();
@@ -173,7 +173,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 _onClosed();
             }
 
-            _isConnected = false;
+            // _isConnected = false;
 
             //auto runTask = task((){
             //    Thread.sleep(options.retryInterval);
@@ -218,10 +218,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void close() {
-        // FIXME: Needing refactor or cleanup -@zxp at 9/17/2019, 6:38:37 PM
-        // Keep thread-safe
-        if(_isConnected) {
-            _isConnected = false;
+        if(cas(&_isConnected, true, false) ) {
             this.stop();
         } else {
             version(HUNT_NET_DEBUG) trace("Closed already.");

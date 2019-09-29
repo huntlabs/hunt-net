@@ -29,7 +29,7 @@ shared static this() {
     DateTimeHelper.startClock();
 }
 
-shared static ~this() {
+shared static ~this() @nogc {
     DateTimeHelper.stopClock();
 }
 
