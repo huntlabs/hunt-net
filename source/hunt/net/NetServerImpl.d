@@ -26,11 +26,11 @@ enum ThreadMode {
 import hunt.util.DateTime;
 
 shared static this() {
-    DateTimeHelper.startClock();
+    DateTime.startClock();
 }
 
 shared static ~this() @nogc {
-    DateTimeHelper.stopClock();
+    DateTime.stopClock();
 }
 
 

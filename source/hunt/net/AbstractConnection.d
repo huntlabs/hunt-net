@@ -127,7 +127,7 @@ abstract class AbstractConnection : Connection {
     }
 
     protected void onDataReceived(ByteBuffer buffer) {
-        version(HUNT_DEBUG) { 
+        version(HUNT_NET_DEBUG) { 
             auto data = cast(ubyte[]) buffer.getRemaining();
             tracef("data received (%d bytes): ", data.length); 
             version(HUNT_NET_DEBUG_MORE) {
