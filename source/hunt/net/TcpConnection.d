@@ -39,7 +39,7 @@ version(HUNT_METRIC) {
 
     this(int connectionId, TcpSslOptions options, ConnectionEventHandler handler, Codec codec, TcpStream tcp) {
         super(connectionId, options, tcp, codec, handler);
-        version(HUNT_METRIC) this.openTime = DateTimeHelper.currentTimeMillis();
+        version(HUNT_METRIC) this.openTime = DateTime.currentTimeMillis();
         version(HUNT_DEBUG) trace("Initializing a TCP connection...");
     }  
 
@@ -68,7 +68,7 @@ version(HUNT_METRIC) {
         if (closeTime > 0) {
             return closeTime - openTime;
         } else {
-            return DateTimeHelper.currentTimeMillis - openTime;
+            return DateTime.currentTimeMillis - openTime;
         }
     }
 
@@ -94,7 +94,7 @@ version(HUNT_METRIC) {
     }
 
     long getIdleTimeout() {
-        return DateTimeHelper.currentTimeMillis - getLastActiveTime();
+        return DateTime.currentTimeMillis - getLastActiveTime();
     }
 
     void reset() {
@@ -134,7 +134,7 @@ version(HUNT_METRIC) {
 
     override protected void notifyClose() {
         version(HUNT_METRIC) {
-            closeTime = DateTimeHelper.currentTimeMillis();
+            closeTime = DateTime.currentTimeMillis();
             // version(HUNT_DEBUG) 
             tracef("The connection %d closed: %s", _connectionId, this.toString());
         } else {
