@@ -2,9 +2,6 @@ module hunt.net.NetServerImpl;
 
 import hunt.net.Connection;
 import hunt.net.codec;
-// import hunt.net.NetEvent;
-// import hunt.net.AsyncResult;
-// import hunt.net.Connection;
 import hunt.net.NetServer;
 import hunt.net.NetServerOptions;
 import hunt.net.TcpConnection;
@@ -16,6 +13,7 @@ import hunt.util.Lifecycle;
 
 import core.atomic;
 import std.conv;
+import std.parallelism;
 import std.socket;
 
 enum ThreadMode {
@@ -156,9 +154,9 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
         //     handler(result);
 
         static if(threadModel == ThreadMode.Single) {
-            import std.parallelism;
             auto theTask = task(&waitingForAccept);
-            taskPool.put(theTask);
+            // taskPool.put(theTask);
+            theTask.executeInNewThread();
         }
     }
 
@@ -205,7 +203,10 @@ static if(threadModel == ThreadMode.Multi){
 				version (HUNT_DEBUG)
 					trace("Waiting for accept...");
 				Socket client = tcpListener.accept();
-                processClient(client);
+                // processClient(client);
+                
+                auto processTask = task(&processClient, client);
+                taskPool.put(processTask);
 			} catch (Throwable e) {
 				warningf("Failure on accept %s", e.msg);
 				version(HUNT_DEBUG) warning(e);
@@ -230,7 +231,6 @@ static if(threadModel == ThreadMode.Multi){
 
 		EventLoop loop = _group.nextLoop();
 		TcpStream stream = new TcpStream(loop, socket, streamOptions);
-		stream.start();
 
         auto currentId = atomicOp!("+=")(_connectionId, 1);
         version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
@@ -239,6 +239,7 @@ static if(threadModel == ThreadMode.Multi){
         if (_eventHandler !is null) {
             _eventHandler.connectionOpened(connection);
         }
+		stream.start();
 
         version(HUNT_METRIC) { 
             Duration timeElapsed = MonoTime.currTime - startTime;
