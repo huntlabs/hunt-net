@@ -41,17 +41,17 @@ void main() {
             count++;
         }
 
-        override void exceptionCaught(Connection connection, Exception t) {
+        override void exceptionCaught(Connection connection, Throwable t) {
             warning(t);
         }
 
-        override void failedOpeningConnection(int connectionId, Exception t) {
+        override void failedOpeningConnection(int connectionId, Throwable t) {
             warning(t);
             client.close(); 
         }
 
-        override void failedAcceptingConnection(int connectionId, Exception t) {
+        override void failedAcceptingConnection(int connectionId, Throwable t) {
             warning(t);
         }
-    }).connect("localhost", 8080);
+    }).connect("127.0.0.1", 8080);
 }
