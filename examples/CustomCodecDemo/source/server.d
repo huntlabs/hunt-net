@@ -31,15 +31,15 @@ void main() {
             connection.write(str);
         }
 
-        override void exceptionCaught(Connection connection, Exception t) {
+        override void exceptionCaught(Connection connection, Throwable t) {
             warning(t);
         }
 
-        override void failedOpeningConnection(int connectionId, Exception t) {
+        override void failedOpeningConnection(int connectionId, Throwable t) {
             warning(t);
         }
 
-        override void failedAcceptingConnection(int connectionId, Exception t) {
+        override void failedAcceptingConnection(int connectionId, Throwable t) {
             warning(t);
         }
     }).listen("0.0.0.0", 8080);
