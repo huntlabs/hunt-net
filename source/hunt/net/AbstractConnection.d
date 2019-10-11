@@ -13,6 +13,7 @@ import hunt.io.TcpStream;
 import hunt.logging.ConsoleLogger;
 import hunt.util.Common;
 
+import std.format;
 import std.socket;
 
 
@@ -359,7 +360,11 @@ abstract class AbstractConnection : Connection {
                 this._encoder.encode(message, this);
             }
         } catch (Exception t) {
-            version(HUNT_DEBUG) warning(t);
+            version(HUNT_DEBUG) {
+                string msg = format("Connection %d exception: %s", this.getId, t.msg);
+                warning(msg);
+            }
+            version(HUNT_NET_DEBUG_MORE) warning(t);
             notifyException(t);
         }
     }
