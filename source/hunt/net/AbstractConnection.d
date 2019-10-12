@@ -155,7 +155,7 @@ abstract class AbstractConnection : Connection {
 
     ///
     void close() {
-        version(HUNT_NET_DEBUG) infof("Closing connection...state=%s", _connectionState);
+        version(HUNT_NET_DEBUG) infof("Closing connection %d...The state: %s", this.getId(), _connectionState);
         if(_connectionState == ConnectionState.Closing || _connectionState == ConnectionState.Closed)
             return;
         setState(ConnectionState.Closing);
@@ -361,7 +361,7 @@ abstract class AbstractConnection : Connection {
             }
         } catch (Exception t) {
             version(HUNT_DEBUG) {
-                string msg = format("Connection %d exception: %s", this.getId, t.msg);
+                string msg = format("Connection %d exception: %s", this.getId(), t.msg);
                 warning(msg);
             }
             version(HUNT_NET_DEBUG_MORE) warning(t);
