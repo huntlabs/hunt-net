@@ -90,6 +90,12 @@ interface SSLHandshakeCallbacks {
 }     
 
 
+version(Windows) {
+    import core.sys.windows.winbase;
+    import core.sys.windows.basetsd;
+    import core.sys.windows.windef;
+    import core.sys.windows.winsock2;
+}
 
 
 
@@ -2990,7 +2996,7 @@ struct AppData
     int waitingThreads;
     version(Windows)  
     {
-        // HANDLE interruptEvent;
+        HANDLE interruptEvent;
     }  
     else
     {
