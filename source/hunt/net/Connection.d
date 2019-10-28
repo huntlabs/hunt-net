@@ -1,11 +1,11 @@
 module hunt.net.Connection;
 
 import hunt.net.AsyncResult;
-import hunt.util.Common;
-import hunt.io.TcpStream;
 
 import hunt.collection.ByteBuffer;
 import hunt.collection.Collection;
+import hunt.io.TcpStream;
+import hunt.util.Common;
 
 import core.time;
 import std.socket;
@@ -81,9 +81,7 @@ interface Connection : Closeable {
     /**
      * @return the EventHandler which handles this connection.
      */
-    ConnectionEventHandler getHandler();    
-
-
+    NetConnectionHandler getHandler();    
 
     /**
      * Returns the value of the user-defined attribute of this connection.
@@ -340,12 +338,16 @@ version(HUNT_METRIC) {
 }
 
 
+deprecated("Using NetConnectionHandler instead.")
+alias ConnectionEventHandler = NetConnectionHandler;
+
+alias ConnectionEventHandlerAdapter = NetConnectionHandlerAdapter;
 
 /**
  * Handles all I/O events on a socket connection.
  *
  */
-abstract class ConnectionEventHandler {
+abstract class NetConnectionHandler {
 
 	void connectionOpened(Connection connection) ;
 
@@ -361,8 +363,9 @@ abstract class ConnectionEventHandler {
 }
 
 /**
-*/
-class ConnectionEventHandlerAdapter : ConnectionEventHandler {
+ * 
+ */
+class NetConnectionHandlerAdapter : NetConnectionHandler {
 
     private NetConnectHandler _openedHandler;
     private NetConnectHandler _closedHandler;
@@ -371,12 +374,11 @@ class ConnectionEventHandlerAdapter : ConnectionEventHandler {
     private NetErrorHandler _openFailedHandler;
     private NetErrorHandler _acceptFailedHandler;
 
-
     this() {
 
     }
 
-    ////// Event Handlers
+    /* ----------------------------- Event Handlers ----------------------------- */
 
     ///
     void onOpened(NetConnectHandler handler) {
@@ -399,7 +401,7 @@ class ConnectionEventHandlerAdapter : ConnectionEventHandler {
         _openedHandler = handler;
     }
 
-    ////// ConnectionEventHandler APIs
+    /* ------------------------ NetConnectionHandler APIs ----------------------- */
 
     ///
     override void connectionOpened(Connection connection) {

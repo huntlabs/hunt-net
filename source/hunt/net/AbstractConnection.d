@@ -30,7 +30,7 @@ abstract class AbstractConnection : Connection {
     private Codec _codec;
     protected Encoder _encoder;
     protected Decoder _decoder;
-    protected ConnectionEventHandler _eventHandler;
+    protected NetConnectionHandler _netHandler;
     protected shared ConnectionState _connectionState;
     private bool _isSecured = false;
 
@@ -48,10 +48,10 @@ abstract class AbstractConnection : Connection {
 
     ///
     this(int connectionId, TcpSslOptions options, TcpStream tcp, 
-            Codec codec, ConnectionEventHandler eventHandler) {
+            Codec codec, NetConnectionHandler eventHandler) {
         assert(eventHandler !is null);
 
-        this._eventHandler = eventHandler;
+        this._netHandler = eventHandler;
         this(connectionId, options, tcp);
         if(codec !is null) {
             this.setCodec(codec);
@@ -100,13 +100,13 @@ abstract class AbstractConnection : Connection {
     }    
 
     ///
-    AbstractConnection setHandler(ConnectionEventHandler handler) {
-        this._eventHandler = handler;
+    AbstractConnection setHandler(NetConnectionHandler handler) {
+        this._netHandler = handler;
         return this;
     }
 
-    ConnectionEventHandler getHandler() {
-        return _eventHandler;
+    NetConnectionHandler getHandler() {
+        return _netHandler;
     }
 
     bool isConnected() {
@@ -147,8 +147,8 @@ abstract class AbstractConnection : Connection {
             }
             _decoder.decode(buffer, this);
         } else {
-            if(_eventHandler !is null) {
-                _eventHandler.messageReceived(this, cast(Object)buffer);
+            if(_netHandler !is null) {
+                _netHandler.messageReceived(this, cast(Object)buffer);
             }
         }
     }
@@ -373,7 +373,7 @@ abstract class AbstractConnection : Connection {
     //     try {
     //         _config.getEncoder().encode(message, this);
     //     } catch (Exception t) {
-    //         _eventHandler.notifyExceptionCaught(this, t);
+    //         _netHandler.notifyExceptionCaught(this, t);
     //     }
     // }
 
@@ -383,7 +383,7 @@ abstract class AbstractConnection : Connection {
     //             this._encoder.encode(message, this);
     //         }
     //     } catch (Exception t) {
-    //         _eventHandler.exceptionCaught(this, t);
+    //         _netHandler.exceptionCaught(this, t);
     //     }
     // }
 
@@ -393,13 +393,13 @@ abstract class AbstractConnection : Connection {
 
     protected void notifyClose() {
         this._connectionState = ConnectionState.Closed;
-        if(_eventHandler !is null)
-            _eventHandler.connectionClosed(this);
+        if(_netHandler !is null)
+            _netHandler.connectionClosed(this);
     }
 
     void notifyException(Exception t) {
-        if(_eventHandler !is null)
-            _eventHandler.exceptionCaught(this, t);
+        if(_netHandler !is null)
+            _netHandler.exceptionCaught(this, t);
     }
 
     version(HUNT_METRIC) {

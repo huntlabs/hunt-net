@@ -79,12 +79,9 @@ abstract class AbstractSecureSession : SecureSession {
     protected bool doHandshake(ByteBuffer receiveBuffer) {
         try {
             return _doHandshake(receiveBuffer);
-        }
-        catch(Exception ex)
-        {
-            debug error(ex.toString());
-            else
-                error(ex.msg);
+        } catch(Exception ex) {
+            debug error(ex.msg);
+            version(HUNT_NET_DEBUG) warning(ex);
             return false;
         }
     }

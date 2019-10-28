@@ -41,7 +41,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     private shared int _connectionId;
     private NetServerOptions _options;
     private Codec _codec;
-    private ConnectionEventHandler _eventHandler;
+    private NetConnectionHandler _eventHandler;
     protected EventLoopGroup _group = null;
 
 	protected Address _address;
@@ -73,11 +73,11 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
         return this._codec;
     }
 
-    ConnectionEventHandler getHandler() {
+    NetConnectionHandler getHandler() {
         return _eventHandler;
     }
 
-    NetServer setHandler(ConnectionEventHandler handler) {
+    NetServer setHandler(NetConnectionHandler handler) {
         _eventHandler = handler;
         return this;
     }

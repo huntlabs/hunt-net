@@ -37,7 +37,7 @@ version(HUNT_METRIC) {
     protected shared bool _isShutdownInput = false;
     protected shared bool _isWaitingForClose = false;
 
-    this(int connectionId, TcpSslOptions options, ConnectionEventHandler handler, Codec codec, TcpStream tcp) {
+    this(int connectionId, TcpSslOptions options, NetConnectionHandler handler, Codec codec, TcpStream tcp) {
         super(connectionId, options, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTime.currentTimeMillis();
         version(HUNT_DEBUG) trace("Initializing a TCP connection...");

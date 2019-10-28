@@ -29,14 +29,14 @@ interface NetServer {
     /**
      * @return the handler which will handle all connections managed by this server.
      */
-    ConnectionEventHandler getHandler();
+    NetConnectionHandler getHandler();
 
     /**
      * Sets the handler which will handle all connections managed by this server.
      * 
-     * @param handler The ConnectionEventHandler to use
+     * @param handler The NetConnectionHandler to use
      */
-    NetServer setHandler(ConnectionEventHandler handler);
+    NetServer setHandler(NetConnectionHandler handler);
 
 
     /**
@@ -156,16 +156,16 @@ interface NetServer {
 // 		return _address;
 // 	}
     
-//     ConnectionEventHandler getHandler() {
+//     NetConnectionHandler getHandler() {
 
 //     }
 
 //     /**
 //      * Sets the handler which will handle all connections managed by this server.
 //      * 
-//      * @param handler The ConnectionEventHandler to use
+//      * @param handler The NetConnectionHandler to use
 //      */
-//     void setHandler(ConnectionEventHandler handler);
+//     void setHandler(NetConnectionHandler handler);
 
 //     void close() {
 //         stop();

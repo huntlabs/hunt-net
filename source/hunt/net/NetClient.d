@@ -81,9 +81,9 @@ interface NetClient {
 
     NetClient setCodec(Codec codec);
 
-    ConnectionEventHandler getHandler();
+    NetConnectionHandler getHandler();
 
-    NetClient setHandler(ConnectionEventHandler handler);
+    NetClient setHandler(NetConnectionHandler handler);
 
     void setOnClosed (void delegate());
 }

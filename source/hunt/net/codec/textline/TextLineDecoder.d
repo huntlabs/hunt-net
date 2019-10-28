@@ -251,7 +251,7 @@ class TextLineDecoder : DecoderChain {
                         string str = cast(string)data;
 
                         // call connection handler
-                        ConnectionEventHandler handler = connection.getHandler();
+                        NetConnectionHandler handler = connection.getHandler();
                         if(handler !is null) {
                             handler.messageReceived(connection, new String(str));
                         }
@@ -316,7 +316,7 @@ class TextLineDecoder : DecoderChain {
                             string str = cast(string)data;
 
                             // call connection handler
-                            ConnectionEventHandler handler = connection.getHandler();
+                            NetConnectionHandler handler = connection.getHandler();
                             if(handler !is null) {
                                 handler.messageReceived(connection, new String(str));
                             }                            

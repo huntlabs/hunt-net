@@ -32,7 +32,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private int _currentId;
     private NetClientOptions _options;
     private Codec _codec;
-    private ConnectionEventHandler _eventHandler;
+    private NetConnectionHandler _eventHandler;
     private TcpConnection _tcpConnection;
     private TcpStream _client;
     private EventLoop _loop;
@@ -116,12 +116,12 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         }
     }
 
-    ConnectionEventHandler getHandler() {
+    NetConnectionHandler getHandler() {
         return this._eventHandler;
     }
 
 
-    NetClientImpl setHandler(ConnectionEventHandler handler) {
+    NetClientImpl setHandler(NetConnectionHandler handler) {
         this._eventHandler = handler;
         return this;
     }
