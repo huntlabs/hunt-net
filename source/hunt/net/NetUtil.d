@@ -1,7 +1,5 @@
 module hunt.net.NetUtil;
-import hunt.event;
 
-// import hunt.net.Config;
 import hunt.net.NetClient;
 import hunt.net.NetServer;
 import hunt.net.NetClientImpl;
@@ -9,8 +7,11 @@ import hunt.net.NetClientOptions;
 import hunt.net.NetServerImpl;
 import hunt.net.NetServerOptions;
 
+import hunt.event;
+
 /**
-*/
+ * 
+ */
 class NetUtil {
     static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)() {
         return new NetServerImpl!(threadModel)(_loopGroup);

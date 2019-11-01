@@ -41,7 +41,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     private shared int _connectionId;
     private NetServerOptions _options;
     private Codec _codec;
-    private NetConnectionHandler _eventHandler;
+    private NetConnectionHandler _connectHandler;
     protected EventLoopGroup _group = null;
 
 	protected Address _address;
@@ -74,11 +74,11 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     }
 
     NetConnectionHandler getHandler() {
-        return _eventHandler;
+        return _connectHandler;
     }
 
     NetServer setHandler(NetConnectionHandler handler) {
-        _eventHandler = handler;
+        _connectHandler = handler;
         return this;
     }
 
@@ -87,7 +87,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
 	}
     // override void setConfig(Config config) {
     //     _options = config;
-    //     _eventHandler = new DefaultNetEvent(config);
+    //     _connectHandler = new DefaultNetEvent(config);
     // }
 
     void listen() {
@@ -106,7 +106,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
 			return;
         _address = new InternetAddress(host, cast(ushort)port);
 
-		version(HUNT_DEBUG) info("start to listen:");
+		version(HUNT_DEBUG) infof("start to listen on %s:%d", host, port);
         _group.start();
 
         try {
@@ -146,8 +146,8 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
             
         } catch (Exception e) {
             warning(e.message);
-            if (_eventHandler !is null)
-                _eventHandler.failedOpeningConnection(0, e);
+            if (_connectHandler !is null)
+                _connectHandler.failedOpeningConnection(0, e);
         }
 
         // if (handler !is null)
@@ -175,10 +175,10 @@ static if(threadModel == ThreadMode.Multi){
         listener.onConnectionAccepted((TcpListener sender, TcpStream stream) {
                 auto currentId = atomicOp!("+=")(_connectionId, 1);
                 version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
-                TcpConnection connection = new TcpConnection(currentId, _options, _eventHandler, stream);
+                TcpConnection connection = new TcpConnection(currentId, _options, _connectHandler, stream);
                 // connection.setState(ConnectionState.Opened);
-                if (_eventHandler !is null)
-                    _eventHandler.notifyConnectionOpened(connection);
+                if (_connectHandler !is null)
+                    _connectHandler.notifyConnectionOpened(connection);
             });
 		listener.start();
 
@@ -234,10 +234,10 @@ static if(threadModel == ThreadMode.Multi){
 
         auto currentId = atomicOp!("+=")(_connectionId, 1);
         version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
-        Connection connection = new TcpConnection(currentId, _options, _eventHandler, _codec, stream);
+        Connection connection = new TcpConnection(currentId, _options, _connectHandler, _codec, stream);
         // connection.setState(ConnectionState.Opened);
-        if (_eventHandler !is null) {
-            _eventHandler.connectionOpened(connection);
+        if (_connectHandler !is null) {
+            _connectHandler.connectionOpened(connection);
         }
 		stream.start();
 
@@ -260,9 +260,10 @@ static if(threadModel == ThreadMode.Multi){
         if(_isStarted && tcpListener !is null) {
             tcpListener.close();
         }
+    }
 
-        // if(_eventHandler !is null)
-        //     _eventHandler.
+    bool isOpen() {
+        return _isStarted;
     }
 }    
 }

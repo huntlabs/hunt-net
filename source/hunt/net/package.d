@@ -17,3 +17,4 @@ public import hunt.net.TcpConnection;
 public import hunt.net.TcpSslOptions;
 
 public import hunt.net.codec;
+public import hunt.net.util.HttpURI;

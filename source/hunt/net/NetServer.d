@@ -21,7 +21,6 @@ interface NetServer {
 
     NetServer setOptions(NetServerOptions options);
 
-
     Codec getCodec();
 
     NetServer setCodec(Codec codec);
@@ -70,7 +69,6 @@ interface NetServer {
      */
     
     void listen();
-
 
     /**
      * Start listening on the specified port and host, ignoring port and host configured in the {@link hunt.net.NetServerOptions} used when
@@ -143,6 +141,8 @@ interface NetServer {
      * @return the actual port the server is listening on.
      */
     int actualPort();
+
+    bool isOpen();
 }
 
 

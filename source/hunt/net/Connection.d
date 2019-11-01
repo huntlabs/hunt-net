@@ -16,8 +16,12 @@ alias TcpSession = Connection;
 deprecated("Using Connection instead.")
 alias Session = Connection;
 
-alias NetEventHandler(E) = void delegate(E event);
-alias NetEventHandler(T, U) = void delegate(T t, U u);
+// alias NetEventHandler(E) = void delegate(E event);
+// alias NetEventHandler(T, U) = void delegate(T t, U u);
+template NetEventHandler(T...) if(T.length > 0)  {
+    alias NetEventHandler = void delegate(T);
+}
+
 alias NetConnectHandler = NetEventHandler!Connection;
 alias NetMessageHandler = NetEventHandler!(Connection, Object);
 alias NetExceptionHandler = NetEventHandler!(Connection, Throwable);
@@ -397,8 +401,8 @@ class NetConnectionHandlerAdapter : NetConnectionHandler {
         _exceptionHandler = handler;
     }
 
-    void onOpeneFailed(NetConnectHandler handler) {
-        _openedHandler = handler;
+    void onOpenFailed(NetErrorHandler handler) {
+        _openFailedHandler = handler;
     }
 
     /* ------------------------ NetConnectionHandler APIs ----------------------- */
