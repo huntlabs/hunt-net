@@ -4,6 +4,12 @@ module hunt.net.secure.conscrypt.NativeCrypto;
 import std.array;
 import std.concurrency : initOnce;
 
+version(Windows) {
+    import core.sys.windows.windef;
+    import core.sys.windows.winbase;
+    import core.sys.windows.winsock2;    
+}
+
 /**
 * A collection of callbacks from the native OpenSSL code that are
  * related to the SSL handshake initiated by SSL_do_handshake.
@@ -90,12 +96,6 @@ interface SSLHandshakeCallbacks {
 }     
 
 
-version(Windows) {
-    import core.sys.windows.winbase;
-    import core.sys.windows.basetsd;
-    import core.sys.windows.windef;
-    import core.sys.windows.winsock2;
-}
 
 
 
