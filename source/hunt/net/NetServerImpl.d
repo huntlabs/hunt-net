@@ -85,10 +85,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     @property Address bindingAddress() {
 		return _address;
 	}
-    // override void setConfig(Config config) {
-    //     _options = config;
-    //     _connectHandler = new DefaultNetEvent(config);
-    // }
+
 
     void listen() {
         listen("0.0.0.0", 0);
