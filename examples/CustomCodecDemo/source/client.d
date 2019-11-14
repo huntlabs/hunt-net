@@ -16,7 +16,7 @@ void main() {
 
     client.setCodec(new TextLineCodec);
 
-    client.setHandler(new class ConnectionEventHandler {
+    client.setHandler(new class NetConnectionHandler {
 
         override void connectionOpened(Connection connection) {
             infof("Connection created: %s", connection.getRemoteAddress());

@@ -40,7 +40,7 @@ import std.conv;
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */
 class TextLineDecoder : DecoderChain {
-    private enum string CONTEXT = "context";
+    private enum string CONTEXT = "decoder";
 
     // private final Charset charset;
 
@@ -159,7 +159,7 @@ class TextLineDecoder : DecoderChain {
      * {@inheritDoc}
      */
     override
-    void decode(ByteBuffer buf, Connection connection) { // , ProtocolDecoderOutput out
+    void decode(ByteBuffer buf, Connection connection) { 
         Context ctx = getContext(connection);
 
         if (LineDelimiter.AUTO == delimiter) {
@@ -201,7 +201,7 @@ class TextLineDecoder : DecoderChain {
     /**
      * Decode a line using the default delimiter on the current system
      */
-    private void decodeAuto(Context ctx, Connection connection, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
+    private void decodeAuto(Context ctx, Connection connection, ByteBuffer inBuffer) { 
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match
@@ -279,7 +279,7 @@ class TextLineDecoder : DecoderChain {
     /**
      * Decode a line using the delimiter defined by the caller
      */
-    private void decodeNormal(Context ctx, Connection connection, ByteBuffer inBuffer) { // , ProtocolDecoderOutput out
+    private void decodeNormal(Context ctx, Connection connection, ByteBuffer inBuffer) { 
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match

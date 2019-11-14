@@ -156,12 +156,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     private void initializeClient(){
-
         TcpStreamOptions options = _options.toStreamOptions();
         _client = new TcpStream(_loop, options);
-        _tcpConnection = new TcpConnection(_currentId,
-                _options, _eventHandler, _codec, _client);
-
+        _tcpConnection = new TcpConnection(_currentId, _options, 
+                _eventHandler, _codec, _client);
 
         _client.onClosed(() {
             version(HUNT_NET_DEBUG) {
@@ -203,10 +201,11 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 string msg = format("Failed to connect to %s:%d", _host, _port);
                 warning(msg); 
                 _isConnected = false;
-                if(_tcpConnection !is null)
-                {
+
+                if(_tcpConnection !is null) {
                     _tcpConnection.setState(ConnectionState.Error);
                 }
+                
                 if(_eventHandler !is null)
                     _eventHandler.failedOpeningConnection(_currentId, new IOException(msg));
             }
@@ -218,11 +217,12 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void close() {
-        if(cas(&_isConnected, true, false) ) {
-            this.stop();
-        } else {
-            version(HUNT_NET_DEBUG) trace("Closed already.");
-        }
+        // if(cas(&_isConnected, true, false) ) {
+        //     this.stop();
+        // } else {
+        //     version(HUNT_NET_DEBUG) trace("Closed already.");
+        // }
+        this.stop();
     }
 
     override protected void destroy() {
