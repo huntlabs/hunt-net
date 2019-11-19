@@ -103,7 +103,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
 			return;
         _address = new InternetAddress(host, cast(ushort)port);
 
-		version(HUNT_DEBUG) infof("start to listen on %s:%d", host, port);
+		version(HUNT_DEBUG) infof("Start to listen on %s:%d", host, port);
         _group.start();
 
         try {
@@ -197,8 +197,9 @@ static if(threadModel == ThreadMode.Multi){
     private void waitingForAccept() {
         while (_isStarted) {
 			try {
-				version (HUNT_DEBUG)
-					trace("Waiting for accept...");
+				version (HUNT_DEBUG) {
+					tracef("Waiting for accept on %s:%d...", _host, _port);
+                }
 				Socket client = tcpListener.accept();
                 // processClient(client);
                 

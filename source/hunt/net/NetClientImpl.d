@@ -34,7 +34,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private Codec _codec;
     private NetConnectionHandler _eventHandler;
     private TcpConnection _tcpConnection;
-    private TcpStream _client;
+    // private TcpStream _tcpStream;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
     private CallBack _onClosed = null;
@@ -157,15 +157,16 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     private void initializeClient(){
         TcpStreamOptions options = _options.toStreamOptions();
-        _client = new TcpStream(_loop, options);
+        TcpStream _tcpStream = new TcpStream(_loop, options);
         _tcpConnection = new TcpConnection(_currentId, _options, 
-                _eventHandler, _codec, _client);
+                _eventHandler, _codec, _tcpStream);
 
-        _client.onClosed(() {
+        _tcpStream.onClosed(() {
             version(HUNT_NET_DEBUG) {
                 infof("connection %d closed", _tcpConnection.getId());
             }
             _tcpConnection.setState(ConnectionState.Closed);
+
             this.close();
             if (_onClosed !is null) {
                 _onClosed();
@@ -175,24 +176,23 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
             //auto runTask = task((){
             //    Thread.sleep(options.retryInterval);
-            //    _client.reconnect();
+            //    _tcpStream.reconnect();
             //});
             //taskPool.put(runTask);
 
         });
 
-        _client.onError((string message) {
+        _tcpStream.onError((string message) {
             _tcpConnection.setState(ConnectionState.Error);
             if (_eventHandler !is null)
                 _eventHandler.exceptionCaught(_tcpConnection, new Exception(message));
         });
 
-        _client.onConnected((bool suc) {
+        _tcpStream.onConnected((bool suc) {
             if (suc) {
-			    version (HUNT_DEBUG) trace("connected to: ", _client.remoteAddress.toString()); 
+			    version (HUNT_DEBUG) trace("connected to: ", _tcpStream.remoteAddress.toString()); 
                 // _tcpConnection.setState(ConnectionState.Opened);
-                if (_eventHandler !is null)
-                {
+                if (_eventHandler !is null) {
                     _eventHandler.connectionOpened(_tcpConnection);
                 }
                 _isConnected = true;
@@ -213,7 +213,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         });
 
         // _tcpConnection.setState(ConnectionState.Opening);
-        _client.connect(_host, cast(ushort)_port);
+        _tcpStream.connect(_host, cast(ushort)_port);
     }
 
     void close() {
@@ -222,7 +222,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         // } else {
         //     version(HUNT_NET_DEBUG) trace("Closed already.");
         // }
-        this.stop();
+        version(HUNT_NET_DEBUG) tracef("isRunning: %s", this.isRunning());
+        if(this.isRunning()) {
+            this.stop();
+        }
     }
 
     override protected void destroy() {
@@ -235,8 +238,16 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             
             if(!_tcpConnection.isClosing()) {
                 _tcpConnection.close();
-            } else if (_eventHandler !is null)
+            }
+
+            if (_eventHandler !is null) {
+                version(HUNT_NET_DEBUG) {
+                    infof("Notifying connection %d with %s closed.", 
+                    _tcpConnection.getId(), _tcpConnection.remoteAddress());
+                }
                 _eventHandler.connectionClosed(_tcpConnection);
+            }
+
             _tcpConnection = null;
             _loop.stop();
         }

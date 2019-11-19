@@ -174,14 +174,15 @@ abstract class AbstractConnection : Connection {
 
     ////
     void write(const(ubyte)[] data) {
-
-        version(HUNT_NET_DEBUG_MORE) {
-            infof("%(%02X %)", data[0 .. $]);
-        } else version(HUNT_NET_DEBUG) {
+        version(HUNT_NET_DEBUG) { 
+            tracef("writting data (%d bytes)...", data.length); 
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
             else
                 infof("%(%02X %) ...", data[0 .. 64]);
+        } else version(HUNT_NET_DEBUG_MORE) {
+            tracef("writting data (%d bytes)...", data.length); 
+            infof("%(%02X %)", data[0 .. $]);
         }
 
         _tcp.write(data);

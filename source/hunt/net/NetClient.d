@@ -85,6 +85,10 @@ interface NetClient {
 
     NetClient setHandler(NetConnectionHandler handler);
 
-    void setOnClosed (void delegate());
+    // void setOnClosed (void delegate());
+
+    alias onClosed = setOnClosed;
+    // deprecated("Using onClosed instead.")
+    void setOnClosed (void delegate() handler);
 }
 
