@@ -521,6 +521,19 @@ final class NativeCrypto {
         deimos.openssl.ssl.SSL_CTX_load_verify_locations(ssl_ctx, toStringz(CAfile), toStringz(CApath));
     }
 
+
+    /**
+     * Sets certificate expectations, especially for server to request client auth
+     */
+    static void SSL_CTX_set_verify(long ssl_ctx_address, int mode) {
+        SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+        if (ssl_ctx is null) {
+            warningf("ssl is null");
+            return;
+        }
+        deimos.openssl.ssl.SSL_CTX_set_verify(ssl_ctx, mode, null);
+    }
+
     static void SSL_CTX_use_certificate_file(long ssl_ctx_address, string fileName) {
         SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
         if(ssl_ctx is null)

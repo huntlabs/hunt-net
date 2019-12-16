@@ -185,10 +185,10 @@ class SSLContext {
         return new SSLContext(impl, null, protocol);
     }
 
-    static SSLContext getInstance(string certificate, string privatekey, string protocol, string provider) {
-        SSLContextSpi impl = new DefaultSSLContextImpl(certificate, privatekey);
-        return new SSLContext(impl, null, protocol);
-    }
+    // static SSLContext getInstance(string certificate, string privatekey, string protocol, string provider) {
+    //     SSLContextSpi impl = new DefaultSSLContextImpl(certificate, privatekey);
+    //     return new SSLContext(impl, null, protocol);
+    // }
 
     /**
      * Returns a <code>SSLContext</code> object that implements the
@@ -268,8 +268,12 @@ class SSLContext {
      * @param random the source of randomness for this generator or null
      * @throws KeyManagementException if this operation fails
      */
-    final void init(KeyManager[] km, TrustManager[] tm) {
-        contextSpi.engineInit(km, tm);
+    // final void init(KeyManager[] km, TrustManager[] tm) {
+    //     contextSpi.engineInit(km, tm);
+    // }
+
+    final void init(KeyCertOptions options) {
+        contextSpi.engineInit(options);
     }
 
     /**

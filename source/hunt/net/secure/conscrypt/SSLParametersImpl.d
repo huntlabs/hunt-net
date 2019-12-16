@@ -15,11 +15,11 @@ import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.KeyManagerFactory;
 import hunt.net.ssl.X509KeyManager;
 import hunt.net.ssl.X509TrustManager;
+import hunt.net.KeyCertOptions;
 
 import hunt.security.Key;
 import hunt.security.cert.X509Certificate;
 import hunt.security.x500.X500Principal;
-// import hunt.net.ssl.TrustManager;
 
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
@@ -50,12 +50,12 @@ final class SSLParametersImpl : Cloneable {
     // server-side SSL sessions
     private ServerSessionContext serverSessionContext;
     // source of X.509 certificate based authentication keys or null if not provided
-    private X509KeyManager x509KeyManager;
+    // private X509KeyManager x509KeyManager;
     // source of Pre-Shared Key (PSK) authentication keys or null if not provided.
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
     // private PSKKeyManager pskKeyManager;
     // source of X.509 certificate based authentication trust decisions or null if not provided
-    private X509TrustManager x509TrustManager;
+    // private X509TrustManager x509TrustManager;
 
     // protocols enabled for SSL connection
     string[] enabledProtocols;
@@ -89,6 +89,8 @@ final class SSLParametersImpl : Cloneable {
     bool useSessionTickets;
     private bool useSni;
 
+    private KeyCertOptions _keyCertOptions;
+
     /**
      * Whether the TLS Channel ID extension is enabled. This field is
      * server-side only.
@@ -107,54 +109,69 @@ final class SSLParametersImpl : Cloneable {
      * See {@link javax.net.ssl.SSLContext#init(KeyManager[],TrustManager[],
      * SecureRandom)} for more information
      */
-    this(KeyManager[] kms, TrustManager[] tms, ClientSessionContext clientSessionContext,
+    this(KeyCertOptions options, ClientSessionContext clientSessionContext,
             ServerSessionContext serverSessionContext, string[] protocols) {
+        _keyCertOptions = options;
         this.serverSessionContext = serverSessionContext;
         this.clientSessionContext = clientSessionContext;
-
-version(Have_boringssl) {
-        // initialize key managers
-        if (kms is null) {
-            x509KeyManager = getDefaultX509KeyManager();
-            // There's no default PSK key manager
-            // pskKeyManager = null;
-        } else {
-            x509KeyManager = findFirstX509KeyManager(kms);
-            // pskKeyManager = findFirstPSKKeyManager(kms);
-        }
-
-        // initialize x509TrustManager
-        if (tms is null) {
-            x509TrustManager = getDefaultX509TrustManager();
-        } else {
-            x509TrustManager = findFirstX509TrustManager(tms);
-        }
-
-        // initialize the list of cipher suites and protocols enabled by default
-        enabledProtocols = NativeCrypto.checkEnabledProtocols(
-                protocols is null ? NativeCrypto.DEFAULT_PROTOCOLS : protocols).dup;
-        bool x509CipherSuitesNeeded = (x509KeyManager !is null) || (x509TrustManager !is null);
-        bool pskCipherSuitesNeeded = false; // pskKeyManager !is null;
-        enabledCipherSuites = getDefaultCipherSuites(
-                x509CipherSuitesNeeded, pskCipherSuitesNeeded);
-}
-        // We ignore the SecureRandom passed in by the caller. The native code below
-        // directly accesses /dev/urandom, which makes it irrelevant.
     }
+//     this(KeyManager[] kms, TrustManager[] tms, ClientSessionContext clientSessionContext,
+//             ServerSessionContext serverSessionContext, string[] protocols) {
+//         this.serverSessionContext = serverSessionContext;
+//         this.clientSessionContext = clientSessionContext;
+
+// version(Have_boringssl) {
+//         // initialize key managers
+//         if (kms is null) {
+//             x509KeyManager = getDefaultX509KeyManager();
+//             // There's no default PSK key manager
+//             // pskKeyManager = null;
+//         } else {
+//             x509KeyManager = findFirstX509KeyManager(kms);
+//             // pskKeyManager = findFirstPSKKeyManager(kms);
+//         }
+
+//         // initialize x509TrustManager
+//         if (tms is null) {
+//             x509TrustManager = getDefaultX509TrustManager();
+//         } else {
+//             x509TrustManager = findFirstX509TrustManager(tms);
+//         }
+
+//         // initialize the list of cipher suites and protocols enabled by default
+//         enabledProtocols = NativeCrypto.checkEnabledProtocols(
+//                 protocols is null ? NativeCrypto.DEFAULT_PROTOCOLS : protocols).dup;
+//         bool x509CipherSuitesNeeded = (x509KeyManager !is null) || (x509TrustManager !is null);
+//         bool pskCipherSuitesNeeded = false; // pskKeyManager !is null;
+//         enabledCipherSuites = getDefaultCipherSuites(
+//                 x509CipherSuitesNeeded, pskCipherSuitesNeeded);
+// }
+//         // We ignore the SecureRandom passed in by the caller. The native code below
+//         // directly accesses /dev/urandom, which makes it irrelevant.
+//     }
 
     static SSLParametersImpl getDefault()  {
 
         SSLParametersImpl result = defaultParameters;
         if (result is null) {
-            // single-check idiom
-            defaultParameters = result = new SSLParametersImpl(cast(KeyManager[])null,
-                                                               cast(TrustManager[])null,
-                                                            //    null,
+            warning("xxxxxxxxxxxxxxxxxxxx");
+            defaultParameters = result = new SSLParametersImpl(null,
                                                                new ClientSessionContext(),
                                                                new ServerSessionContext(),
                                                                cast(string[])null);
+            // single-check idiom
+            // defaultParameters = result = new SSLParametersImpl(cast(KeyManager[])null,
+            //                                                    cast(TrustManager[])null,
+            //                                                 //    null,
+            //                                                    new ClientSessionContext(),
+            //                                                    new ServerSessionContext(),
+            //                                                    cast(string[])null);
         }
         return result.clone();
+    }
+
+    KeyCertOptions getKeyCertOptions() {
+        return _keyCertOptions;
     }
 
     /**
@@ -174,9 +191,9 @@ version(Have_boringssl) {
     /**
      * @return X.509 key manager or {@code null} for none.
      */
-    X509KeyManager getX509KeyManager() {
-        return x509KeyManager;
-    }
+    // X509KeyManager getX509KeyManager() {
+    //     return x509KeyManager;
+    // }
 
     // /**
     //  * @return Pre-Shared Key (PSK) key manager or {@code null} for none.

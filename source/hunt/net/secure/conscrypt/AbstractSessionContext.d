@@ -13,8 +13,10 @@ import hunt.net.secure.conscrypt.NativeSslSession;
 
 import hunt.collection;
 import hunt.Exceptions;
+import hunt.logging.ConsoleLogger;
 
-import hunt.logging;
+import deimos.openssl.ssl;
+
 /**
  * Supports SSL session caches.
  */
@@ -65,10 +67,32 @@ abstract class AbstractSessionContext : SSLSessionContext {
             trace("using certificate: " ~ certificate);
             trace("using privatekey: " ~ privatekey);
         }
-        // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, "/home/zxp/cert/server.crt");
-        // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, "/home/zxp/cert/server.key");
+        // NativeCrypto.SSL_set_verify(sslCtxNativePointer, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+        // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
+        // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privatekey);
+    }
+
+    void setVerify(int mode) {
+        // SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT
+        NativeCrypto.SSL_CTX_set_verify(sslCtxNativePointer, mode);
+    }
+
+    void useCaCertificate(string caFile, string password="") {
+        version(HUNT_NET_DEBUG) {
+            trace("using CA file: " ~ caFile);
+        }  
+        NativeCrypto.SSL_CTX_load_verify_locations(sslCtxNativePointer, caFile, null);
+    }
+
+    void useCertificate(string certificate, string privateKey, string certPassword="", string keyPassword="") {
+        // FIXME: Needing refactor or cleanup -@zhangxueping at 2019-12-16T18:22:25+08:00
+        // using the password
+        version(HUNT_NET_DEBUG) {
+            trace("using certificate: " ~ certificate);
+            trace("using privatekey: " ~ privateKey);
+        }        
         NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
-        NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privatekey);
+        NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privateKey);
     }
 
     /**

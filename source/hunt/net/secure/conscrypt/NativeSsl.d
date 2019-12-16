@@ -5,6 +5,7 @@ version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.Exceptions;
+import hunt.net.KeyCertOptions;
 import hunt.net.secure.conscrypt.AbstractSessionContext;
 import hunt.net.secure.conscrypt.AddressUtils;
 import hunt.net.secure.conscrypt.NativeCrypto;
@@ -19,7 +20,7 @@ import hunt.security.Key;
 import hunt.security.x500.X500Principal;
 
 import hunt.collection;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 import hunt.Exceptions;
 
 import std.array;
@@ -55,6 +56,21 @@ final class NativeSsl {
             AliasChooser chooser, PSKCallbacks pskCallbacks) {
                 
         AbstractSessionContext ctx = parameters.getSessionContext();
+        version(HUNT_NET_DEBUG) warning("UseClientMode: ", parameters.getUseClientMode());
+        
+        KeyCertOptions certOptions = parameters.getKeyCertOptions();
+
+        string caFile = certOptions.getCaFile();
+        if(!caFile.empty()) {
+            ctx.useCaCertificate(caFile, certOptions.getCaPassword());
+        }
+
+        string certFile = certOptions.getCertFile();
+        string keyFile = certOptions.getKeyFile();
+        if(!certFile.empty() && !keyFile.empty()) {
+            ctx.useCertificate(certFile, keyFile, certOptions.getCertPassword(), certOptions.getKeyPassword());
+        }
+
         long ssl_ctx = ctx.sslCtxNativePointer;
         long ssl = NativeCrypto.SSL_new(ssl_ctx);
 
@@ -226,47 +242,47 @@ return 0;
         // setCertificate(name);
     }
 
-    void setCertificate(string name) {
-        if (name.empty) {
-            warning("The certificate name is empty");
-            return;
-        }
-        tracef("Certificate: %s", name);
-        X509KeyManager keyManager = parameters.getX509KeyManager();
-        if (keyManager is null) {
-            return;
-        }
-        PrivateKey privateKey = keyManager.getPrivateKey(name);
-        if (privateKey is null) {
-            return;
-        }
-        localCertificates = keyManager.getCertificateChain(name);
-        if (localCertificates is null) {
-            return;
-        }
-        size_t numLocalCerts = localCertificates.length;
-        PublicKey publicKey = (numLocalCerts > 0) ? localCertificates[0].getPublicKey() : null;
+    // void setCertificate(string name) {
+    //     if (name.empty) {
+    //         warning("The certificate name is empty");
+    //         return;
+    //     }
+    //     tracef("Certificate: %s", name);
+    //     X509KeyManager keyManager = parameters.getX509KeyManager();
+    //     if (keyManager is null) {
+    //         return;
+    //     }
+    //     PrivateKey privateKey = keyManager.getPrivateKey(name);
+    //     if (privateKey is null) {
+    //         return;
+    //     }
+    //     localCertificates = keyManager.getCertificateChain(name);
+    //     if (localCertificates is null) {
+    //         return;
+    //     }
+    //     size_t numLocalCerts = localCertificates.length;
+    //     PublicKey publicKey = (numLocalCerts > 0) ? localCertificates[0].getPublicKey() : null;
 
-        // Encode the local certificates.
-        byte[][] encodedLocalCerts = new byte[][numLocalCerts];
-        for (size_t i = 0; i < numLocalCerts; ++i) {
-            encodedLocalCerts[i] = localCertificates[i].getEncoded();
-        }
+    //     // Encode the local certificates.
+    //     byte[][] encodedLocalCerts = new byte[][numLocalCerts];
+    //     for (size_t i = 0; i < numLocalCerts; ++i) {
+    //         encodedLocalCerts[i] = localCertificates[i].getEncoded();
+    //     }
 
-        // Convert the key so we can access a native reference.
-        OpenSSLKey key;
-        try {
-            key = OpenSSLKey.fromPrivateKeyForTLSStackOnly(privateKey, publicKey);
-        } catch (InvalidKeyException e) {
-            throw new SSLException(e.msg);
-        }
+    //     // Convert the key so we can access a native reference.
+    //     OpenSSLKey key;
+    //     try {
+    //         key = OpenSSLKey.fromPrivateKeyForTLSStackOnly(privateKey, publicKey);
+    //     } catch (InvalidKeyException e) {
+    //         throw new SSLException(e.msg);
+    //     }
 
-        // Set the local certs and private key.
-        version(Have_boringssl) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
-        version(Have_hunt_openssl) {
-            implementationMissing(false);
-        }
-    }
+    //     // Set the local certs and private key.
+    //     version(Have_boringssl) NativeCrypto.setLocalCertsAndPrivateKey(ssl, encodedLocalCerts, key.getNativeRef());
+    //     version(Have_hunt_openssl) {
+    //         implementationMissing(false);
+    //     }
+    // }
 
     string getVersion() {
         return NativeCrypto.SSL_get_version(ssl);
@@ -482,43 +498,45 @@ return 0;
     }
 
     private void setCertificateValidation() {
+
         // setup peer certificate verification
-        if (isClient()) 
-            return ;
-
-        // TODO: Tasks pending completion -@zxp at 8/8/2019, 6:34:06 PM
-        // 
-        implementationMissing(false);
-        // needing client auth takes priority...
-        bool certRequested;
-        if (parameters.getNeedClientAuth()) {
-            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER
-                            | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
-            certRequested = true;
-            // ... over just wanting it...
-        } else if (parameters.getWantClientAuth()) {
-            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
-            certRequested = true;
-            // ... and we must disable verification if we don't want client auth.
+        if (isClient()) {
+            implementationMissing(false);
         } else {
-            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_NONE);
-            certRequested = false;
-        }
+            // TODO: Tasks pending completion -@zxp at 8/8/2019, 6:34:06 PM
+            // 
+            // needing client auth takes priority...
+            bool certRequested;
+            if (parameters.getNeedClientAuth()) {
+                NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER
+                                | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+                certRequested = true;
+                // ... over just wanting it...
+            } else if (parameters.getWantClientAuth()) {
+                NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
+                certRequested = true;
+                // ... and we must disable verification if we don't want client auth.
+            } else {
+                NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_NONE);
+                certRequested = false;
+            }
 
-        warningf("certRequested: %s", certRequested);
+            version(HUNT_NET_DEBUG) warningf("certRequested: %s", certRequested);
 
-        if (certRequested) {
-        //     X509TrustManager trustManager = parameters.getX509TrustManager();
-        //     X509Certificate[] issuers = trustManager.getAcceptedIssuers();
-        //     if (issuers !is null && issuers.length != 0) {
-        //         byte[][] issuersBytes;
-        //         try {
-        //             issuersBytes = SSLUtils.encodeSubjectX509Principals(issuers);
-        //         } catch (CertificateEncodingException e) {
-        //             throw new SSLException("Problem encoding principals", e);
-        //         }
-        //         NativeCrypto.SSL_set_client_CA_list(ssl, issuersBytes);
-        //     }
+            if (certRequested) {
+            //     X509TrustManager trustManager = parameters.getX509TrustManager();
+            //     X509Certificate[] issuers = trustManager.getAcceptedIssuers();
+            //     if (issuers !is null && issuers.length != 0) {
+            //         byte[][] issuersBytes;
+            //         try {
+            //             issuersBytes = SSLUtils.encodeSubjectX509Principals(issuers);
+            //         } catch (CertificateEncodingException e) {
+            //             throw new SSLException("Problem encoding principals", e);
+            //         }
+            //         NativeCrypto.SSL_set_client_CA_list(ssl, issuersBytes);
+            //     }
+            }
+            
         }
     }
 

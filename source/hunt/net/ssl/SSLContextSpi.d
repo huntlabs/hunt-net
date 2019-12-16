@@ -9,6 +9,8 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSessionContext;
 import hunt.net.ssl.SSLParameters;
 
+import hunt.net.KeyCertOptions;
+
 import hunt.Exceptions;
 
 /**
@@ -32,7 +34,9 @@ abstract class SSLContextSpi {
      * @throws KeyManagementException if this operation fails
      * @see SSLContext#init(KeyManager [], TrustManager [], SecureRandom)
      */
-    abstract void engineInit(KeyManager[] km, TrustManager[] tm) ;
+    // abstract void engineInit(KeyManager[] km, TrustManager[] tm) ;
+    
+    abstract void engineInit(KeyCertOptions options);
 
     /**
      * Returns a <code>SocketFactory</code> object for this

@@ -15,6 +15,7 @@ import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;
 import hunt.net.ssl.SSLEngine;
 
+import hunt.net.KeyCertOptions;
 
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
@@ -56,43 +57,43 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
             this.algorithms = null;
             if (defaultSslContextImpl is null) {
                 clientSessionContext = new ClientSessionContext();
+                serverSessionContext = new ServerSessionContext();
                 // serverSessionContext = new ServerSessionContext(certificate, privatekey);
-                defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
-            } else {
-                clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
-                // serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
-            }
-            sslParameters = new SSLParametersImpl(defaultSslContextImpl.getKeyManagers(),
-                    defaultSslContextImpl.getTrustManagers(), clientSessionContext,
-                    serverSessionContext, algorithms);
-        // }
-    }
-
-    this(string[] algorithms, string certificate, string privatekey) {
-        this.algorithms = algorithms;
-        // clientSessionContext = new ClientSessionContext();
-        serverSessionContext = new ServerSessionContext(certificate, privatekey);
-    }
-
-    /**
-     * Constuctor for the DefaultSSLContextImpl.
-     */
-    this(string certificate, string privatekey) {
-        // synchronized {
-            this.algorithms = null;
-            if (defaultSslContextImpl is null) {
-                clientSessionContext = new ClientSessionContext();
-                serverSessionContext = new ServerSessionContext(certificate, privatekey);
                 defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
             } else {
                 clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
                 serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
             }
-            sslParameters = new SSLParametersImpl(defaultSslContextImpl.getKeyManagers(),
-                    defaultSslContextImpl.getTrustManagers(), clientSessionContext,
-                    serverSessionContext, algorithms);
+            // sslParameters = new SSLParametersImpl(null, clientSessionContext,
+            //         serverSessionContext, algorithms);
         // }
     }
+
+    // this(string[] algorithms, string certificate, string privatekey) {
+    //     this.algorithms = algorithms;
+    //     // clientSessionContext = new ClientSessionContext();
+    //     serverSessionContext = new ServerSessionContext(certificate, privatekey);
+    // }
+
+    /**
+     * Constuctor for the DefaultSSLContextImpl.
+     */
+    // this(string certificate, string privatekey) {
+    //     // synchronized {
+    //         this.algorithms = null;
+    //         if (defaultSslContextImpl is null) {
+    //             clientSessionContext = new ClientSessionContext();
+    //             serverSessionContext = new ServerSessionContext(certificate, privatekey);
+    //             defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
+    //         } else {
+    //             clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
+    //             serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
+    //         }
+    //         sslParameters = new SSLParametersImpl(defaultSslContextImpl.getKeyManagers(),
+    //                 defaultSslContextImpl.getTrustManagers(), clientSessionContext,
+    //                 serverSessionContext, algorithms);
+    //     // }
+    // }
 
     /**
      * Initializes this {@code SSLContext} instance. All of the arguments are
@@ -105,10 +106,14 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
      * @throws KeyManagementException if initializing this instance fails
      */
     override
-    void engineInit(KeyManager[] kms, TrustManager[] tms) {
-        sslParameters = new SSLParametersImpl(
-                kms, tms, clientSessionContext, serverSessionContext, algorithms);
-    }
+    // void engineInit(KeyManager[] kms, TrustManager[] tms) {
+    //     sslParameters = new SSLParametersImpl(
+    //             kms, tms, clientSessionContext, serverSessionContext, algorithms);
+    // }
+
+    void engineInit(KeyCertOptions options) {
+        sslParameters = new SSLParametersImpl(options, clientSessionContext, serverSessionContext, algorithms);
+    }    
 
     // override
     // SSLSocketFactory engineGetSocketFactory() {
@@ -204,13 +209,13 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * Accessed by SSLContextImpl(DefaultSSLContextImpl) holding the
      * DefaultSSLContextImpl.class monitor
      */
-    private static KeyManager[] KEY_MANAGERS;
+    // private static KeyManager[] KEY_MANAGERS;
 
     /**
      * Accessed by SSLContextImpl(DefaultSSLContextImpl) holding the
      * DefaultSSLContextImpl.class monitor
      */
-    private static TrustManager[] TRUST_MANAGERS;
+    // private static TrustManager[] TRUST_MANAGERS;
 
     /**
      * DefaultSSLContextImpl delegates the work to the super class since there
@@ -223,75 +228,75 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
         super();
     }
 
-    this(string certificate, string privatekey) {
-        super(certificate, privatekey);
-    }
+    // this(string certificate, string privatekey) {
+    //     super(certificate, privatekey);
+    // }
 
     // TODO javax.net.ssl.keyStoreProvider system property
-    KeyManager[] getKeyManagers () {
-        if (KEY_MANAGERS !is null) {
-            return KEY_MANAGERS;
-        }
-        // find KeyStore, KeyManagers
-        // string keystore = System.getProperty("javax.net.ssl.keyStore");
-        // if (keystore is null) {
-        //     return null;
-        // }
-        // string keystorepwd = System.getProperty("javax.net.ssl.keyStorePassword");
-        // char[] pwd = (keystorepwd is null) ? null : keystorepwd.toCharArray();
+    // KeyManager[] getKeyManagers () {
+    //     if (KEY_MANAGERS !is null) {
+    //         return KEY_MANAGERS;
+    //     }
+    //     // find KeyStore, KeyManagers
+    //     // string keystore = System.getProperty("javax.net.ssl.keyStore");
+    //     // if (keystore is null) {
+    //     //     return null;
+    //     // }
+    //     // string keystorepwd = System.getProperty("javax.net.ssl.keyStorePassword");
+    //     // char[] pwd = (keystorepwd is null) ? null : keystorepwd.toCharArray();
 
-        // KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        // InputStream is = null;
-        // try {
-        //     is = new BufferedInputStream(new FileInputStream(keystore));
-        //     ks.load(is, pwd);
-        // } finally {
-        //     if (is !is null) {
-        //         is.close();
-        //     }
-        // }
+    //     // KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+    //     // InputStream is = null;
+    //     // try {
+    //     //     is = new BufferedInputStream(new FileInputStream(keystore));
+    //     //     ks.load(is, pwd);
+    //     // } finally {
+    //     //     if (is !is null) {
+    //     //         is.close();
+    //     //     }
+    //     // }
 
-        // string kmfAlg = KeyManagerFactory.getDefaultAlgorithm();
-        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfAlg);
-        // kmf.init(ks, pwd);
-        // KEY_MANAGERS = kmf.getKeyManagers();
-        // implementationMissing();
-        return KEY_MANAGERS;
-    }
+    //     // string kmfAlg = KeyManagerFactory.getDefaultAlgorithm();
+    //     // KeyManagerFactory kmf = KeyManagerFactory.getInstance(kmfAlg);
+    //     // kmf.init(ks, pwd);
+    //     // KEY_MANAGERS = kmf.getKeyManagers();
+    //     // implementationMissing();
+    //     return KEY_MANAGERS;
+    // }
 
     // TODO javax.net.ssl.trustStoreProvider system property
-    TrustManager[] getTrustManagers() {
-        if (TRUST_MANAGERS !is null) {
-            return TRUST_MANAGERS;
-        }
+    // TrustManager[] getTrustManagers() {
+    //     if (TRUST_MANAGERS !is null) {
+    //         return TRUST_MANAGERS;
+    //     }
 
-        // find TrustStore, TrustManagers
-        // string keystore = System.getProperty("javax.net.ssl.trustStore");
-        // if (keystore is null) {
-        //     return null;
-        // }
-        // string keystorepwd = System.getProperty("javax.net.ssl.trustStorePassword");
-        // char[] pwd = (keystorepwd is null) ? null : keystorepwd.toCharArray();
+    //     // find TrustStore, TrustManagers
+    //     // string keystore = System.getProperty("javax.net.ssl.trustStore");
+    //     // if (keystore is null) {
+    //     //     return null;
+    //     // }
+    //     // string keystorepwd = System.getProperty("javax.net.ssl.trustStorePassword");
+    //     // char[] pwd = (keystorepwd is null) ? null : keystorepwd.toCharArray();
 
-        // // TODO Defaults: jssecacerts; cacerts
-        // KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        // InputStream is = null;
-        // try {
-        //     is = new BufferedInputStream(new FileInputStream(keystore));
-        //     ks.load(is, pwd);
-        // } finally {
-        //     if (is !is null) {
-        //         is.close();
-        //     }
-        // }
-        // string tmfAlg = TrustManagerFactory.getDefaultAlgorithm();
-        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlg);
-        // tmf.init(ks);
-        // TRUST_MANAGERS = tmf.getTrustManagers();
+    //     // // TODO Defaults: jssecacerts; cacerts
+    //     // KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+    //     // InputStream is = null;
+    //     // try {
+    //     //     is = new BufferedInputStream(new FileInputStream(keystore));
+    //     //     ks.load(is, pwd);
+    //     // } finally {
+    //     //     if (is !is null) {
+    //     //         is.close();
+    //     //     }
+    //     // }
+    //     // string tmfAlg = TrustManagerFactory.getDefaultAlgorithm();
+    //     // TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlg);
+    //     // tmf.init(ks);
+    //     // TRUST_MANAGERS = tmf.getTrustManagers();
 
-        // implementationMissing();
-        return TRUST_MANAGERS;
-    }
+    //     // implementationMissing();
+    //     return TRUST_MANAGERS;
+    // }
 
     // override
     // void engineInit(KeyManager[] kms, TrustManager[] tms) {

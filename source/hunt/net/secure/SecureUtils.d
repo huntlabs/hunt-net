@@ -30,9 +30,6 @@ struct SecureUtils {
 
     static void setServerCertificate(KeyCertOptions options) {
         assert(options !is null);
-        // if(options is null) {
-        //     return;
-        // }
         FileCredentialConscryptSSLContextFactory fc = 
             new FileCredentialConscryptSSLContextFactory(options);
         // SSLContext context = fc.getSSLContext();

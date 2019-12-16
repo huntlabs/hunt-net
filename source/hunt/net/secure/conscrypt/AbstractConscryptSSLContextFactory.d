@@ -47,7 +47,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
 
         SSLContext sslContext = SSLContext.getInstance("TLSv1.2", provideName);
-        sslContext.init(km, tm);
+        // sslContext.init(km, tm); // TODO:
 
         version(HUNT_NET_DEBUG) {
             long end = Clock.currStdTime;
@@ -106,9 +106,11 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // tmf.init(ks);
 
         // TLSv1 TLSv1.2
-        sslContext = SSLContext.getInstance(options.getCertFile(), options.getKeyFile(), 
-            sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
+        // sslContext = SSLContext.getInstance(options.getCertFile(), options.getKeyFile(), 
+        //     sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
+        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        sslContext.init(options);
 
         version(HUNT_NET_DEBUG) {
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
