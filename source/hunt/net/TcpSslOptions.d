@@ -11,8 +11,10 @@
 
 module hunt.net.TcpSslOptions;
 
+import hunt.net.KeyCertOptions;
 import hunt.net.NetworkOptions;
 import hunt.net.OpenSSLEngineOptions;
+import hunt.net.PemKeyCertOptions;
 
 import hunt.Exceptions;
 import hunt.io.TcpStreamOptions;
@@ -120,7 +122,7 @@ class TcpSslOptions : NetworkOptions {
     private int keepaliveProbes = DEFAULT_KEEPALIVE_PROBES;
     private bool ssl;
     private Duration sslHandshakeTimeout;
-    // private KeyCertOptions keyCertOptions;
+    private KeyCertOptions keyCertOptions;
     // private TrustOptions trustOptions;
     // private Set!(string) enabledCipherSuites;
     // private ArrayList!(string) crlPaths;
@@ -140,7 +142,7 @@ class TcpSslOptions : NetworkOptions {
      */
     this() {
         super();
-        init();
+        initialize();
     }
 
     /**
@@ -162,7 +164,7 @@ class TcpSslOptions : NetworkOptions {
 
         this.ssl = other.isSsl();
         this.sslHandshakeTimeout = other.sslHandshakeTimeout;
-        // this.keyCertOptions = other.getKeyCertOptions() !is null ? other.getKeyCertOptions().copy() : null;
+        this.keyCertOptions = other.getKeyCertOptions() !is null ? other.getKeyCertOptions().copy() : null;
         // this.trustOptions = other.getTrustOptions() !is null ? other.getTrustOptions().copy() : null;
         // this.enabledCipherSuites = other.getEnabledCipherSuites() is null ? new LinkedHashSet<>() : new LinkedHashSet<>(other.getEnabledCipherSuites());
         // this.crlPaths = new ArrayList<>(other.getCrlPaths());
@@ -178,7 +180,7 @@ class TcpSslOptions : NetworkOptions {
         this.retryInterval = other.retryInterval;
     }
 
-    private void init() {
+    private void initialize() {
         tcpNoDelay = DEFAULT_TCP_NO_DELAY;
         tcpKeepAlive = DEFAULT_TCP_KEEP_ALIVE;
         soLinger = DEFAULT_SO_LINGER;
@@ -343,21 +345,21 @@ class TcpSslOptions : NetworkOptions {
      * @return the key/cert options
      */
     
-    // KeyCertOptions getKeyCertOptions() {
-    //     return keyCertOptions;
-    // }
+    KeyCertOptions getKeyCertOptions() {
+        return keyCertOptions;
+    }
 
-    // /**
-    //  * Set the key/cert options.
-    //  *
-    //  * @param options the key store options
-    //  * @return a reference to this, so the API can be used fluently
-    //  */
+    /**
+     * Set the key/cert options.
+     *
+     * @param options the key store options
+     * @return a reference to this, so the API can be used fluently
+     */
     
-    // TcpSslOptions setKeyCertOptions(KeyCertOptions options) {
-    //     this.keyCertOptions = options;
-    //     return this;
-    // }
+    TcpSslOptions setKeyCertOptions(KeyCertOptions options) {
+        this.keyCertOptions = options;
+        return this;
+    }
 
     // /**
     //  * Get the key/cert options in jks format, aka Java keystore.
@@ -397,24 +399,24 @@ class TcpSslOptions : NetworkOptions {
     //     return this;
     // }
 
-    // /**
-    //  * Get the key/cert store options in pem format.
-    //  *
-    //  * @return the key/cert store options in pem format.
-    //  */
-    // PemKeyCertOptions getPemKeyCertOptions() {
-    //     return keyCertOptions instanceof PemKeyCertOptions ? (PemKeyCertOptions) keyCertOptions : null;
-    // }
+    /**
+     * Get the key/cert store options in pem format.
+     *
+     * @return the key/cert store options in pem format.
+     */
+    PemKeyCertOptions getPemKeyCertOptions() {
+        return cast(PemKeyCertOptions) keyCertOptions;
+    }
 
-    // /**
-    //  * Set the key/cert store options in pem format.
-    //  * @param options the options in pem format
-    //  * @return a reference to this, so the API can be used fluently
-    //  */
-    // TcpSslOptions setPemKeyCertOptions(PemKeyCertOptions options) {
-    //     this.keyCertOptions = options;
-    //     return this;
-    // }
+    /**
+     * Set the key/cert store options in pem format.
+     * @param options the options in pem format
+     * @return a reference to this, so the API can be used fluently
+     */
+    TcpSslOptions setPemKeyCertOptions(PemKeyCertOptions options) {
+        this.keyCertOptions = options;
+        return this;
+    }
 
     // /**
     //  * @return the trust options
