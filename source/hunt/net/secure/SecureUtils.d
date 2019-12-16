@@ -6,6 +6,7 @@ version(WITH_HUNT_SECURITY):
 
 import hunt.net.ssl.SSLContext;
 import hunt.net.Connection;
+import hunt.net.KeyCertOptions;
 import hunt.net.secure.SecureSession;
 import hunt.net.secure.SecureSessionFactory;
 import hunt.net.secure.conscrypt.AbstractConscryptSSLContextFactory;
@@ -27,18 +28,24 @@ struct SecureUtils {
         return initOnce!inst(new ConscryptSecureSessionFactory());
     }
 
-    static void setServerCertificate(string certificate, string privateKey, 
-        string keystorePassword, string keyPassword) {
-        if(certificate.empty() || privateKey.empty())
-            return;
+    static void setServerCertificate(KeyCertOptions options) {
+        assert(options !is null);
+        // if(options is null) {
+        //     return;
+        // }
         FileCredentialConscryptSSLContextFactory fc = 
-            new FileCredentialConscryptSSLContextFactory(certificate, privateKey, keystorePassword, keyPassword);
-        SSLContext context = fc.getSSLContext();
+            new FileCredentialConscryptSSLContextFactory(options);
+        // SSLContext context = fc.getSSLContext();
         secureSessionFactory().setServerSSLContextFactory(fc);
     }
 
     static SecureSession createClientSession(Connection connection, SecureSessionHandshakeListener handler) {
         return secureSessionFactory().create(connection, true, handler);
+    }
+
+    static SecureSession createClientSession(Connection connection, SecureSessionHandshakeListener handler, 
+            KeyCertOptions options) {
+        return secureSessionFactory().create(connection, true, handler, options);
     }
 
     static SecureSession createServerSession(Connection connection, SecureSessionHandshakeListener handler) {

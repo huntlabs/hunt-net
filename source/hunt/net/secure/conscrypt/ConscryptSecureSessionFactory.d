@@ -14,12 +14,13 @@ import hunt.net.secure.SecureSessionFactory;
 import hunt.net.secure.SSLContextFactory;
 
 import hunt.net.Connection;
+import hunt.net.KeyCertOptions;
 import hunt.net.ssl;
 
 import hunt.Exceptions;
+import hunt.logging;
 import hunt.util.TypeUtils;
 
-import hunt.logging;
 import std.typecons;
 
 /**
@@ -71,6 +72,7 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
+    deprecated("Unsupported anymore!")
     SecureSession create(Connection session, bool clientMode, string peerHost, int peerPort, 
         SecureSessionHandshakeListener secureSessionHandshakeListener) {
             
@@ -78,6 +80,28 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode, peerHost, peerPort);
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
+    }
+
+    SecureSession create(Connection session, bool clientMode,
+            SecureSessionHandshakeListener secureSessionHandshakeListener, 
+            KeyCertOptions options) {
+        
+        assert(clientMode); // only client
+
+        FileCredentialConscryptSSLContextFactory fc = 
+            new FileCredentialConscryptSSLContextFactory(options);
+        // SSLContext context = fc.getSSLContext();
+
+        SSLContextFactory sslContextFactory = fc;
+        sslContextFactory.setSupportedProtocols(supportedProtocols);
+        Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
+        
+        // if(clientMode)
+        //     p = sslContextFactory.createSSLEngine(clientMode);
+        // else
+        //     p = sslContextFactory.createSSLEngine(_sslCertificate, _sslPrivateKey, "hunt2018", "hunt2018");
+        return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
+                
     }
 
     protected SSLContextFactory from(bool clientMode) {

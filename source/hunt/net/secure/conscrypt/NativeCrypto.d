@@ -509,12 +509,24 @@ final class NativeCrypto {
     //     deimos.openssl.ssl.SSL_CTX_set_ecdh_auto(ssl_ctx, flag ? 1 : 0);
     // }
 
+    /**
+     * 
+     */
+    static void SSL_CTX_load_verify_locations(long ssl_ctx_address, string CAfile, string CApath) {
+        SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+        if(ssl_ctx is null) {
+            warningf("ssl is null");
+            return;
+        }
+        deimos.openssl.ssl.SSL_CTX_load_verify_locations(ssl_ctx, toStringz(CAfile), toStringz(CApath));
+    }
+
     static void SSL_CTX_use_certificate_file(long ssl_ctx_address, string fileName) {
         SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
         if(ssl_ctx is null)
             return;
         
-        int r = deimos.openssl.ssl.SSL_CTX_use_certificate_file(ssl_ctx, toStringz(fileName),  SSL_FILETYPE_PEM);
+        int r = deimos.openssl.ssl.SSL_CTX_use_certificate_file(ssl_ctx, toStringz(fileName), SSL_FILETYPE_PEM);
         if(r <=0)   {
             warning("Failed to set the certificate file.");
         }
@@ -2359,17 +2371,37 @@ implementationMissing(false);
     static void SSL_set_connect_state(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
+            warningf("ssl is null");
             return;
         }
         deimos.openssl.ssl.SSL_set_connect_state(ssl);
     }
 
-    // static void SSL_set_verify(long ssl_address, int mode);
+    /**
+     * Sets certificate expectations, especially for server to request client auth
+     */
+    static void SSL_set_verify(long ssl_address, int mode) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            warningf("ssl is null");
+            return;
+        }
+        deimos.openssl.ssl.SSL_set_verify(ssl, mode, null);
+    }
+
+    static long SSL_get_verify_result(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            warningf("ssl is null");
+            return -1;
+        }
+        return deimos.openssl.ssl.SSL_get_verify_result(ssl);
+    }
 
     static void SSL_set_session(long ssl_address, long ssl_session_address) {
         SSL* ssl = to_SSL(ssl_address);
         if (ssl is null) {
-            warningf("ssl=%s SSL_set_session => exception", ssl);
+            warningf("ssl=%s", ssl);
             return;
         }
 
@@ -2966,6 +2998,14 @@ version(Have_boringssl) {
         ssl_verify_result_t result = ssl_verify_result_t.ssl_verify_ok;
         // tracef("ssl=%s cert_verify_callback => %d", ssl, result);
         return result;
+    }
+} else {
+
+    extern(C) static int cert_verify_callback(int ok, X509_STORE_CTX* ctx) {
+        tracef("ssl=%s cert_verify_callback", ctx);
+        // tracef("ssl=%s cert_verify_callback => %d", ssl, result);
+        warning("do nothing");
+        return 0;
     }
 }
 

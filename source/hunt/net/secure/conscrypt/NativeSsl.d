@@ -292,7 +292,7 @@ return 0;
         NativeCrypto.SSL_accept_renegotiations(ssl);
 
         if (isClient()) {
-            version(HUNT_DEBUG) trace("It's a client.");
+            version(HUNT_DEBUG) trace("Initializing ssl client...");
             NativeCrypto.SSL_set_connect_state(ssl);
 
             // Configure OCSP and CT extensions for client
@@ -302,6 +302,7 @@ return 0;
                     NativeCrypto.SSL_enable_signed_cert_timestamps(ssl);
             }
         } else {
+            version(HUNT_DEBUG) trace("Initializing ssl server...");
             NativeCrypto.SSL_set_accept_state(ssl);
 
             // Configure OCSP for server
@@ -487,24 +488,26 @@ return 0;
 
         // TODO: Tasks pending completion -@zxp at 8/8/2019, 6:34:06 PM
         // 
-        // implementationMissing(false);
+        implementationMissing(false);
         // needing client auth takes priority...
-        // bool certRequested;
-        // if (parameters.getNeedClientAuth()) {
-        //     NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER
-        //                     | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
-        //     certRequested = true;
-        //     // ... over just wanting it...
-        // } else if (parameters.getWantClientAuth()) {
-        //     NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
-        //     certRequested = true;
-        //     // ... and we must disable verification if we don't want client auth.
-        // } else {
-        //     NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_NONE);
-        //     certRequested = false;
-        // }
+        bool certRequested;
+        if (parameters.getNeedClientAuth()) {
+            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER
+                            | SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+            certRequested = true;
+            // ... over just wanting it...
+        } else if (parameters.getWantClientAuth()) {
+            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
+            certRequested = true;
+            // ... and we must disable verification if we don't want client auth.
+        } else {
+            NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_NONE);
+            certRequested = false;
+        }
 
-        // if (certRequested) {
+        warningf("certRequested: %s", certRequested);
+
+        if (certRequested) {
         //     X509TrustManager trustManager = parameters.getX509TrustManager();
         //     X509Certificate[] issuers = trustManager.getAcceptedIssuers();
         //     if (issuers !is null && issuers.length != 0) {
@@ -516,7 +519,7 @@ return 0;
         //         }
         //         NativeCrypto.SSL_set_client_CA_list(ssl, issuersBytes);
         //     }
-        // }
+        }
     }
 
     // void interrupt() {

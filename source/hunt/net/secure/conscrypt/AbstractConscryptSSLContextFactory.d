@@ -8,16 +8,15 @@ import hunt.net.secure.ProtocolSelector;
 import hunt.net.secure.conscrypt.ConscryptALPNSelector;
 import hunt.net.secure.SSLContextFactory;
 import hunt.net.ssl;
-import hunt.security.cert.X509Certificate;
-
-import hunt.io.ByteArrayInputStream;
-import hunt.io.Common;
 
 import hunt.Exceptions;
+import hunt.io.ByteArrayInputStream;
+import hunt.io.Common;
+import hunt.logging.ConsoleLogger;
+import hunt.net.KeyCertOptions;
+import hunt.security.cert.X509Certificate;
 import hunt.util.DateTime;
 import hunt.util.TypeUtils;
-
-import hunt.logging;
 
 import std.array;
 import std.datetime : Clock;
@@ -58,41 +57,45 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         return sslContext;
     }
 
-    SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword) {
-        return getSSLContext(inputStream, keystorePassword, keyPassword, null, null, null);
-    }
+    // SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword) {
+    //     return getSSLContext(inputStream, keystorePassword, keyPassword, null, null, null);
+    // }
 
-    SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword,
-                                    string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
-        version(HUNT_NET_DEBUG) StopWatch sw = StopWatch(AutoStart.yes);
-        SSLContext sslContext;
+    // SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword,
+    //             string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
+    //     version(HUNT_NET_DEBUG) StopWatch sw = StopWatch(AutoStart.yes);
+    //     SSLContext sslContext;
 
-        // KeyStore ks = KeyStore.getInstance("JKS");
-        // ks.load(inputStream, keystorePassword !is null ? keystorePassword.toCharArray() : null);
+    //     // KeyStore ks = KeyStore.getInstance("JKS");
+    //     // ks.load(inputStream, keystorePassword !is null ? keystorePassword.toCharArray() : null);
 
-        // // PKIX,SunX509
-        // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType is null ? "SunX509" : keyManagerFactoryType);
-        // kmf.init(ks, keyPassword !is null ? keyPassword.toCharArray() : null);
+    //     // // PKIX,SunX509
+    //     // KeyManagerFactory kmf = KeyManagerFactory.getInstance(keyManagerFactoryType is null ? "SunX509" : keyManagerFactoryType);
+    //     // kmf.init(ks, keyPassword !is null ? keyPassword.toCharArray() : null);
 
-        // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType is null ? "SunX509" : trustManagerFactoryType);
-        // tmf.init(ks);
+    //     // TrustManagerFactory tmf = TrustManagerFactory.getInstance(trustManagerFactoryType is null ? "SunX509" : trustManagerFactoryType);
+    //     // tmf.init(ks);
 
-        // TLSv1 TLSv1.2
-        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
-        // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+    //     // TLSv1 TLSv1.2
+    //     sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
+    //     // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
+    //     version(HUNT_NET_DEBUG) {
+    //         sw.stop();
+    //         infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
+    //     }
+
+    //     implementationMissing(false);
+    //     return sslContext;
+    // }
+
+    SSLContext getSSLContext(KeyCertOptions options, string sslProtocol) {
         version(HUNT_NET_DEBUG) {
-            sw.stop();
-            infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
+            // tracef("certificate: %s", certificate);
+            // tracef("privatekey: %s", privatekey);
+            StopWatch sw = StopWatch(AutoStart.yes);
         }
 
-        implementationMissing(false);
-        return sslContext;
-    }
-
-    SSLContext getSSLContext(string certificate, string privatekey, string keystorePassword, string keyPassword,
-                                    string keyManagerFactoryType, string trustManagerFactoryType, string sslProtocol) {
-        version(HUNT_NET_DEBUG) StopWatch sw = StopWatch(AutoStart.yes);
         SSLContext sslContext;
 
         // // PKIX,SunX509
@@ -103,7 +106,8 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // tmf.init(ks);
 
         // TLSv1 TLSv1.2
-        sslContext = SSLContext.getInstance(certificate, privatekey, sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
+        sslContext = SSLContext.getInstance(options.getCertFile(), options.getKeyFile(), 
+            sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
         version(HUNT_NET_DEBUG) {
@@ -274,12 +278,15 @@ class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextF
     -83, 50, -91, -34, -55, -59, 57, 86, -39, 14, 80, 21, -102, 56, 45, -79, 3, -54, 12, -118, -13, 1, -55 ];
 
     override SSLContext getSSLContext() {
-        try {
-            return getSSLContext(new ByteArrayInputStream(DEFAULT_CREDENTIAL), "ptmima1234", "ptmima4321");
-        } catch (Exception e) {
-            errorf("get SSL context error", e);
-            return null;
-        }
+        // try {
+        //     return getSSLContext(new ByteArrayInputStream(DEFAULT_CREDENTIAL), "ptmima1234", "ptmima4321");
+        // } catch (Exception e) {
+        //     errorf("get SSL context error", e);
+        //     return null;
+        // }
+        warning("TODO: ");
+
+        return null;
     }
 
     alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
@@ -289,20 +296,15 @@ class DefaultCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextF
 */
 class FileCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
 
-    private string certificate;
-    private string privatekey;
-    private string keystorePassword;
-    private string keyPassword;
+    private KeyCertOptions _options;
 
-    this(string certificate, string privatekey, 
-        string keystorePassword, string keyPassword) {
-            this.certificate = certificate; 
-            this.privatekey = privatekey;
-        }
+    this(KeyCertOptions options) {
+        this._options = options;
+    }
 
     override SSLContext getSSLContext() {
         try {
-            return getSSLContext(certificate, privatekey, keystorePassword, keyPassword, null, null, null);
+            return getSSLContext(_options, "TLSv1.2");
         } catch (Exception e) {
             errorf("get SSL context error", e);
             return null;
