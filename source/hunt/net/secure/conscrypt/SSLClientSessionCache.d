@@ -17,7 +17,6 @@ import hunt.net.ssl.SSLSession;
  * session data is dependent upon the caller's implementation and is opaque to
  * the {@code SSLClientSessionCache} implementation.
  *
- * @hide
  */
 public interface SSLClientSessionCache {
     /**

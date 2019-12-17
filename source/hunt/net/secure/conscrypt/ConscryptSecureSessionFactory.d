@@ -24,7 +24,8 @@ import hunt.util.TypeUtils;
 import std.typecons;
 
 /**
-*/
+ * 
+ */
 class ConscryptSecureSessionFactory : SecureSessionFactory {
 
     private SSLContextFactory clientSSLContextFactory; 
@@ -32,14 +33,8 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
     private string[] supportedProtocols;
 
     this() {
-        clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
-        serverSSLContextFactory = new DefaultCredentialConscryptSSLContextFactory();
-        
-    }
-
-    this(SSLContextFactory clientSSLContextFactory, SSLContextFactory serverSSLContextFactory) {
-        this.clientSSLContextFactory = clientSSLContextFactory;
-        this.serverSSLContextFactory = serverSSLContextFactory;
+        // clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
+        // serverSSLContextFactory = new DefaultCredentialConscryptSSLContextFactory();
     }
 
     SSLContextFactory getClientSSLContextFactory() {
@@ -64,21 +59,6 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
         SSLContextFactory sslContextFactory = from(clientMode);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
-        
-        // if(clientMode)
-        //     p = sslContextFactory.createSSLEngine(clientMode);
-        // else
-        //     p = sslContextFactory.createSSLEngine(_sslCertificate, _sslPrivateKey, "hunt2018", "hunt2018");
-        return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
-    }
-
-    deprecated("Unsupported anymore!")
-    SecureSession create(Connection session, bool clientMode, string peerHost, int peerPort, 
-        SecureSessionHandshakeListener secureSessionHandshakeListener) {
-            
-        SSLContextFactory sslContextFactory = from(clientMode);
-        sslContextFactory.setSupportedProtocols(supportedProtocols);
-        Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode, peerHost, peerPort);
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
     }
 
@@ -86,25 +66,18 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
             SecureSessionHandshakeListener secureSessionHandshakeListener, 
             KeyCertOptions options) {
         
-        assert(clientMode); // only client
+        assert(clientMode, "only client"); // only client
 
-        FileCredentialConscryptSSLContextFactory fc = 
-            new FileCredentialConscryptSSLContextFactory(options);
-        // SSLContext context = fc.getSSLContext();
-
-        SSLContextFactory sslContextFactory = fc;
+        SSLContextFactory sslContextFactory = new FileCredentialConscryptSSLContextFactory(options);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
         
-        // if(clientMode)
-        //     p = sslContextFactory.createSSLEngine(clientMode);
-        // else
-        //     p = sslContextFactory.createSSLEngine(_sslCertificate, _sslPrivateKey, "hunt2018", "hunt2018");
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
                 
     }
 
     protected SSLContextFactory from(bool clientMode) {
+        warning("clientMode: ", clientMode);
         return clientMode ? clientSSLContextFactory : serverSSLContextFactory;
     }
 
@@ -115,25 +88,5 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
     void setSupportedProtocols(string[] supportedProtocols) {
         this.supportedProtocols = supportedProtocols;
     }
-
-    // string sslCertificate() {
-    //     return _sslCertificate;
-    // }
-
-    // void sslCertificate(string fileName) {
-    //     _sslCertificate = fileName;
-    // }
-
-    // string sslPrivateKey() {
-    //     return _sslPrivateKey;
-    // }
-
-    // void sslPrivateKey(string fileName) {
-    //     _sslPrivateKey = fileName;
-    // }
-
-
-    // private string _sslCertificate;
-    // private string _sslPrivateKey;
 
 }

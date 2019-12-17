@@ -29,7 +29,6 @@ import hunt.collection;
  *
  * @see SSLSession
  *
- * @since 1.4
  * @author Nathan Abramson
  * @author David Brownell
  */

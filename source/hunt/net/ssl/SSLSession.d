@@ -42,7 +42,6 @@ version(WITH_HUNT_SECURITY):
  * <P> Sessions may be explicitly invalidated.  Invalidation may also
  * be done implicitly, when faced with certain kinds of errors.
  *
- * @since 1.4
  * @author David Brownell
  */
 interface SSLSession {
@@ -124,7 +123,6 @@ interface SSLSession {
      * @return true if this session may be rejoined.
      * @see #invalidate()
      *
-     * @since 1.5
      */
     bool isValid();
 
@@ -271,7 +269,6 @@ interface SSLSession {
      * @see #getPeerCertificates()
      * @see #getLocalPrincipal()
      *
-     * @since 1.5
      */
     // Principal getPeerPrincipal();
 
@@ -286,7 +283,6 @@ interface SSLSession {
      * @see #getLocalCertificates()
      * @see #getPeerPrincipal()
      *
-     * @since 1.5
      */
     // Principal getLocalPrincipal();
 
@@ -346,7 +342,6 @@ interface SSLSession {
      * @return  the port number of the peer host, or -1 if no information
      *          is available.
      *
-     * @since 1.5
      */
     int getPeerPort();
 
@@ -365,7 +360,6 @@ interface SSLSession {
      * @see SSLEngine#wrap(ByteBuffer, ByteBuffer)
      * @see SSLEngine#unwrap(ByteBuffer, ByteBuffer)
      *
-     * @since 1.5
      */
     int getPacketBufferSize();
 
@@ -384,7 +378,6 @@ interface SSLSession {
      * @see SSLEngine#wrap(ByteBuffer, ByteBuffer)
      * @see SSLEngine#unwrap(ByteBuffer, ByteBuffer)
      *
-     * @since 1.5
      */
     int getApplicationBufferSize();
 }

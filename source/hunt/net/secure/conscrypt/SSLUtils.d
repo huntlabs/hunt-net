@@ -5,7 +5,7 @@ version(WITH_HUNT_SECURITY):
 // dfmt on
 
 import hunt.net.secure.conscrypt.NativeCrypto;
-import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
+// import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
 import hunt.net.Exceptions;
 
 // import hunt.security.cert.CertificateFactory;

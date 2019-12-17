@@ -21,7 +21,6 @@ import hunt.Exceptions;
  * Caches client sessions. Indexes by host and port. Users are typically
  * looking to reuse any session for a given host and port.
  *
- * @hide
  */
 final class ClientSessionContext : AbstractSessionContext {
     /**

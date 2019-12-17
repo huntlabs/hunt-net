@@ -33,7 +33,6 @@ import std.conv;
  * @see SSLEngine
  * @see SSLContext
  *
- * @since 1.6
  */
 class SSLParameters {
 
@@ -179,7 +178,6 @@ class SSLParameters {
      *
      * @see #setAlgorithmConstraints(AlgorithmConstraints)
      *
-     * @since 1.7
      */
     // AlgorithmConstraints getAlgorithmConstraints() {
     //     return algorithmConstraints;
@@ -195,7 +193,6 @@ class SSLParameters {
      *
      * @param constraints the algorithm constraints (or null)
      *
-     * @since 1.7
      */
     // void setAlgorithmConstraints(AlgorithmConstraints constraints) {
     //     // the constraints object is immutable
@@ -211,7 +208,6 @@ class SSLParameters {
      * @see X509ExtendedTrustManager
      * @see #setEndpointIdentificationAlgorithm(string)
      *
-     * @since 1.7
      */
     string getEndpointIdentificationAlgorithm() {
         return identificationAlgorithm;
@@ -232,7 +228,6 @@ class SSLParameters {
      *
      * @see X509ExtendedTrustManager
      *
-     * @since 1.7
      */
     void setEndpointIdentificationAlgorithm(string algorithm) {
         this.identificationAlgorithm = algorithm;
@@ -259,7 +254,6 @@ class SSLParameters {
      * @see SNIServerName
      * @see #getServerNames()
      *
-     * @since 1.8
      */
     // void setServerNames(List!SNIServerName serverNames) {
     //     if (serverNames !is null) {
@@ -317,7 +311,6 @@ class SSLParameters {
      * @see List
      * @see #setServerNames(List)
      *
-     * @since 1.8
      */
     // List!SNIServerName getServerNames() {
     //     if (sniNames !is null) {
@@ -353,7 +346,6 @@ class SSLParameters {
      * @see SNIMatcher
      * @see #getSNIMatchers()
      *
-     * @since 1.8
      */
     // void setSNIMatchers(Collection!SNIMatcher matchers) {
     //     if (matchers !is null) {
@@ -391,7 +383,6 @@ class SSLParameters {
      * @see SNIMatcher
      * @see #setSNIMatchers(Collection)
      *
-     * @since 1.8
      */
     // Collection!SNIMatcher getSNIMatchers() {
     //     if (sniMatchers !is null) {
@@ -414,7 +405,6 @@ class SSLParameters {
      *
      * @see #getUseCipherSuitesOrder()
      *
-     * @since 1.8
      */
     void setUseCipherSuitesOrder(bool honorOrder) {
         this.preferLocalCipherSuites = honorOrder;
@@ -428,7 +418,6 @@ class SSLParameters {
      *
      * @see #setUseCipherSuitesOrder(bool)
      *
-     * @since 1.8
      */
     bool getUseCipherSuitesOrder() {
         return preferLocalCipherSuites;

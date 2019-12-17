@@ -16,7 +16,8 @@ import std.array;
 import std.concurrency : initOnce;
 
 /**
-*/
+ * 
+ */
 struct SecureUtils {
     /**
      * Get the SSL/TLS connection factory.

@@ -4,7 +4,7 @@ module hunt.net.ssl.SSLContextSpi;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
-import hunt.net.ssl.KeyManager;
+// import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLSessionContext;
 import hunt.net.ssl.SSLParameters;
@@ -21,7 +21,6 @@ import hunt.Exceptions;
  * cryptographic service provider who wishes to supply the implementation
  * of a particular SSL context.
  *
- * @since 1.4
  * @see SSLContext
  */
 abstract class SSLContextSpi {
@@ -151,7 +150,6 @@ abstract class SSLContextSpi {
      * @throws UnsupportedOperationException if the default SSL parameters
      *   could not be obtained.
      *
-     * @since 1.6
      */
     // SSLParameters engineGetDefaultSSLParameters() {
     //     SSLSocket socket = getDefaultSocket();
@@ -177,7 +175,6 @@ abstract class SSLContextSpi {
      * @throws UnsupportedOperationException if the supported SSL parameters
      *   could not be obtained.
      *
-     * @since 1.6
      */
     // SSLParameters engineGetSupportedSSLParameters() {
     //     SSLSocket socket = getDefaultSocket();

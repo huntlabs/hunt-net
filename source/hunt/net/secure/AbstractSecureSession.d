@@ -46,8 +46,8 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     this(Connection session, SSLEngine sslEngine,
-                                 ProtocolSelector applicationProtocolSelector,
-                                 SecureSessionHandshakeListener handshakeListener) {
+            ProtocolSelector applicationProtocolSelector,
+            SecureSessionHandshakeListener handshakeListener) {
         this.session = session;
         this.sslEngine = sslEngine;
         this.applicationProtocolSelector = applicationProtocolSelector;

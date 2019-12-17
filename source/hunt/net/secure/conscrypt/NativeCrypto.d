@@ -139,7 +139,6 @@ import std.stdint;
  * <a href="https://github.com/google/error-prone/blob/master/docs/bugpattern/UnsafeFinalization.md">this</a>
  * for more details.
  *
- * @hide
  */
 final class NativeCrypto {
     // --- SSL handling --------------------------------------------------------

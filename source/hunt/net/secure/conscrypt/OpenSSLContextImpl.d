@@ -11,7 +11,7 @@ import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.SSLParametersImpl;
 import hunt.net.secure.conscrypt.ServerSessionContext;
 
-import hunt.net.ssl.KeyManager;
+// import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;
 import hunt.net.ssl.SSLEngine;
 
@@ -26,7 +26,6 @@ import hunt.logging.ConsoleLogger;
  *
  * <p>Public to allow contruction via the provider framework.
  *
- * @hide
  */
 abstract class OpenSSLContextImpl : SSLContextSpi {
     /**
@@ -53,20 +52,18 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
     // }
 
     this() {
-        // synchronized {
-            this.algorithms = null;
-            if (defaultSslContextImpl is null) {
-                clientSessionContext = new ClientSessionContext();
-                serverSessionContext = new ServerSessionContext();
-                // serverSessionContext = new ServerSessionContext(certificate, privatekey);
-                defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
-            } else {
-                clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
-                serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
-            }
-            // sslParameters = new SSLParametersImpl(null, clientSessionContext,
-            //         serverSessionContext, algorithms);
-        // }
+        this.algorithms = null;
+        if (defaultSslContextImpl is null) {
+            clientSessionContext = new ClientSessionContext();
+            serverSessionContext = new ServerSessionContext();
+            defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
+        } else {
+            version(HUNT_NET_DEBUG) warning("Using existed defaultSslContextImpl");
+            clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
+            serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
+        }
+        // sslParameters = new SSLParametersImpl(null, clientSessionContext,
+        //         serverSessionContext, algorithms);
     }
 
     // this(string[] algorithms, string certificate, string privatekey) {
@@ -150,7 +147,6 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
             throw new IllegalStateException("SSLContext is not initialized.");
         }
 
-
         SSLParametersImpl p = cast(SSLParametersImpl) sslParameters.clone();
         p.setUseClientMode(clientMode);
 
@@ -200,7 +196,6 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
 /**
  * Support class for this package.
  *
- * @hide
  */
 
 final class DefaultSSLContextImpl : OpenSSLContextImpl {

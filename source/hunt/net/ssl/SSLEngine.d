@@ -346,7 +346,6 @@ import hunt.Exceptions;
  * @see SSLSession
  * @see java.net.Socket
  *
- * @since 1.5
  * @author Brad R. Wetmore
  */
 
@@ -983,7 +982,6 @@ abstract class SSLEngine {
      * @throws UnsupportedOperationException if the underlying provider
      *         does not implement the operation.
      *
-     * @since 1.7
      */
     SSLSession getHandshakeSession() {
         throw new UnsupportedOperationException("");
@@ -1177,7 +1175,6 @@ abstract class SSLEngine {
      * are always non-null.
      *
      * @return the SSLParameters in effect for this SSLEngine.
-     * @since 1.6
      */
     // SSLParameters getSSLParameters() {
     //     SSLParameters params = new SSLParameters();
@@ -1214,7 +1211,6 @@ abstract class SSLEngine {
      * @param params the parameters
      * @throws IllegalArgumentException if the setEnabledCipherSuites() or
      *    the setEnabledProtocols() call fails
-     * @since 1.6
      */
     // void setSSLParameters(SSLParameters params) {
     //     string[] s;

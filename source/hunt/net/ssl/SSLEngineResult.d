@@ -9,7 +9,6 @@ import std.conv;
  * handshaking state of this <code>SSLEngine</code>.
  *
  * @author Brad R. Wetmore
- * @since 1.5
  */
 enum HandshakeStatus {
 
@@ -74,7 +73,6 @@ enum HandshakeStatus {
  * @see SSLEngine#unwrap(ByteBuffer, ByteBuffer)
  *
  * @author Brad R. Wetmore
- * @since 1.5
  */
 
 class SSLEngineResult {
@@ -89,7 +87,6 @@ class SSLEngineResult {
      * should be consulted for that information.
      *
      * @author Brad R. Wetmore
-     * @since 1.5
      */
     static enum Status {
 

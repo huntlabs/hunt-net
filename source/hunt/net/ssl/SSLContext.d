@@ -4,7 +4,7 @@ module hunt.net.ssl.SSLContext;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
-import hunt.net.ssl.KeyManager;
+// import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.SSLContextSpi;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLParameters;
@@ -35,7 +35,6 @@ import hunt.Exceptions;
  * Consult the release documentation for your implementation to see if any
  * other algorithms are supported.
  *
- * @since 1.4
  */
 class SSLContext {
     // private Provider provider;
@@ -75,7 +74,6 @@ class SSLContext {
      * @return the default SSL context
      * @throws NoSuchAlgorithmException if the
      *   {@link SSLContext#getInstance SSLContext.getInstance()} call fails
-     * @since 1.6
      */
     static synchronized SSLContext getDefault(){
         if (defaultContext is null) {
@@ -94,7 +92,6 @@ class SSLContext {
      * @throws  SecurityException if a security manager exists and its
      *          <code>checkPermission</code> method does not allow
      *          <code>SSLPermission("setDefaultSSLContext")</code>
-     * @since 1.6
      */
     static void setDefault(SSLContext context) {
         if (context is null) {
@@ -272,7 +269,7 @@ class SSLContext {
     //     contextSpi.engineInit(km, tm);
     // }
 
-    final void init(KeyCertOptions options) {
+    final void initialize(KeyCertOptions options) {
         contextSpi.engineInit(options);
     }
 
@@ -319,16 +316,7 @@ class SSLContext {
      * @since   1.5
      */
     final SSLEngine createSSLEngine(bool clientMode) {
-        try {
-            return contextSpi.engineCreateSSLEngine(clientMode);
-        } catch (Exception e) {
-            UnsupportedOperationException unsup =
-                new UnsupportedOperationException(
-                    "Provider: " ~ "getProvider()" ~
-                    " doesn't support this operation", e);
-            // unsup.initCause(e);
-            throw unsup;
-        }
+        return contextSpi.engineCreateSSLEngine(clientMode);
     }
 
     /**
@@ -351,16 +339,7 @@ class SSLContext {
      * @since   1.5
      */
     final SSLEngine createSSLEngine(bool clientMode, string peerHost, int peerPort) {
-        try {
-            return contextSpi.engineCreateSSLEngine(clientMode, peerHost, peerPort);
-        } catch (Exception e) {
-            UnsupportedOperationException unsup =
-                new UnsupportedOperationException(
-                    "Provider: " ~ "getProvider()" ~
-                    " does not support this operation", e);
-            // unsup.initCause(e);
-            throw unsup;
-        }
+        return contextSpi.engineCreateSSLEngine(clientMode, peerHost, peerPort);
     }
 
     /**
@@ -407,7 +386,6 @@ class SSLContext {
      * @return a copy of the SSLParameters object with the default settings
      * @throws UnsupportedOperationException if the default SSL parameters
      *   could not be obtained.
-     * @since 1.6
      */
     // final SSLParameters getDefaultSSLParameters() {
     //     return contextSpi.engineGetDefaultSSLParameters();
@@ -424,7 +402,6 @@ class SSLContext {
      *   settings
      * @throws UnsupportedOperationException if the supported SSL parameters
      *   could not be obtained.
-     * @since 1.6
      */
     // final SSLParameters getSupportedSSLParameters() {
     //     return contextSpi.engineGetSupportedSSLParameters();

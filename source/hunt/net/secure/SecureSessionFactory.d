@@ -19,10 +19,10 @@ interface SecureSessionFactory {
     SecureSession create(Connection session, bool clientMode,
                          SecureSessionHandshakeListener secureSessionHandshakeListener);
 
-    deprecated("Unsupported anymore!")
-    SecureSession create(Connection session, bool clientMode,
-                         string peerHost, int peerPort,
-                         SecureSessionHandshakeListener secureSessionHandshakeListener);
+    // deprecated("Unsupported anymore!")
+    // SecureSession create(Connection session, bool clientMode,
+    //                      string peerHost, int peerPort,
+    //                      SecureSessionHandshakeListener secureSessionHandshakeListener);
 
     SecureSession create(Connection session, bool clientMode,
                          SecureSessionHandshakeListener secureSessionHandshakeListener, 
