@@ -44,19 +44,19 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     //     return provideName;
     // }
 
-    SSLContext getSSLContextWithManager() { // KeyManager[] km, TrustManager[] tm
-        version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
+    // SSLContext getSSLContextWithManager() { // KeyManager[] km, TrustManager[] tm
+    //     version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-        // sslContext.init(km, tm); // TODO:
+    //     SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
+    //     // sslContext.init(km, tm); // TODO:
 
-        version(HUNT_NET_DEBUG) {
-            long end = Clock.currStdTime;
-            long d = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(end - start);
-            tracef("creating Conscrypt SSL context spends %d ms", d);
-        }
-        return sslContext;
-    }
+    //     version(HUNT_NET_DEBUG) {
+    //         long end = Clock.currStdTime;
+    //         long d = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(end - start);
+    //         tracef("creating Conscrypt SSL context spends %d ms", d);
+    //     }
+    //     return sslContext;
+    // }
 
     // SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword) {
     //     return getSSLContext(inputStream, keystorePassword, keyPassword, null, null, null);
@@ -90,6 +90,10 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     //     return sslContext;
     // }
 
+    void initializeSslContext() {
+        implementationMissing(false);
+    }
+
     SSLContext getSSLContext(KeyCertOptions options, string sslProtocol) {
         version(HUNT_NET_DEBUG) {
             StopWatch sw = StopWatch(AutoStart.yes);
@@ -107,7 +111,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // TLSv1 TLSv1.2
         // sslContext = SSLContext.getInstance(options.getCertFile(), options.getKeyFile(), 
         //     sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
-        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol);
+        sslContext = SSLContext.getInstance(options, sslProtocol.empty ? "TLSv1.2" : sslProtocol);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         sslContext.initialize(options);
 
@@ -115,8 +119,6 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
             infof("creating Conscrypt SSL context spends %s ms", sw.peek.total!"msecs");
             sw.stop();
         }
-
-        // implementationMissing(false);
         return sslContext;
     }
 
@@ -124,24 +126,12 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         throw new NotImplementedException();
     }
 
-    // SSLContext getSSLContext(string certificate, string privatekey, 
-    //     string keystorePassword, string keyPassword) {
-    //         throw new NotImplementedException();
-    //     }
 
     Pair!(SSLEngine, ProtocolSelector) createSSLEngine(bool clientMode) {
         SSLEngine sslEngine = getSSLContext().createSSLEngine(clientMode);
         // sslEngine.setUseClientMode(clientMode);
         return makePair(sslEngine, cast(ProtocolSelector)new ConscryptALPNSelector(sslEngine, supportedProtocols));
     }
-
-    // Pair!(SSLEngine, ProtocolSelector) createSSLEngine(string certificate, string privatekey, 
-    //     string keystorePassword, string keyPassword) {
-    //     SSLEngine sslEngine = getSSLContext(certificate, privatekey,
-    //          keystorePassword, keyPassword).createSSLEngine();
-    //     sslEngine.setUseClientMode(false);
-    //     return makePair(sslEngine, cast(ProtocolSelector)new ConscryptALPNSelector(sslEngine, supportedProtocols));
-    // }
 
     Pair!(SSLEngine, ProtocolSelector) createSSLEngine(bool clientMode, string peerHost, int peerPort) {
         SSLEngine sslEngine = getSSLContext().createSSLEngine(clientMode, peerHost, peerPort);
@@ -178,6 +168,7 @@ class FileCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFact
             return null;
         }
     }
+
 
     alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
 }

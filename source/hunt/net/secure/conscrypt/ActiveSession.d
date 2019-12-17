@@ -304,7 +304,10 @@ final class ActiveSession : ConscryptSession {
      * (or entered False Start).
      */
     void onPeerCertificateAvailable(string peerHost, int peerPort) {
-        version(HUNT_NET_DEBUG) implementationMissing(false);
+        version(HUNT_NET_DEBUG) {
+            implementationMissing(false);
+            infof("peerHost: %s, peerPort: %d", peerHost, peerPort);
+        }
         // synchronized (ssl) {
         //     id = null;
         //     this.localCertificates = ssl.getLocalCertificates();

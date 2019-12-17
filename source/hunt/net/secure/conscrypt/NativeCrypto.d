@@ -388,7 +388,7 @@ final class NativeCrypto {
         version(Have_boringssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLS_method());
         version(Have_hunt_openssl) SSL_CTX* ctx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
-        version(HUNT_DEBUG_MORE) tracef("SSL_CTX_new => %s", ctx);
+        version(HUNT_NET_DEBUG_MORE) tracef("SSL_CTX_new => %s", ctx);
         return cast(long)cast(void*)ctx;
     }
 
@@ -554,6 +554,18 @@ final class NativeCrypto {
             warning("Failed to set the privateKey file.");
         }
     }
+
+
+    static bool SSL_CTX_check_private_key(long ssl_ctx_address) {
+        SSL_CTX* ssl_ctx = to_SSL_CTX(ssl_ctx_address);
+        if(ssl_ctx is null)
+            return false;
+
+        int r = deimos.openssl.ssl.SSL_CTX_check_private_key(ssl_ctx);
+        return r == 1;
+    }
+
+    
 
     static void SSL_enable_tls_channel_id(long ssl_address) {
         SSL* ssl = to_SSL(ssl_address);
@@ -2399,6 +2411,44 @@ implementationMissing(false);
             return;
         }
         deimos.openssl.ssl.SSL_set_verify(ssl, mode, null);
+    }
+
+    static void SSL_use_certificate_file(long ssl_address, string fileName) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            warningf("ssl is null");
+            return;
+        }
+
+        int r = deimos.openssl.ssl.SSL_use_certificate_file(ssl, toStringz(fileName), SSL_FILETYPE_PEM);
+        if(r <=0)   {
+            warning("Failed to set the certificate file.");
+        }
+    }
+
+    static void SSL_use_PrivateKey_file(long ssl_address, string fileName) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            warningf("ssl is null");
+            return;
+        }
+
+        int r = deimos.openssl.ssl.SSL_use_PrivateKey_file(ssl, toStringz(fileName),  SSL_FILETYPE_PEM);
+        if(r <=0)   {
+            warning("Failed to set the privateKey file.");
+        }
+    }
+
+    // https://www.openssl.org/docs/man1.0.2/man3/SSL_check_private_key.html
+    static bool SSL_check_private_key(long ssl_address) {
+        SSL* ssl = to_SSL(ssl_address);
+        if (ssl is null) {
+            warningf("ssl is null");
+            return false;
+        }
+
+        int r = deimos.openssl.ssl.SSL_check_private_key(ssl);
+        return r == 1;
     }
 
     static long SSL_get_verify_result(long ssl_address) {

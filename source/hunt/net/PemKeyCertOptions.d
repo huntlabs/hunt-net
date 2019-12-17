@@ -13,6 +13,10 @@ class PemKeyCertOptions : KeyCertOptions {
     private string _keyFile;
     private string _keyPassword;
 
+    this() {
+        
+    }
+
     this(string certificate, string privateKey, string certPassword="", string keyPassword="") {
         _certFile = certificate;
         _certPassword = certPassword;

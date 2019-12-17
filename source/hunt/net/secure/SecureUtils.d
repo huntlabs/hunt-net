@@ -33,7 +33,7 @@ struct SecureUtils {
         assert(options !is null);
         FileCredentialConscryptSSLContextFactory fc = 
             new FileCredentialConscryptSSLContextFactory(options);
-        // SSLContext context = fc.getSSLContext();
+        SSLContext context = fc.getSSLContext(); // initlialize the default session context
         secureSessionFactory().setServerSSLContextFactory(fc);
     }
 

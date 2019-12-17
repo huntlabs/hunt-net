@@ -12,6 +12,8 @@ import hunt.util.TypeUtils;
 
 interface SSLContextFactory {
 
+    void initializeSslContext();
+
     Pair!(SSLEngine, ProtocolSelector) createSSLEngine(bool clientMode);
 
     // Pair!(SSLEngine, ProtocolSelector) createSSLEngine(string certificate, string privatekey, 

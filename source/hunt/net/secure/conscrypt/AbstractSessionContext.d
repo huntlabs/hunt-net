@@ -10,6 +10,7 @@ import hunt.net.ssl.SSLSessionContext;
 import hunt.net.secure.conscrypt.ByteArray;
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.NativeSslSession;
+// import hunt.net.KeyCertOptions;
 
 import hunt.collection;
 import hunt.Exceptions;
@@ -59,18 +60,18 @@ abstract class AbstractSessionContext : SSLSessionContext {
         sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
     }
 
-    this(int maximumSize, string certificate, string privatekey ) {
-        this.maximumSize = maximumSize;
-        sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
+    // this(int maximumSize, KeyCertOptions options) {
+    //     this.maximumSize = maximumSize;
+    //     sslCtxNativePointer = NativeCrypto.SSL_CTX_new();
         
-        version(HUNT_NET_DEBUG) {
-            trace("using certificate: " ~ certificate);
-            trace("using privatekey: " ~ privatekey);
-        }
-        // NativeCrypto.SSL_set_verify(sslCtxNativePointer, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
-        // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
-        // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privatekey);
-    }
+    //     version(HUNT_NET_DEBUG) {
+    //         trace("using certificate: " ~ certificate);
+    //         trace("using privatekey: " ~ privatekey);
+    //     }
+    //     // NativeCrypto.SSL_set_verify(sslCtxNativePointer, SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT);
+    //     // NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
+    //     // NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privatekey);
+    // }
 
     void setVerify(int mode) {
         // SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT
@@ -93,6 +94,11 @@ abstract class AbstractSessionContext : SSLSessionContext {
         }        
         NativeCrypto.SSL_CTX_use_certificate_file(sslCtxNativePointer, certificate);
         NativeCrypto.SSL_CTX_use_PrivateKey_file(sslCtxNativePointer, privateKey);
+
+
+        if(!NativeCrypto.SSL_CTX_check_private_key(sslCtxNativePointer)) {
+            warningf("Private key (%s) does not match the certificate public key: %s", privateKey, certificate);
+        }
     }
 
     /**

@@ -10,6 +10,8 @@ import hunt.net.secure.conscrypt.NativeSslSession;
 import hunt.net.secure.conscrypt.SSLServerSessionCache;
 
 import hunt.net.ssl.SSLSessionContext;
+// import hunt.net.KeyCertOptions;
+
 
 import hunt.Exceptions;
 
@@ -41,10 +43,10 @@ final class ServerSessionContext : AbstractSessionContext {
         NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
     }
 
-    this(string certificate, string privatekey, int maximumSize = 100) {
-        super(maximumSize, certificate, privatekey);
-        NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
-    }
+    // this(KeyCertOptions options, int maximumSize = 100) {
+    //     super(maximumSize, options);
+    //     NativeCrypto.SSL_CTX_set_session_id_context(sslCtxNativePointer, cast(byte[])[' ']);
+    // }
 
     /**
      * Applications should not use this method. Instead use {@link

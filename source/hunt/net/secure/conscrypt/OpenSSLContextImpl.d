@@ -21,6 +21,9 @@ import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
 // import hunt.security.Key;
 
+import std.array;
+
+
 /**
  * OpenSSL-backed SSLContext service provider interface.
  *
@@ -51,11 +54,25 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
     //     return new TLSv12();
     // }
 
-    this() {
+    this(KeyCertOptions options) {
         this.algorithms = null;
         if (defaultSslContextImpl is null) {
+            // TODO: Tasks pending completion -@zhangxueping at 2019-12-17T22:17:15+08:00
+            // Create different sessionContext for client and server
             clientSessionContext = new ClientSessionContext();
             serverSessionContext = new ServerSessionContext();
+
+            version(HUNT_NET_DEBUG) warning("Initializing OpenSSL Context...");
+
+            string caFile = options.getCaFile();
+            if(!caFile.empty()) {
+                // serverSessionContext.setVerify();
+                serverSessionContext.useCaCertificate(caFile, options.getCaPassword());
+            }
+
+            serverSessionContext.useCertificate(options.getCertFile(), options.getKeyFile(),
+                options.getCertPassword(), options.getKeyPassword());
+            
             defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
         } else {
             version(HUNT_NET_DEBUG) warning("Using existed defaultSslContextImpl");
@@ -218,9 +235,9 @@ final class DefaultSSLContextImpl : OpenSSLContextImpl {
      * rest of this constructor to guarantee that we don't have races in
      * creating the state shared between all default SSLContexts.
      */
-    this() {
+    this(KeyCertOptions options) {
         // warning("No certificates provided!");
-        super();
+        super(options);
     }
 
     // this(string certificate, string privatekey) {

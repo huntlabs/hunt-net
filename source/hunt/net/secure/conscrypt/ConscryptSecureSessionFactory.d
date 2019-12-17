@@ -66,18 +66,17 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
             SecureSessionHandshakeListener secureSessionHandshakeListener, 
             KeyCertOptions options) {
         
-        assert(clientMode, "only client"); // only client
+        // assert(clientMode, "only client"); // only client
 
         SSLContextFactory sslContextFactory = new FileCredentialConscryptSSLContextFactory(options);
         sslContextFactory.setSupportedProtocols(supportedProtocols);
         Pair!(SSLEngine, ProtocolSelector) p = sslContextFactory.createSSLEngine(clientMode);
         
         return new ConscryptSSLSession(session, p.first, p.second, secureSessionHandshakeListener);
-                
     }
 
     protected SSLContextFactory from(bool clientMode) {
-        warning("clientMode: ", clientMode);
+        version(HUNT_NET_DEBUG) warning("clientMode: ", clientMode);
         return clientMode ? clientSSLContextFactory : serverSSLContextFactory;
     }
 

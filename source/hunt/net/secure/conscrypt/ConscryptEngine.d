@@ -190,20 +190,20 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks {
      * Configures the default {@link BufferAllocator} to be used by all future
      * {@link SSLEngine} instances from this provider.
      */
-    static void setDefaultBufferAllocator(BufferAllocator bufferAllocator) {
-        defaultBufferAllocator = bufferAllocator;
-    }
+    // static void setDefaultBufferAllocator(BufferAllocator bufferAllocator) {
+    //     defaultBufferAllocator = bufferAllocator;
+    // }
 
-    override
-    void setBufferAllocator(BufferAllocator bufferAllocator) {
-        synchronized (ssl) {
-            if (isHandshakeStarted()) {
-                throw new IllegalStateException(
-                        "Could not set buffer allocator after the initial handshake has begun.");
-            }
-            this.bufferAllocator = bufferAllocator;
-        }
-    }
+    // override
+    // void setBufferAllocator(BufferAllocator bufferAllocator) {
+    //     synchronized (ssl) {
+    //         if (isHandshakeStarted()) {
+    //             throw new IllegalStateException(
+    //                     "Could not set buffer allocator after the initial handshake has begun.");
+    //         }
+    //         this.bufferAllocator = bufferAllocator;
+    //     }
+    // }
 
     /**
      * Returns the maximum overhead, in bytes, of sealing a record with SSL.

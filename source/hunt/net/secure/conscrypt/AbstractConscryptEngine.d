@@ -19,7 +19,7 @@ alias HandshakeListener = Action;
  * Abstract base class for all Conscrypt {@link SSLEngine} classes.
  */
 abstract class AbstractConscryptEngine : SSLEngine {
-    abstract void setBufferAllocator(BufferAllocator bufferAllocator);
+    // abstract void setBufferAllocator(BufferAllocator bufferAllocator);
 
     /**
      * Returns the maximum overhead, in bytes, of sealing a record with SSL.

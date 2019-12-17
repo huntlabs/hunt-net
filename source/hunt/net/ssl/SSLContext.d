@@ -75,12 +75,12 @@ class SSLContext {
      * @throws NoSuchAlgorithmException if the
      *   {@link SSLContext#getInstance SSLContext.getInstance()} call fails
      */
-    static synchronized SSLContext getDefault(){
-        if (defaultContext is null) {
-            defaultContext = SSLContext.getInstance("Default");
-        }
-        return defaultContext;
-    }
+    // static synchronized SSLContext getDefault(){
+    //     if (defaultContext is null) {
+    //         defaultContext = SSLContext.getInstance("Default");
+    //     }
+    //     return defaultContext;
+    // }
 
     /**
      * Sets the default SSL context. It will be returned by subsequent calls
@@ -177,8 +177,8 @@ class SSLContext {
      *
      * @see java.security.Provider
      */
-    static SSLContext getInstance(string protocol) {
-        SSLContextSpi impl = new DefaultSSLContextImpl();
+    static SSLContext getInstance(KeyCertOptions options, string protocol) {
+        SSLContextSpi impl = new DefaultSSLContextImpl(options);
         return new SSLContext(impl, protocol);
     }
 

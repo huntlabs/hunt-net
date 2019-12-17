@@ -42,7 +42,7 @@ final class SSLParametersImpl : Cloneable {
     // private static X509TrustManager defaultX509TrustManager;
 
     // default SSL parameters
-    private static SSLParametersImpl defaultParameters;
+    // private static SSLParametersImpl defaultParameters;
 
     // client session context contains the set of reusable
     // client-side SSL sessions
@@ -150,27 +150,6 @@ final class SSLParametersImpl : Cloneable {
 //         // We ignore the SecureRandom passed in by the caller. The native code below
 //         // directly accesses /dev/urandom, which makes it irrelevant.
 //     }
-
-    // static SSLParametersImpl getDefault()  {
-
-    //         warning("yyyyyy");
-    //     SSLParametersImpl result = defaultParameters;
-    //     if (result is null) {
-    //         warning("xxxxxxxxxxxxxxxxxxxx");
-    //         defaultParameters = result = new SSLParametersImpl(null,
-    //                                                            new ClientSessionContext(),
-    //                                                            new ServerSessionContext(),
-    //                                                            cast(string[])null);
-    //         // single-check idiom
-    //         // defaultParameters = result = new SSLParametersImpl(cast(KeyManager[])null,
-    //         //                                                    cast(TrustManager[])null,
-    //         //                                                 //    null,
-    //         //                                                    new ClientSessionContext(),
-    //         //                                                    new ServerSessionContext(),
-    //         //                                                    cast(string[])null);
-    //     }
-    //     return result.clone();
-    // }
 
     KeyCertOptions getKeyCertOptions() {
         return _keyCertOptions;

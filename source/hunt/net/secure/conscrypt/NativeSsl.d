@@ -63,18 +63,18 @@ final class NativeSsl {
         AbstractSessionContext ctx = parameters.getSessionContext();
         version(HUNT_NET_DEBUG) warning("UseClientMode: ", parameters.getUseClientMode());
         
-        KeyCertOptions certOptions = parameters.getKeyCertOptions();
+        // KeyCertOptions certOptions = parameters.getKeyCertOptions();
 
-        string caFile = certOptions.getCaFile();
-        if(!caFile.empty()) {
-            ctx.useCaCertificate(caFile, certOptions.getCaPassword());
-        }
+        // string caFile = certOptions.getCaFile();
+        // if(!caFile.empty()) {
+        //     ctx.useCaCertificate(caFile, certOptions.getCaPassword());
+        // }
 
-        string certFile = certOptions.getCertFile();
-        string keyFile = certOptions.getKeyFile();
-        if(!certFile.empty() && !keyFile.empty()) {
-            ctx.useCertificate(certFile, keyFile, certOptions.getCertPassword(), certOptions.getKeyPassword());
-        }
+        // string certFile = certOptions.getCertFile();
+        // string keyFile = certOptions.getKeyFile();
+        // if(!certFile.empty() && !keyFile.empty()) {
+        //     ctx.useCertificate(certFile, keyFile, certOptions.getCertPassword(), certOptions.getKeyPassword());
+        // }
 
         long ssl_ctx = ctx.sslCtxNativePointer;
         long ssl = NativeCrypto.SSL_new(ssl_ctx);
@@ -302,6 +302,8 @@ return 0;
     }
 
     void initialize(string hostname) { // , OpenSSLKey channelIdPrivateKey
+        version(HUNT_NET_DEBUG) tracef("host: %s", hostname);
+
         bool enableSessionCreation = parameters.getEnableSessionCreation();
         if (!enableSessionCreation) {
             NativeCrypto.SSL_set_session_creation_enabled(ssl, false);
@@ -313,7 +315,7 @@ return 0;
         NativeCrypto.SSL_accept_renegotiations(ssl);
 
         if (isClient()) {
-            version(HUNT_DEBUG) trace("Initializing ssl client...");
+            version(HUNT_DEBUG) trace("Initializing TLS client...");
             NativeCrypto.SSL_set_connect_state(ssl);
 
             // Configure OCSP and CT extensions for client
@@ -323,7 +325,7 @@ return 0;
                     NativeCrypto.SSL_enable_signed_cert_timestamps(ssl);
             }
         } else {
-            version(HUNT_DEBUG) trace("Initializing ssl server...");
+            version(HUNT_DEBUG) trace("Initializing TLS server...");
             NativeCrypto.SSL_set_accept_state(ssl);
 
             // Configure OCSP for server
@@ -381,8 +383,8 @@ return 0;
             }
         }
 
-// FIXME: Needing refactor or cleanup -@zxp at 8/3/2018, 11:32:59 AM
-// 
+        // FIXME: Needing refactor or cleanup -@zxp at 8/3/2018, 11:32:59 AM
+        // 
         // enablePSKKeyManagerIfRequested(); 
 
         if (parameters.useSessionTickets) {
@@ -505,10 +507,33 @@ return 0;
     // }
 
     private void setCertificateValidation() {
-
+        // https://stackoverflow.com/questions/40165088/when-to-call-ssl-set-verify-vs-ssl-ctx-set-verify
+        // https://www.openssl.org/docs/man1.1.0/man3/SSL_CTX_set_verify.html
         // setup peer certificate verification
+        version(HUNT_NET_DEBUG) warningf("Setup peer certificate verification: isClient=%s", isClient());
+
         if (isClient()) {
-            implementationMissing(false);
+
+            KeyCertOptions certOptions = parameters.getKeyCertOptions();
+            string caFile = certOptions.getCaFile();
+            if(!caFile.empty()) {
+                NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
+                AbstractSessionContext ctx = parameters.getSessionContext();
+                ctx.useCaCertificate(caFile, certOptions.getCaPassword());
+            }
+
+            string certFile = certOptions.getCertFile();
+            string keyFile = certOptions.getKeyFile();
+            if(!certFile.empty() && !keyFile.empty()) {
+                NativeCrypto.SSL_use_certificate_file(ssl, certFile);
+                NativeCrypto.SSL_use_PrivateKey_file(ssl, keyFile);
+                // TODO: enable password
+
+                if(!NativeCrypto.SSL_check_private_key(ssl)) {
+                    warningf("Private key (%s) does not match the certificate public key: %s", keyFile, certFile);
+                }
+            }
+
         } else {
             // TODO: Tasks pending completion -@zxp at 8/8/2019, 6:34:06 PM
             // 
