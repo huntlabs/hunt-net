@@ -14,7 +14,7 @@ import hunt.io.ByteArrayInputStream;
 import hunt.io.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.net.KeyCertOptions;
-import hunt.security.cert.X509Certificate;
+// import hunt.security.cert.X509Certificate;
 import hunt.util.DateTime;
 import hunt.util.TypeUtils;
 
@@ -39,14 +39,14 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     //     infof("add Conscrypt security provider");
     // }
 
-    static string getProvideName() {
-        return provideName;
-    }
+    // static string getProvideName() {
+    //     return provideName;
+    // }
 
-    SSLContext getSSLContextWithManager(KeyManager[] km, TrustManager[] tm){
+    SSLContext getSSLContextWithManager() { // KeyManager[] km, TrustManager[] tm
         version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
 
-        SSLContext sslContext = SSLContext.getInstance("TLSv1.2", provideName);
+        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
         // sslContext.init(km, tm); // TODO:
 
         version(HUNT_NET_DEBUG) {
@@ -91,8 +91,6 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 
     SSLContext getSSLContext(KeyCertOptions options, string sslProtocol) {
         version(HUNT_NET_DEBUG) {
-            // tracef("certificate: %s", certificate);
-            // tracef("privatekey: %s", privatekey);
             StopWatch sw = StopWatch(AutoStart.yes);
         }
 
@@ -108,7 +106,7 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
         // TLSv1 TLSv1.2
         // sslContext = SSLContext.getInstance(options.getCertFile(), options.getKeyFile(), 
         //     sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
-        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol, provideName);
+        sslContext = SSLContext.getInstance(sslProtocol.empty ? "TLSv1.2" : sslProtocol);
         // sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         sslContext.init(options);
 
@@ -165,23 +163,24 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
 class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
 
 
-    static X509TrustManager createX509TrustManagerNoCheck() {
-        return new class X509TrustManager {
-            override void checkClientTrusted(X509Certificate[] chain, string authType) {
-            }
+    // static X509TrustManager createX509TrustManagerNoCheck() {
+    //     return new class X509TrustManager {
+    //         override void checkClientTrusted(X509Certificate[] chain, string authType) {
+    //         }
 
-            override void checkServerTrusted(X509Certificate[] chain, string authType){
-            }
+    //         override void checkServerTrusted(X509Certificate[] chain, string authType){
+    //         }
 
-            override X509Certificate[] getAcceptedIssuers() {
-                return null;
-            }
-        };
-    }
+    //         override X509Certificate[] getAcceptedIssuers() {
+    //             return null;
+    //         }
+    //     };
+    // }
 
     override SSLContext getSSLContext() {
         try {
-            return getSSLContextWithManager(null, [createX509TrustManagerNoCheck()]);
+            // return getSSLContextWithManager(null, [createX509TrustManagerNoCheck()]);
+            return getSSLContextWithManager();
         } catch (Exception e) {
             errorf("get SSL context error: %s", e.msg);
             return null;

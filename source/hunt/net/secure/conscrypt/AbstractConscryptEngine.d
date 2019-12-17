@@ -10,7 +10,7 @@ import hunt.net.ssl;
 
 import hunt.collection.ByteBuffer;
 import hunt.Functions;
-import hunt.security.Key;
+// import hunt.security.Key;
 
 alias HandshakeListener = Action;
 
@@ -60,7 +60,7 @@ abstract class AbstractConscryptEngine : SSLEngine {
      * @throws IllegalStateException if this is a server engine or if the handshake has already
      *         started.
      */
-    abstract void setChannelIdPrivateKey(PrivateKey privateKey);
+    // abstract void setChannelIdPrivateKey(PrivateKey privateKey);
 
     /**
      * Sets the listener for the completion of the TLS handshake.

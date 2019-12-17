@@ -27,9 +27,9 @@ import hunt.net.ssl.KeyManager;
 import hunt.net.ssl.X509KeyManager;
 import hunt.net.ssl.X509TrustManager;
 
-import hunt.security.Key;
-import hunt.security.cert.X509Certificate;
-import hunt.security.x500.X500Principal;
+// import hunt.security.Key;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.x500.X500Principal;
 
 import hunt.collection;
 import hunt.net.Exceptions;
@@ -37,8 +37,6 @@ import hunt.net.Exceptions;
 import hunt.net.ssl.SSLEngine;
 import hunt.net.ssl.SSLEngineResult;
 import hunt.net.ssl.SSLSession;
-
-import hunt.security.Key;
 
 import hunt.Exceptions;
 import hunt.text.Common;
@@ -58,7 +56,7 @@ import std.format;
                                                          SSLParametersImpl.AliasChooser,
                                                          SSLParametersImpl.PSKCallbacks  
  */
-final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, AliasChooser, PSKCallbacks {
+final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks {
     private __gshared SSLEngineResult NEED_UNWRAP_OK;
     private __gshared SSLEngineResult NEED_UNWRAP_CLOSED;
     private __gshared SSLEngineResult NEED_WRAP_OK;
@@ -127,7 +125,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
      * Private key for the TLS Channel ID extension. This field is client-side only. Set during
      * startHandshake.
      */
-    private OpenSSLKey channelIdPrivateKey;
+    // private OpenSSLKey channelIdPrivateKey;
 
     private int _maxSealOverhead;
 
@@ -182,7 +180,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
 
     private static NativeSsl newSsl(SSLParametersImpl sslParameters, ConscryptEngine engine) {
         try {
-            return NativeSsl.newInstance(sslParameters, engine, engine, engine);
+            return NativeSsl.newInstance(sslParameters, engine);
         } catch (SSLException e) {
             throw new RuntimeException(e);
         }
@@ -274,43 +272,43 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
      * @throws IllegalStateException if this is a server engine or if the handshake has already
      *         started.
      */
-    override
-    void setChannelIdPrivateKey(PrivateKey privateKey) {
-        implementationMissing(false);
-        // if (!getUseClientMode()) {
-        //     throw new IllegalStateException("Not allowed in server mode");
-        // }
+    // override
+    // void setChannelIdPrivateKey(PrivateKey privateKey) {
+    //     implementationMissing(false);
+    //     // if (!getUseClientMode()) {
+    //     //     throw new IllegalStateException("Not allowed in server mode");
+    //     // }
 
-        // synchronized (ssl) {
-        //     if (isHandshakeStarted()) {
-        //         throw new IllegalStateException("Could not change Channel ID private key "
-        //                 ~ "after the initial handshake has begun.");
-        //     }
+    //     // synchronized (ssl) {
+    //     //     if (isHandshakeStarted()) {
+    //     //         throw new IllegalStateException("Could not change Channel ID private key "
+    //     //                 ~ "after the initial handshake has begun.");
+    //     //     }
 
-        //     if (privateKey is null) {
-        //         sslParameters.channelIdEnabled = false;
-        //         channelIdPrivateKey = null;
-        //         return;
-        //     }
+    //     //     if (privateKey is null) {
+    //     //         sslParameters.channelIdEnabled = false;
+    //     //         channelIdPrivateKey = null;
+    //     //         return;
+    //     //     }
 
-        //     sslParameters.channelIdEnabled = true;
-        //     try {
-        //         ECParameterSpec ecParams = null;
-        //         if (privateKey instanceof ECKey) {
-        //             ecParams = ((ECKey) privateKey).getParams();
-        //         }
-        //         if (ecParams is null) {
-        //             // Assume this is a P-256 key, as specified in the contract of this method.
-        //             ecParams =
-        //                     OpenSSLECGroupContext.getCurveByName("prime256v1").getECParameterSpec();
-        //         }
-        //         channelIdPrivateKey =
-        //                 OpenSSLKey.fromECPrivateKeyForTLSStackOnly(privateKey, ecParams);
-        //     } catch (InvalidKeyException e) {
-        //         // Will have error in startHandshake
-        //     }
-        // }
-    }
+    //     //     sslParameters.channelIdEnabled = true;
+    //     //     try {
+    //     //         ECParameterSpec ecParams = null;
+    //     //         if (privateKey instanceof ECKey) {
+    //     //             ecParams = ((ECKey) privateKey).getParams();
+    //     //         }
+    //     //         if (ecParams is null) {
+    //     //             // Assume this is a P-256 key, as specified in the contract of this method.
+    //     //             ecParams =
+    //     //                     OpenSSLECGroupContext.getCurveByName("prime256v1").getECParameterSpec();
+    //     //         }
+    //     //         channelIdPrivateKey =
+    //     //                 OpenSSLKey.fromECPrivateKeyForTLSStackOnly(privateKey, ecParams);
+    //     //     } catch (InvalidKeyException e) {
+    //     //         // Will have error in startHandshake
+    //     //     }
+    //     // }
+    // }
 
     /**
      * Sets the listener for the completion of the TLS handshake.
@@ -397,7 +395,7 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
         bool releaseResources = true;
         try {
             // Prepare the SSL object for the handshake.
-            ssl.initialize(getHostname(), channelIdPrivateKey);
+            ssl.initialize(getHostname()); // , channelIdPrivateKey
 
             // For clients, offer to resume a previously cached session to avoid the
             // full TLS handshake.
@@ -548,8 +546,8 @@ final class ConscryptEngine : AbstractConscryptEngine , SSLHandshakeCallbacks, A
      */
     override
     SSLSession handshakeSession() {
-        implementationMissing();
-return null;
+        implementationMissing(false);
+        return null;
         // synchronized (ssl) {
         //     if (state == EngineStates.STATE_HANDSHAKE_STARTED) {
         //         return Platform.wrapSSLSession(new ExternalSession(new Provider() {
@@ -1756,29 +1754,29 @@ implementationMissing(false);
     //     }
     // }
 
-    override string chooseServerAlias(X509KeyManager keyManager, string keyType) {
-        // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
-        // if (ekm is null) {
-        //     return keyManager.chooseServerAlias(keyType, null, null);
-        // } else {
-        //     return ekm.chooseEngineServerAlias(keyType, null, this);
-        // }
-        implementationMissing(false);
-        return "";
-    }
+    // override string chooseServerAlias(X509KeyManager keyManager, string keyType) {
+    //     // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
+    //     // if (ekm is null) {
+    //     //     return keyManager.chooseServerAlias(keyType, null, null);
+    //     // } else {
+    //     //     return ekm.chooseEngineServerAlias(keyType, null, this);
+    //     // }
+    //     implementationMissing(false);
+    //     return "";
+    // }
 
-    override string chooseClientAlias(X509KeyManager keyManager, 
-            X500Principal[] issuers, string[] keyTypes) {
+    // override string chooseClientAlias(X509KeyManager keyManager, 
+    //         X500Principal[] issuers, string[] keyTypes) {
 
-        implementationMissing(false);
-        return "";
-        // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
-        // if (ekm is null) {
-        //     return keyManager.chooseClientAlias(keyTypes, issuers, null);
-        // } else {
-        //     return ekm.chooseEngineClientAlias(keyTypes, issuers, this);
-        // }
-    }
+    //     implementationMissing(false);
+    //     return "";
+    //     // X509ExtendedKeyManager ekm = cast(X509ExtendedKeyManager) keyManager;
+    //     // if (ekm is null) {
+    //     //     return keyManager.chooseClientAlias(keyTypes, issuers, null);
+    //     // } else {
+    //     //     return ekm.chooseEngineClientAlias(keyTypes, issuers, this);
+    //     // }
+    // }
 
     // override
     // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package

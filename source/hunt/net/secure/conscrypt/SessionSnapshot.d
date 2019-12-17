@@ -7,14 +7,12 @@ version(WITH_HUNT_SECURITY):
 import hunt.net.secure.conscrypt.ConscryptSession;
 import hunt.net.secure.conscrypt.NativeConstants;
 
-import hunt.security.cert.Certificate;
-import hunt.security.cert.X509Certificate;
-
 import hunt.net.ssl.SSLSession;
 import hunt.net.ssl.SSLSessionContext;
 
-import hunt.security.Principal;
-import hunt.security.cert.Certificate;
+// import hunt.security.cert.Certificate;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.Principal;
 
 import hunt.collection;
 
@@ -125,30 +123,30 @@ final class SessionSnapshot : ConscryptSession {
                 "All calls to this method should be intercepted by ProvidedSessionDecorator.");
     }
 
-    override
-    Certificate[] getPeerCertificates()  {
-        throw new SSLPeerUnverifiedException("No peer certificates");
-    }
+    // override
+    // Certificate[] getPeerCertificates()  {
+    //     throw new SSLPeerUnverifiedException("No peer certificates");
+    // }
 
-    override
-    Certificate[] getLocalCertificates() {
-        return null;
-    }
+    // override
+    // Certificate[] getLocalCertificates() {
+    //     return null;
+    // }
 
-    override
-    X509Certificate[] getPeerCertificateChain(){
-        throw new SSLPeerUnverifiedException("No peer certificates");
-    }
+    // override
+    // X509Certificate[] getPeerCertificateChain(){
+    //     throw new SSLPeerUnverifiedException("No peer certificates");
+    // }
 
-    override
-    Principal getPeerPrincipal()  {
-        throw new SSLPeerUnverifiedException("No peer certificates");
-    }
+    // override
+    // Principal getPeerPrincipal()  {
+    //     throw new SSLPeerUnverifiedException("No peer certificates");
+    // }
 
-    override
-    Principal getLocalPrincipal() {
-        return null;
-    }
+    // override
+    // Principal getLocalPrincipal() {
+    //     return null;
+    // }
 
     override
     string getCipherSuite() {

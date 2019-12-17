@@ -12,7 +12,7 @@ import hunt.net.ssl.SSLSessionContext;
 
 import hunt.net.KeyCertOptions;
 import hunt.net.secure.conscrypt.OpenSSLContextImpl;
-import hunt.security.Provider;
+// import hunt.security.Provider;
 
 import hunt.Exceptions;
 
@@ -38,7 +38,7 @@ import hunt.Exceptions;
  * @since 1.4
  */
 class SSLContext {
-    private Provider provider;
+    // private Provider provider;
 
     private SSLContextSpi contextSpi;
 
@@ -51,10 +51,10 @@ class SSLContext {
      * @param provider the provider
      * @param protocol the protocol
      */
-    protected this(SSLContextSpi contextSpi, Provider provider,
+    protected this(SSLContextSpi contextSpi, // Provider provider,
             string protocol) {
         this.contextSpi = contextSpi;
-        this.provider = provider;
+        // this.provider = provider;
         this.protocol = protocol;
     }
 
@@ -137,13 +137,13 @@ class SSLContext {
      *
      * @see java.security.Provider
      */
-    static SSLContext getInstance(string protocol) {
-        return getInstance(protocol, "");
-        // GetInstance.Instance instance = GetInstance.getInstance
-        //         ("SSLContext", SSLContextSpi.class, protocol);
-        // return new SSLContext(cast(SSLContextSpi)instance.impl, instance.provider,
-        //         protocol);
-    }
+    // static SSLContext getInstance(string protocol) {
+    //     return getInstance(protocol, "");
+    //     // GetInstance.Instance instance = GetInstance.getInstance
+    //     //         ("SSLContext", SSLContextSpi.class, protocol);
+    //     // return new SSLContext(cast(SSLContextSpi)instance.impl, instance.provider,
+    //     //         protocol);
+    // }
 
     /**
      * Returns a <code>SSLContext</code> object that implements the
@@ -180,9 +180,9 @@ class SSLContext {
      *
      * @see java.security.Provider
      */
-    static SSLContext getInstance(string protocol, string provider) {
+    static SSLContext getInstance(string protocol) {
         SSLContextSpi impl = new DefaultSSLContextImpl();
-        return new SSLContext(impl, null, protocol);
+        return new SSLContext(impl, protocol);
     }
 
     // static SSLContext getInstance(string certificate, string privatekey, string protocol, string provider) {

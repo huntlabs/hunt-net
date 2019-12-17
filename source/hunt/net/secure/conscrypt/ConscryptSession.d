@@ -4,8 +4,9 @@ module hunt.net.secure.conscrypt.ConscryptSession;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
-import hunt.security.cert.Certificate;
-import hunt.security.cert.X509Certificate;
+// import hunt.security.cert.Certificate;
+// import hunt.security.cert.X509Certificate;
+
 import hunt.net.ssl.SSLSession;
 import hunt.collection.List;
 

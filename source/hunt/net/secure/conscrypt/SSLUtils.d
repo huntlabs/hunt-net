@@ -6,11 +6,11 @@ version(WITH_HUNT_SECURITY):
 
 import hunt.net.secure.conscrypt.NativeCrypto;
 import hunt.net.secure.conscrypt.OpenSSLX509Certificate;
-
-import hunt.security.cert.CertificateFactory;
-import hunt.security.cert.X509Certificate;
-
 import hunt.net.Exceptions;
+
+// import hunt.security.cert.CertificateFactory;
+// import hunt.security.cert.X509Certificate;
+
 
 import hunt.collection;
 import hunt.io.ByteArrayInputStream;
@@ -108,40 +108,40 @@ final class SSLUtils {
     //     return session;
     // }
 
-    static X509Certificate[] decodeX509CertificateChain(ubyte[][] certChain) {
-        int numCerts = cast(int)certChain.length;
-        if(numCerts == 0)
-            return null;
-        tracef("Certificates: %d", numCerts);
-        CertificateFactory certificateFactory = getCertificateFactory();
-        X509Certificate[] decodedCerts = new X509Certificate[numCerts];
-        for (int i = 0; i < numCerts; i++) {
-            decodedCerts[i] = decodeX509Certificate(certificateFactory, certChain[i]);
-        }
-        return decodedCerts;
-    }
+    // static X509Certificate[] decodeX509CertificateChain(ubyte[][] certChain) {
+    //     int numCerts = cast(int)certChain.length;
+    //     if(numCerts == 0)
+    //         return null;
+    //     tracef("Certificates: %d", numCerts);
+    //     CertificateFactory certificateFactory = getCertificateFactory();
+    //     X509Certificate[] decodedCerts = new X509Certificate[numCerts];
+    //     for (int i = 0; i < numCerts; i++) {
+    //         decodedCerts[i] = decodeX509Certificate(certificateFactory, certChain[i]);
+    //     }
+    //     return decodedCerts;
+    // }
 
-    private static CertificateFactory getCertificateFactory() {
-        try {
-            return CertificateFactory.getInstance("X.509");
-        } catch (CertificateException e) {
-            return null;
-        }
-    }
+    // private static CertificateFactory getCertificateFactory() {
+    //     try {
+    //         return CertificateFactory.getInstance("X.509");
+    //     } catch (CertificateException e) {
+    //         return null;
+    //     }
+    // }
 
-    private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
-            ubyte[] bytes) {
-        //tracef("X509Certificate: %(%02X %)", bytes);
-        // TODO: Tasks pending completion -@zxp at 8/19/2018, 3:02:24 PM
-        // 
-        // if (certificateFactory !is null) {
-        //     return cast(X509Certificate) certificateFactory.generateCertificate(
-        //             new ByteArrayInputStream(cast(byte[])bytes));
-        // }
-        // return OpenSSLX509Certificate.fromX509Der(bytes);
-        implementationMissing(false);
-        return null;
-    }
+    // private static X509Certificate decodeX509Certificate(CertificateFactory certificateFactory,
+    //         ubyte[] bytes) {
+    //     //tracef("X509Certificate: %(%02X %)", bytes);
+    //     // TODO: Tasks pending completion -@zxp at 8/19/2018, 3:02:24 PM
+    //     // 
+    //     // if (certificateFactory !is null) {
+    //     //     return cast(X509Certificate) certificateFactory.generateCertificate(
+    //     //             new ByteArrayInputStream(cast(byte[])bytes));
+    //     // }
+    //     // return OpenSSLX509Certificate.fromX509Der(bytes);
+    //     implementationMissing(false);
+    //     return null;
+    // }
 
     /**
      * Returns key type constant suitable for calling X509KeyManager.chooseServerAlias or
@@ -217,32 +217,32 @@ final class SSLUtils {
     //     return principalBytes;
     // }
 
-    /**
-     * Converts the peer certificates into a cert chain.
-     */
-    static X509Certificate[] toCertificateChain(X509Certificate[] certificates) {
+    // /**
+    //  * Converts the peer certificates into a cert chain.
+    //  */
+    // static X509Certificate[] toCertificateChain(X509Certificate[] certificates) {
 
-        implementationMissing();
-return null;
-        // try {
-        //     X509Certificate[] chain =
-        //             new X509Certificate[certificates.length];
+    //     implementationMissing();
+    //     return null;
+    //     // try {
+    //     //     X509Certificate[] chain =
+    //     //             new X509Certificate[certificates.length];
 
-        //     for (int i = 0; i < certificates.length; i++) {
-        //         byte[] encoded = certificates[i].getEncoded();
-        //         chain[i] = X509Certificate.getInstance(encoded);
-        //     }
-        //     return chain;
-        // } catch (CertificateEncodingException e) {
-        //     SSLPeerUnverifiedException exception = new SSLPeerUnverifiedException(e.getMessage());
-        //     exception.initCause(exception);
-        //     throw exception;
-        // } catch (CertificateException e) {
-        //     SSLPeerUnverifiedException exception = new SSLPeerUnverifiedException(e.getMessage());
-        //     exception.initCause(exception);
-        //     throw exception;
-        // }
-    }
+    //     //     for (int i = 0; i < certificates.length; i++) {
+    //     //         byte[] encoded = certificates[i].getEncoded();
+    //     //         chain[i] = X509Certificate.getInstance(encoded);
+    //     //     }
+    //     //     return chain;
+    //     // } catch (CertificateEncodingException e) {
+    //     //     SSLPeerUnverifiedException exception = new SSLPeerUnverifiedException(e.getMessage());
+    //     //     exception.initCause(exception);
+    //     //     throw exception;
+    //     // } catch (CertificateException e) {
+    //     //     SSLPeerUnverifiedException exception = new SSLPeerUnverifiedException(e.getMessage());
+    //     //     exception.initCause(exception);
+    //     //     throw exception;
+    //     // }
+    // }
 
     /**
      * Calculates the minimum bytes required in the encrypted output buffer for the given number of

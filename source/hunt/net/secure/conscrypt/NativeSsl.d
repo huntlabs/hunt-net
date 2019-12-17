@@ -15,9 +15,9 @@ import hunt.net.secure.conscrypt.SSLUtils;
 
 import hunt.net.ssl.X509KeyManager;
 
-import hunt.security.cert.X509Certificate;
-import hunt.security.Key;
-import hunt.security.x500.X500Principal;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.Key;
+// import hunt.security.x500.X500Principal;
 
 import hunt.collection;
 import hunt.logging.ConsoleLogger;
@@ -35,25 +35,30 @@ import deimos.openssl.ssl;
 final class NativeSsl {
     private SSLParametersImpl parameters;
     private SSLHandshakeCallbacks handshakeCallbacks;
-    private AliasChooser aliasChooser;
-    private PSKCallbacks pskCallbacks;
-    private X509Certificate[] localCertificates;
+    // private AliasChooser aliasChooser;
+    // private PSKCallbacks pskCallbacks;
+    // private X509Certificate[] localCertificates;
     // private ReadWriteLock lock = new ReentrantReadWriteLock();
     private long ssl;
 
+    // private this(long ssl, SSLParametersImpl parameters,
+    //         SSLHandshakeCallbacks handshakeCallbacks, AliasChooser aliasChooser,
+    //         PSKCallbacks pskCallbacks) {
+    //     this.ssl = ssl;
+    //     this.parameters = parameters;
+    //     this.handshakeCallbacks = handshakeCallbacks;
+    //     this.aliasChooser = aliasChooser;
+    //     this.pskCallbacks = pskCallbacks;
+    // }
     private this(long ssl, SSLParametersImpl parameters,
-            SSLHandshakeCallbacks handshakeCallbacks, AliasChooser aliasChooser,
-            PSKCallbacks pskCallbacks) {
+            SSLHandshakeCallbacks handshakeCallbacks) {
         this.ssl = ssl;
         this.parameters = parameters;
         this.handshakeCallbacks = handshakeCallbacks;
-        this.aliasChooser = aliasChooser;
-        this.pskCallbacks = pskCallbacks;
-    }
+    }    
 
     static NativeSsl newInstance(SSLParametersImpl parameters,
-            SSLHandshakeCallbacks handshakeCallbacks, 
-            AliasChooser chooser, PSKCallbacks pskCallbacks) {
+            SSLHandshakeCallbacks handshakeCallbacks) {
                 
         AbstractSessionContext ctx = parameters.getSessionContext();
         version(HUNT_NET_DEBUG) warning("UseClientMode: ", parameters.getUseClientMode());
@@ -74,7 +79,7 @@ final class NativeSsl {
         long ssl_ctx = ctx.sslCtxNativePointer;
         long ssl = NativeCrypto.SSL_new(ssl_ctx);
 
-        return new NativeSsl(ssl, parameters, handshakeCallbacks, chooser, pskCallbacks);
+        return new NativeSsl(ssl, parameters, handshakeCallbacks); // , chooser, pskCallbacks
     }
 
     BioWrapper newBio() {
@@ -109,16 +114,16 @@ final class NativeSsl {
         return NativeCrypto.cipherSuiteToJava(NativeCrypto.SSL_get_current_cipher(ssl));
     }
 
-    X509Certificate[] getPeerCertificates() {
-        ubyte[][] encoded = null;
-        version(Have_boringssl) encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
+    // X509Certificate[] getPeerCertificates() {
+    //     ubyte[][] encoded = null;
+    //     version(Have_boringssl) encoded = NativeCrypto.SSL_get0_peer_certificates(ssl);
 
-        return encoded is null ? null : SSLUtils.decodeX509CertificateChain(encoded);
-    }
+    //     return encoded is null ? null : SSLUtils.decodeX509CertificateChain(encoded);
+    // }
 
-    X509Certificate[] getLocalCertificates() {
-        return localCertificates;
-    }
+    // X509Certificate[] getLocalCertificates() {
+    //     return localCertificates;
+    // }
 
     byte[] getPeerCertificateOcspData() {
         return NativeCrypto.SSL_get_ocsp_response(ssl);
@@ -296,7 +301,7 @@ return 0;
         return NativeCrypto.SSL_get_tls_channel_id(ssl);
     }
 
-    void initialize(string hostname, OpenSSLKey channelIdPrivateKey) {
+    void initialize(string hostname) { // , OpenSSLKey channelIdPrivateKey
         bool enableSessionCreation = parameters.getEnableSessionCreation();
         if (!enableSessionCreation) {
             NativeCrypto.SSL_set_session_creation_enabled(ssl, false);
@@ -396,7 +401,12 @@ return 0;
         version(Have_boringssl) NativeCrypto.SSL_set_mode(ssl, SSL_MODE_CBC_RECORD_SPLITTING);
 
         setCertificateValidation();
-        setTlsChannelId(channelIdPrivateKey);
+        // TODO: Tasks pending completion -@zhangxueping at 2019-12-17T14:56:02+08:00
+        // 
+        // warning("channelIdEnabled: ", parameters.channelIdEnabled);
+        // if (parameters.channelIdEnabled) {
+        //     setTlsChannelId(channelIdPrivateKey);
+        // }
     }
 
     // // TODO(nathanmittler): Remove once after we switch to the engine socket.
@@ -480,22 +490,19 @@ return 0;
     //     }
     // }
 
-    private void setTlsChannelId(OpenSSLKey channelIdPrivateKey) {
-        if (!parameters.channelIdEnabled) {
-            return;
-        }
+    // private void setTlsChannelId(OpenSSLKey channelIdPrivateKey) {
 
-        if (parameters.getUseClientMode()) {
-            // Client-side TLS Channel ID
-            if (channelIdPrivateKey is null) {
-                throw new SSLHandshakeException("Invalid TLS channel ID key specified");
-            }
-            NativeCrypto.SSL_set1_tls_channel_id(ssl, channelIdPrivateKey.getNativeRef());
-        } else {
-            // Server-side TLS Channel ID
-            NativeCrypto.SSL_enable_tls_channel_id(ssl);
-        }
-    }
+    //     if (parameters.getUseClientMode()) {
+    //         // Client-side TLS Channel ID
+    //         if (channelIdPrivateKey is null) {
+    //             throw new SSLHandshakeException("Invalid TLS channel ID key specified");
+    //         }
+    //         NativeCrypto.SSL_set1_tls_channel_id(ssl, channelIdPrivateKey.getNativeRef());
+    //     } else {
+    //         // Server-side TLS Channel ID
+    //         NativeCrypto.SSL_enable_tls_channel_id(ssl);
+    //     }
+    // }
 
     private void setCertificateValidation() {
 

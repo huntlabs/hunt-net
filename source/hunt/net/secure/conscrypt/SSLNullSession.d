@@ -9,9 +9,9 @@ import hunt.net.secure.conscrypt.NativeConstants;
 
 import hunt.net.ssl.SSLSessionContext;
 
-import hunt.security.cert.Certificate;
-import hunt.security.cert.X509Certificate;
-import hunt.security.Principal;
+// import hunt.security.cert.Certificate;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.Principal;
 
 import hunt.net.Exceptions;
 
@@ -100,30 +100,30 @@ final class SSLNullSession : ConscryptSession { //
         return lastAccessedTime;
     }
 
-    override
-    Certificate[] getLocalCertificates() {
-        return null;
-    }
+    // override
+    // Certificate[] getLocalCertificates() {
+    //     return null;
+    // }
 
-    override
-    Principal getLocalPrincipal() {
-        return null;
-    }
+    // override
+    // Principal getLocalPrincipal() {
+    //     return null;
+    // }
 
     override
     int getPacketBufferSize() {
         return NativeConstants.SSL3_RT_MAX_PACKET_SIZE;
     }
 
-    override
-    X509Certificate[] getPeerCertificateChain(){
-        throw new SSLPeerUnverifiedException("No peer certificate");
-    }
+    // override
+    // X509Certificate[] getPeerCertificateChain(){
+    //     throw new SSLPeerUnverifiedException("No peer certificate");
+    // }
 
-    override
-    Certificate[] getPeerCertificates(){
-        throw new SSLPeerUnverifiedException("No peer certificate");
-    }
+    // override
+    // Certificate[] getPeerCertificates(){
+    //     throw new SSLPeerUnverifiedException("No peer certificate");
+    // }
 
     override
     string getPeerHost() {
@@ -135,10 +135,10 @@ final class SSLNullSession : ConscryptSession { //
         return -1;
     }
 
-    override
-    Principal getPeerPrincipal(){
-        throw new SSLPeerUnverifiedException("No peer certificate");
-    }
+    // override
+    // Principal getPeerPrincipal(){
+    //     throw new SSLPeerUnverifiedException("No peer certificate");
+    // }
 
     override
     string getProtocol() {

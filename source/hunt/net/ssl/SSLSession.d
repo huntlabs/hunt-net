@@ -6,9 +6,9 @@ import hunt.net.ssl.SSLSessionContext;
 version(WITH_HUNT_SECURITY):
 // dfmt on
 
-import hunt.security.cert.Certificate;
-import hunt.security.cert.X509Certificate;
-import hunt.security.Principal;
+// import hunt.security.cert.Certificate;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.Principal;
 
 /**
  * In SSL, sessions are used to describe an ongoing relationship between
@@ -210,7 +210,7 @@ interface SSLSession {
      *          been verified
      * @see #getPeerPrincipal()
      */
-    Certificate[] getPeerCertificates();
+    // Certificate[] getPeerCertificates();
 
     /**
      * Returns the certificate(s) that were sent to the peer during
@@ -232,7 +232,7 @@ interface SSLSession {
      *
      * @see #getLocalPrincipal()
      */
-    Certificate [] getLocalCertificates();
+    // Certificate [] getLocalCertificates();
 
     /**
      * Returns the identity of the peer which was identified as part
@@ -255,7 +255,7 @@ interface SSLSession {
      *          has not been verified
      * @see #getPeerPrincipal()
      */
-    X509Certificate [] getPeerCertificateChain();
+    // X509Certificate [] getPeerCertificateChain();
 
     /**
      * Returns the identity of the peer which was established as part of
@@ -273,7 +273,7 @@ interface SSLSession {
      *
      * @since 1.5
      */
-    Principal getPeerPrincipal();
+    // Principal getPeerPrincipal();
 
     /**
      * Returns the principal that was sent to the peer during handshaking.
@@ -288,7 +288,7 @@ interface SSLSession {
      *
      * @since 1.5
      */
-    Principal getLocalPrincipal();
+    // Principal getLocalPrincipal();
 
     /**
      * Returns the name of the SSL cipher suite which is used for all

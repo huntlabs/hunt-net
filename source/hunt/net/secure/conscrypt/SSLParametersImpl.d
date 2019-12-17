@@ -17,9 +17,9 @@ import hunt.net.ssl.X509KeyManager;
 import hunt.net.ssl.X509TrustManager;
 import hunt.net.KeyCertOptions;
 
-import hunt.security.Key;
-import hunt.security.cert.X509Certificate;
-import hunt.security.x500.X500Principal;
+// import hunt.security.Key;
+// import hunt.security.cert.X509Certificate;
+// import hunt.security.x500.X500Principal;
 
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
@@ -37,10 +37,11 @@ import hunt.util.ObjectUtils;
 final class SSLParametersImpl : Cloneable {
 
     // // default source of X.509 certificate based authentication keys
-    private static X509KeyManager defaultX509KeyManager;
+    // private static X509KeyManager defaultX509KeyManager;
     // default source of X.509 certificate based authentication trust decisions
-    private static X509TrustManager defaultX509TrustManager;
-    // // default SSL parameters
+    // private static X509TrustManager defaultX509TrustManager;
+
+    // default SSL parameters
     private static SSLParametersImpl defaultParameters;
 
     // client session context contains the set of reusable
@@ -150,25 +151,26 @@ final class SSLParametersImpl : Cloneable {
 //         // directly accesses /dev/urandom, which makes it irrelevant.
 //     }
 
-    static SSLParametersImpl getDefault()  {
+    // static SSLParametersImpl getDefault()  {
 
-        SSLParametersImpl result = defaultParameters;
-        if (result is null) {
-            warning("xxxxxxxxxxxxxxxxxxxx");
-            defaultParameters = result = new SSLParametersImpl(null,
-                                                               new ClientSessionContext(),
-                                                               new ServerSessionContext(),
-                                                               cast(string[])null);
-            // single-check idiom
-            // defaultParameters = result = new SSLParametersImpl(cast(KeyManager[])null,
-            //                                                    cast(TrustManager[])null,
-            //                                                 //    null,
-            //                                                    new ClientSessionContext(),
-            //                                                    new ServerSessionContext(),
-            //                                                    cast(string[])null);
-        }
-        return result.clone();
-    }
+    //         warning("yyyyyy");
+    //     SSLParametersImpl result = defaultParameters;
+    //     if (result is null) {
+    //         warning("xxxxxxxxxxxxxxxxxxxx");
+    //         defaultParameters = result = new SSLParametersImpl(null,
+    //                                                            new ClientSessionContext(),
+    //                                                            new ServerSessionContext(),
+    //                                                            cast(string[])null);
+    //         // single-check idiom
+    //         // defaultParameters = result = new SSLParametersImpl(cast(KeyManager[])null,
+    //         //                                                    cast(TrustManager[])null,
+    //         //                                                 //    null,
+    //         //                                                    new ClientSessionContext(),
+    //         //                                                    new ServerSessionContext(),
+    //         //                                                    cast(string[])null);
+    //     }
+    //     return result.clone();
+    // }
 
     KeyCertOptions getKeyCertOptions() {
         return _keyCertOptions;
@@ -426,53 +428,53 @@ final class SSLParametersImpl : Cloneable {
     });
 
 
-    private static X509KeyManager getDefaultX509KeyManager()  {
-        X509KeyManager result = defaultX509KeyManager;
-        if (result is null) {
-            // single-check idiom
-            defaultX509KeyManager = result = createDefaultX509KeyManager();
-        }
-        return result;
-    }
+    // private static X509KeyManager getDefaultX509KeyManager()  {
+    //     X509KeyManager result = defaultX509KeyManager;
+    //     if (result is null) {
+    //         // single-check idiom
+    //         defaultX509KeyManager = result = createDefaultX509KeyManager();
+    //     }
+    //     return result;
+    // }
 
-    private static X509KeyManager createDefaultX509KeyManager()  {
-        try {
-            // string algorithm = KeyManagerFactory.getDefaultAlgorithm();
-            // KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-            // kmf.init(null, null);
-            // KeyManager[] kms = kmf.getKeyManagers();
-            // X509KeyManager result = findFirstX509KeyManager(kms);
-            // if (result is null) {
-            //     throw new KeyManagementException("No X509KeyManager among default KeyManagers: "
-            //             ~ kms.to!string());
-            // }
-            // return result;
-            implementationMissing(false);
-            return null;
-        } catch (NoSuchAlgorithmException e) {
-            throw new KeyManagementException(e);
-        } catch (KeyStoreException e) {
-            throw new KeyManagementException(e);
-        } catch (UnrecoverableKeyException e) {
-            throw new KeyManagementException(e);
-        }
-    }
+    // private static X509KeyManager createDefaultX509KeyManager()  {
+    //     try {
+    //         // string algorithm = KeyManagerFactory.getDefaultAlgorithm();
+    //         // KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+    //         // kmf.init(null, null);
+    //         // KeyManager[] kms = kmf.getKeyManagers();
+    //         // X509KeyManager result = findFirstX509KeyManager(kms);
+    //         // if (result is null) {
+    //         //     throw new KeyManagementException("No X509KeyManager among default KeyManagers: "
+    //         //             ~ kms.to!string());
+    //         // }
+    //         // return result;
+    //         implementationMissing(false);
+    //         return null;
+    //     } catch (NoSuchAlgorithmException e) {
+    //         throw new KeyManagementException(e);
+    //     } catch (KeyStoreException e) {
+    //         throw new KeyManagementException(e);
+    //     } catch (UnrecoverableKeyException e) {
+    //         throw new KeyManagementException(e);
+    //     }
+    // }
 
     /**
      * Finds the first {@link X509KeyManager} element in the provided array.
      *
      * @return the first {@code X509KeyManager} or {@code null} if not found.
      */
-    private static X509KeyManager findFirstX509KeyManager(KeyManager[] kms) {
-        foreach (KeyManager km ; kms) {
-            X509KeyManager m = cast(X509KeyManager)km;
-            if (m !is null) {
-                return m;
-            }
-        }
-        warning("X509KeyManager is null");
-        return null;
-    }
+    // private static X509KeyManager findFirstX509KeyManager(KeyManager[] kms) {
+    //     foreach (KeyManager km ; kms) {
+    //         X509KeyManager m = cast(X509KeyManager)km;
+    //         if (m !is null) {
+    //             return m;
+    //         }
+    //     }
+    //     warning("X509KeyManager is null");
+    //     return null;
+    // }
 
     // /**
     //  * Finds the first {@link PSKKeyManager} element in the provided array.
@@ -496,15 +498,15 @@ final class SSLParametersImpl : Cloneable {
     /**
      * Gets the default X.509 trust manager.
      */
-    static X509TrustManager getDefaultX509TrustManager()
-             {
-        X509TrustManager result = defaultX509TrustManager;
-        if (result is null) {
-            // single-check idiom
-            // defaultX509TrustManager = result = createDefaultX509TrustManager();
-        }
-        return result;
-    }
+    // static X509TrustManager getDefaultX509TrustManager()
+    //          {
+    //     X509TrustManager result = defaultX509TrustManager;
+    //     if (result is null) {
+    //         // single-check idiom
+    //         // defaultX509TrustManager = result = createDefaultX509TrustManager();
+    //     }
+    //     return result;
+    // }
 
     // private static X509TrustManager createDefaultX509TrustManager()
     //          {
@@ -533,15 +535,15 @@ final class SSLParametersImpl : Cloneable {
      * @return the first {@code X509ExtendedTrustManager} or
      *         {@code X509TrustManager} or {@code null} if not found.
      */
-    private static X509TrustManager findFirstX509TrustManager(TrustManager[] tms) {
-        foreach (TrustManager tm ; tms) {
-            X509TrustManager m = cast(X509TrustManager) tm; 
-            if (m !is null) {
-                return m;
-            }
-        }
-        return null;
-    }
+    // private static X509TrustManager findFirstX509TrustManager(TrustManager[] tms) {
+    //     foreach (TrustManager tm ; tms) {
+    //         X509TrustManager m = cast(X509TrustManager) tm; 
+    //         if (m !is null) {
+    //             return m;
+    //         }
+    //     }
+    //     return null;
+    // }
 
     // string getEndpointIdentificationAlgorithm() {
     //     return endpointIdentificationAlgorithm;
@@ -628,20 +630,20 @@ return false;
 * and
 * {@link X509ExtendedKeyManager#chooseEngineClientAlias(string[], java.security.Principal[], javax.net.ssl.SSLEngine)}
 */
-interface AliasChooser {
-    string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
-            string[] keyTypes);
+// interface AliasChooser {
+//     string chooseClientAlias(X509KeyManager keyManager, X500Principal[] issuers,
+//             string[] keyTypes);
 
-    string chooseServerAlias(X509KeyManager keyManager, string keyType);
-}
+//     string chooseServerAlias(X509KeyManager keyManager, string keyType);
+// }
 
 /**
-    * For abstracting the {@code PSKKeyManager} calls between those taking an {@code SSLSocket} and
-    * those taking an {@code SSLEngine}.
-    */
+* For abstracting the {@code PSKKeyManager} calls between those taking an {@code SSLSocket} and
+* those taking an {@code SSLEngine}.
+*/
 // @SuppressWarnings("deprecation") // PSKKeyManager is deprecated, but in our own package
-interface PSKCallbacks {
-    // string chooseServerPSKIdentityHint(PSKKeyManager keyManager);
-    // string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint);
-    // SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity);
-}
+// interface PSKCallbacks {
+//     // string chooseServerPSKIdentityHint(PSKKeyManager keyManager);
+//     // string chooseClientPSKIdentity(PSKKeyManager keyManager, string identityHint);
+//     // SecretKey getPSKKey(PSKKeyManager keyManager, string identityHint, string identity);
+// }
