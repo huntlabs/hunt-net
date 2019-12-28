@@ -145,7 +145,12 @@ abstract class AbstractConnection : Connection {
             version(HUNT_NET_DEBUG) {
                 trace("running decoder...");
             }
-            _decoder.decode(buffer, this);
+            try {
+                _decoder.decode(buffer, this);
+            } catch(Exception ex) {
+                warning(ex.msg);
+                version(HUNT_DEBUG) warning(ex);
+            }
         } else {
             if(_netHandler !is null) {
                 _netHandler.messageReceived(this, cast(Object)buffer);
@@ -194,13 +199,23 @@ abstract class AbstractConnection : Connection {
     }
 
     void write(ByteBuffer buffer) {
+        version(HUNT_NET_DEBUG) { 
+            tracef("writting buffer (%s bytes)...", buffer.toString()); 
+            auto data = buffer.getRemaining();
+            if(data.length<=64)
+                infof("%(%02X %)", data[0 .. $]);
+            else
+                infof("%(%02X %) ...", data[0 .. 64]);
+        } else version(HUNT_NET_DEBUG_MORE) {
+            tracef("writting buffer (%s bytes)...", buffer.toString()); 
+            auto data = buffer.getRemaining();
+            infof("%(%02X %)", data[0 .. $]);
+        }
+
         _tcp.write(buffer);
     }
 
     void write(ByteBuffer buffer, Callback callback) {
-        version (HUNT_IO_MORE)
-            tracef("writting buffer: %s", buffer.toString());
-
         // byte[] data = buffer.array;
         // int start = buffer.position();
         // int end = buffer.limit();
@@ -210,22 +225,6 @@ abstract class AbstractConnection : Connection {
         write(cast(ubyte[])buffer.getRemaining());
         callback.succeeded();
     }
-
-    // override
-    // void write(ByteBufferOutputEntry entry) {
-    //     ByteBuffer buffer = entry.getData();
-    //     Callback callback = entry.getCallback();
-    //     write(buffer, callback);
-    //     // version(HUNT_DEBUG)
-    //     // tracef("writting buffer: %s", buffer.toString());
-
-    //     // byte[] data = buffer.array;
-    //     // int start = buffer.position();
-    //     // int end = buffer.limit();
-
-    //     // super.write(cast(ubyte[])data[start .. end]);
-    //     // callback.succeeded();
-    // }
 
     void write(ByteBuffer[] buffers, Callback callback) {
         foreach (ByteBuffer buffer; buffers) {

@@ -82,7 +82,9 @@ abstract class AbstractSecureSession : SecureSession {
         } catch(Exception ex) {
             debug error(ex.msg);
             version(HUNT_NET_DEBUG) warning(ex);
-            return false;
+            
+            throw new SSLHandshakeException(ex.msg);
+            // return false;
         }
     }
     
