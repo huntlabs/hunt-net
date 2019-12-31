@@ -381,7 +381,7 @@ class NetClientOptions : ClientOptionsBase {
 
     override
     size_t toHash() @trusted nothrow {
-        size_t interval = cast(size_t)reconnectInterval.total!"msecs"();
+        ulong interval = cast(size_t)reconnectInterval.total!"msecs"();
         size_t result = super.toHash();
         result = 31 * result + reconnectAttempts;
         result = 31 * result + cast(size_t) (interval ^ (interval >>> 32));

@@ -820,9 +820,9 @@ class TcpSslOptions : NetworkOptions {
         result = 31 * result + (tcpKeepAlive ? 1 : 0);
         result = 31 * result + soLinger;
         result = 31 * result + (usePooledBuffers ? 1 : 0);
-        result = 31 * result + idleTimeout.total!"msecs";
-        result = 31 * result + keepaliveWaitTime.total!"msecs";
-        result = 31 * result + keepaliveInterval.total!"msecs";
+        result = 31 * result + cast(size_t)idleTimeout.total!"msecs";
+        result = 31 * result + cast(size_t)keepaliveWaitTime.total!"msecs";
+        result = 31 * result + cast(size_t)keepaliveInterval.total!"msecs";
         result = 31 * result + keepaliveProbes;
         // result = 31 * result + (idleTimeoutUnit !is null ? idleTimeoutUnit.toHash() : 0);
         result = 31 * result + (ssl ? 1 : 0);
@@ -836,7 +836,7 @@ class TcpSslOptions : NetworkOptions {
         // result = 31 * result + (enabledSecureTransportProtocols !is null ? enabledSecureTransportProtocols
         //         .toHash() : 0);
         result = 31 * result + retryTimes;
-        result = 31 * result + retryInterval.total!"msecs";
+        result = 31 * result + cast(size_t)retryInterval.total!"msecs";
         return result;
     }
 

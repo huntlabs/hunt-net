@@ -362,7 +362,7 @@ abstract class ClientOptionsBase : TcpSslOptions {
     override
     size_t toHash() @trusted nothrow {
         size_t result = super.toHash();
-        result = 31 * result + connectTimeout.total!("msecs")();
+        result = 31 * result + cast(size_t)connectTimeout.total!("msecs")();
         result = 31 * result + (trustAll ? 1 : 0);
         result = 31 * result + metricsName.hashOf();
         result = 31 * result + proxyOptions.hashOf();
