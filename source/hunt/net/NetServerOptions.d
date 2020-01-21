@@ -54,7 +54,7 @@ class NetServerOptions : TcpSslOptions {
      */
     enum bool DEFAULT_SNI = false;
 
-    private int port;
+    private ushort port;
     private string host;
     private int acceptBacklog;
     private ClientAuth clientAuth;
@@ -294,7 +294,7 @@ class NetServerOptions : TcpSslOptions {
      *
      * @return the port
      */
-    int getPort() {
+    ushort getPort() {
         return port;
     }
 
@@ -304,10 +304,7 @@ class NetServerOptions : TcpSslOptions {
      * @param port  the port
      * @return a reference to this, so the API can be used fluently
      */
-    NetServerOptions setPort(int port) {
-        if (port < 0 || port > 65535) {
-            throw new IllegalArgumentException("port p must be in range 0 <= p <= 65535");
-        }
+    NetServerOptions setPort(ushort port) {
         this.port = port;
         return this;
     }
