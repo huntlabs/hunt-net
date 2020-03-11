@@ -9,8 +9,7 @@ import std.format;
 
 void main() {
 
-    NetServerOptions options = new NetServerOptions();
-    NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
+    NetServer server = NetUtil.createNetServer();
 
     server.setCodec(new TextLineCodec);
 
