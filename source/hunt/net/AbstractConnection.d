@@ -147,7 +147,7 @@ abstract class AbstractConnection : Connection {
             }
             try {
                 _decoder.decode(buffer, this);
-            } catch(Exception ex) {
+            } catch(Throwable ex) {
                 warning(ex.msg);
                 version(HUNT_DEBUG) warning(ex);
             }

@@ -12,6 +12,7 @@ import hunt.io.TcpStream;
 import hunt.io.TcpStreamOptions;
 import hunt.logging;
 import hunt.util.Lifecycle;
+import hunt.Functions;
 
 import core.atomic;
 import core.thread;
@@ -21,7 +22,6 @@ import std.parallelism;
 ///
 class NetClientImpl : AbstractLifecycle, NetClient {
 
-    alias void delegate() CallBack;
     enum string DefaultLocalHost = "127.0.0.1";
     enum int DefaultLocalPort = 8080;
     
@@ -37,7 +37,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     // private TcpStream _tcpStream;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
-    private CallBack _onClosed = null;
+    private Action _onClosed = null;
     private shared bool _isConnected = false;
 
     this() {
@@ -108,7 +108,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         return this._codec;
     }
 
-    void setOnClosed(CallBack callback)
+    void setOnClosed(Action callback)
     {
         if (_onClosed is null)
         {

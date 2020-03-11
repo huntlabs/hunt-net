@@ -271,11 +271,11 @@ class TcpSslOptions : NetworkOptions {
      * @param idleTimeout  the timeout, in seconds
      * @return a reference to this, so the API can be used fluently
      */
-    TcpSslOptions setIdleTimeout(Duration idleTimeout) {
-        if (idleTimeout < Duration.zero) {
+    TcpSslOptions setIdleTimeout(Duration value) {
+        if (value < Duration.zero) {
             throw new IllegalArgumentException("idleTimeout must be >= 0");
         }
-        this.idleTimeout = idleTimeout;
+        this.idleTimeout = value;
         return this;
     }
 
@@ -286,11 +286,11 @@ class TcpSslOptions : NetworkOptions {
         return idleTimeout;
     }
 
-    TcpSslOptions setKeepaliveWaitTime(Duration timeout) {
-        if (timeout < Duration.zero) {
+    TcpSslOptions setKeepaliveWaitTime(Duration value) {
+        if (value < Duration.zero) {
             throw new IllegalArgumentException("keepaliveWaitTime must be >= 0");
         }
-        this.keepaliveWaitTime = timeout;
+        this.keepaliveWaitTime = value;
         return this;
     }
 
@@ -298,11 +298,11 @@ class TcpSslOptions : NetworkOptions {
         return keepaliveWaitTime;
     }
 
-    TcpSslOptions setKeepaliveInterval(Duration timeout) {
-        if (timeout < Duration.zero) {
+    TcpSslOptions setKeepaliveInterval(Duration value) {
+        if (value < Duration.zero) {
             throw new IllegalArgumentException("keepaliveInterval must be >= 0");
         }
-        this.keepaliveInterval = timeout;
+        this.keepaliveInterval = value;
         return this;
     }
 
