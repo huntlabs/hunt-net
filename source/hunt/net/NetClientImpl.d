@@ -19,7 +19,9 @@ import core.thread;
 import std.format;
 import std.parallelism;
 
-///
+/**
+ * 
+ */
 class NetClientImpl : AbstractLifecycle, NetClient {
 
     enum string DefaultLocalHost = "127.0.0.1";
@@ -73,19 +75,9 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         return _host;
     }
 
-    // NetClientImpl setHost(string host) {
-    //     this._host = host;
-    //     return this;
-    // }
-
     int getPort() {
         return _port;
     }
-
-    // NetClientImpl setPort(int port) {
-    //     this._port = port;
-    //     return this;
-    // }
 
     NetClientOptions getOptions() {
         return _options;
@@ -119,7 +111,6 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     NetConnectionHandler getHandler() {
         return this._eventHandler;
     }
-
 
     NetClientImpl setHandler(NetConnectionHandler handler) {
         this._eventHandler = handler;
@@ -192,14 +183,14 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             if (suc) {
 			    version (HUNT_DEBUG) trace("connected to: ", _tcpStream.remoteAddress.toString()); 
                 // _tcpConnection.setState(ConnectionState.Opened);
+                _isConnected = true;
                 if (_eventHandler !is null) {
                     _eventHandler.connectionOpened(_tcpConnection);
                 }
-                _isConnected = true;
             }
             else {
                 string msg = format("Failed to connect to %s:%d", _host, _port);
-                warning(msg); 
+                version(HUNT_DEBUG) warning(msg); 
                 _isConnected = false;
 
                 if(_tcpConnection !is null) {
