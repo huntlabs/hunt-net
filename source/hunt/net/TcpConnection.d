@@ -40,7 +40,10 @@ version(HUNT_METRIC) {
     this(int connectionId, TcpSslOptions options, NetConnectionHandler handler, Codec codec, TcpStream tcp) {
         super(connectionId, options, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTime.currentTimeMillis();
-        version(HUNT_DEBUG) trace("Initializing a TCP connection...");
+        version(HUNT_DEBUG) {
+            import core.thread;
+            tracef("Initializing a TCP connection...(Threads: %d)", Thread.getAll().length);
+        }
     }  
 
 version(HUNT_METRIC) {

@@ -104,6 +104,10 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
         _address = new InternetAddress(host, cast(ushort)port);
 
 		version(HUNT_DEBUG) infof("Start to listen on %s:%d", host, port);
+        version(HUNT_THREAD_DEBUG) {
+            import core.thread;
+            warningf("Threads: %d", Thread.getAll().length);
+        }
         _group.start();
 
         try {
@@ -197,14 +201,17 @@ static if(threadModel == ThreadMode.Multi){
     private void waitingForAccept() {
         while (_isStarted) {
 			try {
-				version (HUNT_DEBUG) {
-					tracef("Waiting for accept on %s:%d...", _host, _port);
+                version(HUNT_THREAD_DEBUG) {
+                    import core.thread;
+                    tracef("Waiting for accept on %s:%d...(Threads: %d)", _host, _port, Thread.getAll().length);
+                } else version (HUNT_DEBUG) {
+                    tracef("Waiting for accept on %s:%d...", _host, _port);
                 }
 				Socket client = tcpListener.accept();
-                // processClient(client);
+                processClient(client);
                 
-                auto processTask = task(&processClient, client);
-                taskPool.put(processTask);
+                // auto processTask = task(&processClient, client);
+                // taskPool.put(processTask);
 			} catch (Throwable e) {
 				warningf("Failure on accept %s", e.msg);
 				version(HUNT_DEBUG) warning(e);
@@ -231,7 +238,7 @@ static if(threadModel == ThreadMode.Multi){
 		TcpStream stream = new TcpStream(loop, socket, streamOptions);
 
         auto currentId = atomicOp!("+=")(_connectionId, 1);
-        version(HUNT_DEBUG) tracef("new tcp connection: id=%d", currentId);
+        version(HUNT_DEBUG) tracef("New tcp connection: id=%d", currentId);
         Connection connection = new TcpConnection(currentId, _options, _connectHandler, _codec, stream);
         // connection.setState(ConnectionState.Opened);
         if (_connectHandler !is null) {
