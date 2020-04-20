@@ -14,6 +14,7 @@ import hunt.collection.ByteBuffer;
 
 import core.time;
 import core.thread;
+import hunt.net.codec.textline.TextLineCodec;
 
 void main() {
     import std.stdio;
@@ -22,35 +23,40 @@ void main() {
     alias logDebug = writeln;
 
     auto server = NetUtil.createNetServer!(ThreadMode.Single)();
-    server.connectionHandler((Connection sock) {
-        logInfo("accepted a connection...");
-        sock.handler((ByteBuffer buffer) {
+    server.setCodec(new TextLineCodec);
+    server.setHandler(new class NetConnectionHandler {
+        override void connectionOpened(Connection connection) {
+            logInfo("accepted a connection...");
+        }
+        override void messageReceived(Connection connection, Object message){
             logInfo("received from client");
-            sock.write(buffer);
-        });
-    }).listen("0.0.0.0", 8080, (Result!Server result) {
-        if (result.failed())
-            throw result.cause();
-    });
+            connection.write(message);
+        }
+        override void connectionClosed(Connection connection){
+            logInfo("connection closed");
+        }
+        override void exceptionCaught(Connection connection, Throwable t)
+        {
+        }
+
+    }).listen("0.0.0.0", 8080);
 
     auto client = NetUtil.createNetClient();
-    client.connect(8080, "127.0.0.1", 0, (Result!Connection result) {
-        if (result.failed()) {
-            logDebug(result.cause().toString());
-            return;
+    client.setCodec(new TextLineCodec);
+    client.setHandler(new class NetConnectionHandler{
+        override void connectionOpened(Connection connection) {
+            connection.write("hello world\n");
         }
-        auto sock = result.result();
-        logDebug("client have connected to server...");
-        logDebug("client send data to server");
-        sock.write("hello world");
-        
-        sock.handler((ByteBuffer buffer) {
-            Thread.sleep(2.seconds);
-            logDebug("client send data to server");
-            sock.write(buffer);
+        override void connectionClosed(Connection connection) {
+        }
+        override void messageReceived(Connection connection, Object message) {
+            logInfo("received from server");
+        }
+        override void exceptionCaught(Connection connection, Throwable t)
+        {
 
-        });
-    });
+        }
+    }).connect("127.0.0.1", 8080);
+
     getchar();
-
 }
