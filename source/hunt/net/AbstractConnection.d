@@ -42,12 +42,12 @@ abstract class AbstractConnection : Connection {
         this._connectionId = connectionId;
         this._connectionState = ConnectionState.Ready;
 
-        _tcp.onClosed(&notifyClose);
-        _tcp.onReceived(&onDataReceived);
+        _tcp.closed(&notifyClose);
+        _tcp.received(&onDataReceived);
     }
 
     ///
-    this(int connectionId, TcpSslOptions options, TcpStream tcp, 
+    this(int connectionId, TcpSslOptions options, TcpStream tcp,
             Codec codec, NetConnectionHandler eventHandler) {
         assert(eventHandler !is null);
 
@@ -76,7 +76,7 @@ abstract class AbstractConnection : Connection {
     }
 
     /**
-     * 
+     *
      */
     void setState(ConnectionState state) {
         if(state == ConnectionState.Secured) {
@@ -97,7 +97,7 @@ abstract class AbstractConnection : Connection {
 
     Codec getCodec() {
         return this._codec;
-    }    
+    }
 
     ///
     AbstractConnection setHandler(NetConnectionHandler handler) {
@@ -115,7 +115,7 @@ abstract class AbstractConnection : Connection {
 
     bool isActive() {
         // FIXME: Needing refactor or cleanup -@zxp at 8/1/2019, 6:04:44 PM
-        // 
+        //
         return _tcp.isConnected();
     }
 
@@ -128,9 +128,9 @@ abstract class AbstractConnection : Connection {
     }
 
     protected void onDataReceived(ByteBuffer buffer) {
-        version(HUNT_NET_DEBUG) { 
+        version(HUNT_NET_DEBUG) {
             auto data = cast(ubyte[]) buffer.getRemaining();
-            tracef("data received (%d bytes): ", data.length); 
+            tracef("data received (%d bytes): ", data.length);
             version(HUNT_NET_DEBUG_MORE) {
                 infof("%(%02X %)", data[0 .. $]);
             } else version(HUNT_NET_DEBUG) {
@@ -139,7 +139,7 @@ abstract class AbstractConnection : Connection {
                 else
                     infof("%(%02X %) ...", data[0 .. 64]);
             }
-        }      
+        }
 
         if(_decoder !is null) {
             version(HUNT_NET_DEBUG) {
@@ -166,12 +166,12 @@ abstract class AbstractConnection : Connection {
         setState(ConnectionState.Closing);
         _tcp.close();
     }
-    
+
     ///
     @property Address localAddress() {
         return _tcp.localAddress;
     }
-    
+
     ////
     @property Address remoteAddress() {
         return _tcp.remoteAddress;
@@ -179,14 +179,14 @@ abstract class AbstractConnection : Connection {
 
     ////
     void write(const(ubyte)[] data) {
-        version(HUNT_NET_DEBUG) { 
-            tracef("writting data (%d bytes)...", data.length); 
+        version(HUNT_NET_DEBUG) {
+            tracef("writting data (%d bytes)...", data.length);
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
             else
                 infof("%(%02X %) ...", data[0 .. 64]);
         } else version(HUNT_NET_DEBUG_MORE) {
-            tracef("writting data (%d bytes)...", data.length); 
+            tracef("writting data (%d bytes)...", data.length);
             infof("%(%02X %)", data[0 .. $]);
         }
 
@@ -199,15 +199,15 @@ abstract class AbstractConnection : Connection {
     }
 
     void write(ByteBuffer buffer) {
-        version(HUNT_NET_DEBUG) { 
-            tracef("writting buffer (%s bytes)...", buffer.toString()); 
+        version(HUNT_NET_DEBUG) {
+            tracef("writting buffer (%s bytes)...", buffer.toString());
             auto data = buffer.getRemaining();
             if(data.length<=64)
                 infof("%(%02X %)", data[0 .. $]);
             else
                 infof("%(%02X %) ...", data[0 .. 64]);
         } else version(HUNT_NET_DEBUG_MORE) {
-            tracef("writting buffer (%s bytes)...", buffer.toString()); 
+            tracef("writting buffer (%s bytes)...", buffer.toString());
             auto data = buffer.getRemaining();
             infof("%(%02X %)", data[0 .. $]);
         }

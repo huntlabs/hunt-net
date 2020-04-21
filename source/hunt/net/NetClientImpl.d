@@ -10,6 +10,7 @@ import hunt.event.EventLoop;
 import hunt.Exceptions;
 import hunt.io.TcpStream;
 import hunt.io.TcpStreamOptions;
+import hunt.io.IoError;
 import hunt.logging;
 import hunt.util.Lifecycle;
 import hunt.Functions;
@@ -19,14 +20,15 @@ import core.thread;
 import std.format;
 import std.parallelism;
 
+
 /**
- * 
+ *
  */
 class NetClientImpl : AbstractLifecycle, NetClient {
 
     enum string DefaultLocalHost = "127.0.0.1";
     enum int DefaultLocalPort = 8080;
-    
+
     private string _host = DefaultLocalHost;
     private int _port = DefaultLocalPort;
     private string _serverName;
@@ -149,10 +151,10 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private void initializeClient(){
         TcpStreamOptions options = _options.toStreamOptions();
         TcpStream _tcpStream = new TcpStream(_loop, options);
-        _tcpConnection = new TcpConnection(_currentId, _options, 
+        _tcpConnection = new TcpConnection(_currentId, _options,
                 _eventHandler, _codec, _tcpStream);
 
-        _tcpStream.onClosed(() {
+        _tcpStream.closed(() {
             version(HUNT_NET_DEBUG) {
                 infof("connection %d closed", _tcpConnection.getId());
             }
@@ -173,15 +175,15 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         });
 
-        _tcpStream.onError((string message) {
+        _tcpStream.error((IoError error) {
             _tcpConnection.setState(ConnectionState.Error);
             if (_eventHandler !is null)
-                _eventHandler.exceptionCaught(_tcpConnection, new Exception(message));
+                _eventHandler.exceptionCaught(_tcpConnection, new Exception(error.errorMsg()));
         });
 
-        _tcpStream.onConnected((bool suc) {
+        _tcpStream.connected((bool suc) {
             if (suc) {
-			    version (HUNT_DEBUG) trace("connected to: ", _tcpStream.remoteAddress.toString()); 
+			    version (HUNT_DEBUG) trace("connected to: ", _tcpStream.remoteAddress.toString());
                 // _tcpConnection.setState(ConnectionState.Opened);
                 _isConnected = true;
                 if (_eventHandler !is null) {
@@ -190,13 +192,13 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             }
             else {
                 string msg = format("Failed to connect to %s:%d", _host, _port);
-                version(HUNT_DEBUG) warning(msg); 
+                version(HUNT_DEBUG) warning(msg);
                 _isConnected = false;
 
                 if(_tcpConnection !is null) {
                     _tcpConnection.setState(ConnectionState.Error);
                 }
-                
+
                 if(_eventHandler !is null)
                     _eventHandler.failedOpeningConnection(_currentId, new IOException(msg));
             }
@@ -222,18 +224,18 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     override protected void destroy() {
         if (_tcpConnection !is null) {
             version(HUNT_NET_DEBUG) {
-                tracef("connection state: %s, isConnected: %s, isClosing: %s", 
-                    _tcpConnection.getState(),  
+                tracef("connection state: %s, isConnected: %s, isClosing: %s",
+                    _tcpConnection.getState(),
                     _tcpConnection.isConnected(), _tcpConnection.isClosing());
             }
-            
+
             if(!_tcpConnection.isClosing()) {
                 _tcpConnection.close();
             }
 
             if (_eventHandler !is null) {
                 version(HUNT_NET_DEBUG) {
-                    infof("Notifying connection %d with %s closed.", 
+                    infof("Notifying connection %d with %s closed.",
                     _tcpConnection.getId(), _tcpConnection.remoteAddress());
                 }
                 _eventHandler.connectionClosed(_tcpConnection);
