@@ -189,7 +189,7 @@ abstract class AbstractConnection : Connection {
             tracef("writting data (%d bytes)...", data.length);
             infof("%(%02X %)", data[0 .. $]);
         }
-
+        if (_tcp !is null && _tcp.isConnected)
         _tcp.write(data);
     }
 
@@ -211,7 +211,7 @@ abstract class AbstractConnection : Connection {
             auto data = buffer.getRemaining();
             infof("%(%02X %)", data[0 .. $]);
         }
-
+        if (_tcp !is null && _tcp.isConnected)
         _tcp.write(buffer);
     }
 

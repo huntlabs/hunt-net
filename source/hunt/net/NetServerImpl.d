@@ -158,6 +158,7 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
             auto theTask = task(&waitingForAccept);
             // taskPool.put(theTask);
             theTask.executeInNewThread();
+           // waitingForAccept();
         }
     }
 
@@ -212,7 +213,7 @@ static if(threadModel == ThreadMode.Multi){
                 
                 // auto processTask = task(&processClient, client);
                 // taskPool.put(processTask);
-			} catch (Throwable e) {
+			} catch (SocketAcceptException e) {
 				warningf("Failure on accept %s", e.msg);
 				version(HUNT_DEBUG) warning(e);
 				_isStarted = false;
