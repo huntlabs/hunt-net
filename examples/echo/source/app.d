@@ -15,7 +15,8 @@ import hunt.collection.ByteBuffer;
 import core.time;
 import core.thread;
 import hunt.net.codec.textline.TextLineCodec;
-
+import hunt.String;
+import hunt.logging.ConsoleLogger;
 void main() {
     import std.stdio;
 
@@ -26,14 +27,15 @@ void main() {
     server.setCodec(new TextLineCodec);
     server.setHandler(new class NetConnectionHandler {
         override void connectionOpened(Connection connection) {
-            logInfo("accepted a connection...");
+            warning("accepted a connection...");
         }
         override void messageReceived(Connection connection, Object message){
-            logInfo("received from client");
-            connection.write(message);
+           // logInfo("received from client %s",(cast(String)message).value);
+            warning("received from client %s",(cast(String)message).value);
+            connection.write("hello\n");
         }
         override void connectionClosed(Connection connection){
-            logInfo("connection closed");
+            warning("connection closed");
         }
         override void exceptionCaught(Connection connection, Throwable t)
         {
@@ -50,7 +52,7 @@ void main() {
         override void connectionClosed(Connection connection) {
         }
         override void messageReceived(Connection connection, Object message) {
-            logInfo("received from server");
+            warning("received from server");
         }
         override void exceptionCaught(Connection connection, Throwable t)
         {
