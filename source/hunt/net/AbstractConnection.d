@@ -128,6 +128,14 @@ abstract class AbstractConnection : Connection {
     }
 
     protected void onDataReceived(ByteBuffer buffer) {
+        synchronized (this) {
+            import hunt.collection.BufferUtils;
+            // Make usre data and thread safe
+            handleReceivedData(BufferUtils.clone(buffer));
+        }
+    }
+
+    private void handleReceivedData(ByteBuffer buffer) {
         version(HUNT_NET_DEBUG) {
             auto data = cast(ubyte[]) buffer.getRemaining();
             tracef("data received (%d bytes): ", data.length);
@@ -139,12 +147,17 @@ abstract class AbstractConnection : Connection {
                 else
                     infof("%(%02X %) ...", data[0 .. 64]);
             }
+        } else version(HUNT_DEBUG) {
+            // auto data = cast(string) buffer.getRemaining();
+            // tracef("data received (%d bytes): ", data.length);
+            // infof("%(%02X %)", data[0 .. $]);
         }
 
         if(_decoder !is null) {
             version(HUNT_NET_DEBUG) {
                 trace("running decoder...");
             }
+            
             try {
                 _decoder.decode(buffer, this);
             } catch(Throwable ex) {
@@ -199,6 +212,7 @@ abstract class AbstractConnection : Connection {
     }
 
     void write(ByteBuffer buffer) {
+
         version(HUNT_NET_DEBUG) {
             tracef("writting buffer (%s bytes)...", buffer.toString());
             auto data = buffer.getRemaining();
@@ -210,6 +224,8 @@ abstract class AbstractConnection : Connection {
             tracef("writting buffer (%s bytes)...", buffer.toString());
             auto data = buffer.getRemaining();
             infof("%(%02X %)", data[0 .. $]);
+        } else version(HUNT_DEBUG) {
+            // tracef("writting buffer (%s bytes)...", buffer.toString());
         }
         //if (_tcp !is null && _tcp.isConnected)
         _tcp.write(buffer);

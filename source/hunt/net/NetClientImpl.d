@@ -158,7 +158,11 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             version(HUNT_NET_DEBUG) {
                 infof("connection %d closed", _tcpConnection.getId());
             }
-            _tcpConnection.setState(ConnectionState.Closed);
+            if(_tcpConnection is null) {
+                warning("_tcpConnection is null");
+            } else {
+                _tcpConnection.setState(ConnectionState.Closed);
+            }
 
             this.close();
             if (_onClosed !is null) {

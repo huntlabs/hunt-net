@@ -141,7 +141,7 @@ version(HUNT_METRIC) {
             // version(HUNT_DEBUG) 
             tracef("The connection %d closed: %s", _connectionId, this.toString());
         } else {
-            version(HUNT_DEBUG) tracef("The connection %d closed", _connectionId);
+            version(HUNT_DEBUG) tracef("The connection %d closed: %s", _connectionId, toString());
         }
         super.notifyClose();
     }
