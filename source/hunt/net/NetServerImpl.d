@@ -33,36 +33,45 @@ shared static ~this() @nogc {
 
 
 /**
-*/
+ * 
+ */
 class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecycle, NetServer {
     private string _host = NetServerOptions.DEFAULT_HOST;
     private int _port = NetServerOptions.DEFAULT_PORT;
     protected bool _isStarted;
     private shared int _connectionId;
+    protected EventLoopGroup _group = null;
     private NetServerOptions _options;
     private Codec _codec;
     private NetConnectionHandler _connectHandler;
-    protected EventLoopGroup _group = null;
 
 	protected Address _address;
 
-    this(EventLoopGroup loopGroup) {
-        this(loopGroup, new NetServerOptions());
+    this() {
+        this(new NetServerOptions());
+    }
+
+    this(NetServerOptions options) {
+        this(new EventLoopGroup(options.ioThreadSize(), options.workerThreadSize()), new NetServerOptions());
     }
 
     this(EventLoopGroup loopGroup, NetServerOptions options) {
-        this._group = loopGroup;
+        _group = loopGroup;
         _options = options;
+    }
+
+    EventLoopGroup eventLoopGroup() {
+        return _group;
     }
 
     NetServerOptions getOptions() {
         return _options;
     }
     
-    NetServer setOptions(NetServerOptions options) {
-        _options = options;
-        return this;
-    }
+    // NetServer setOptions(NetServerOptions options) {
+    //     _options = options;
+    //     return this;
+    // }
 
     NetServer setCodec(Codec codec) {
         this._codec = codec;
@@ -194,6 +203,9 @@ static if(threadModel == ThreadMode.Multi){
                     ls.close();
             }
         }
+        
+        version(HUNT_DEBUG) warning("stopping the EventLoopGroup...");
+        _group.stop();
     }
 
 } else {

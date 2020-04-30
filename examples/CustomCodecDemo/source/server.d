@@ -1,18 +1,24 @@
 module server;
 
 import hunt.net;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 
 import hunt.net.codec.textline;
 
 import std.format;
 
+enum Host = "0.0.0.0";
+enum Port = 8080;
+
 void main() {
 
-    NetServer server = NetUtil.createNetServer();
+    NetServerOptions options = new NetServerOptions();
+    // options.workerThreadSize = 8;
+
+    NetServer server = NetUtil.createNetServer(options);
 
     server.setCodec(new TextLineCodec);
-
+    // dfmt off
     server.setHandler(new class NetConnectionHandler {
 
         override void connectionOpened(Connection connection) {
@@ -41,5 +47,7 @@ void main() {
         override void failedAcceptingConnection(int connectionId, Throwable t) {
             warning(t);
         }
-    }).listen("0.0.0.0", 8080);
+    }).listen(Host, Port);
+
+    // dmft on
 }

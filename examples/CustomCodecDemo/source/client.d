@@ -2,20 +2,24 @@ module client;
 
 import hunt.net;
 import hunt.net.codec.textline;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 import hunt.String;
 
 import std.format;
+import std.stdio;
+
+
+enum Host = "127.0.0.1";
+enum Port = 8080;
+
 
 void main() {
-    import std.stdio;
-
     int count = 0;
-
     NetClient client = NetUtil.createNetClient();
 
     client.setCodec(new TextLineCodec);
 
+    // dfmt off
     client.setHandler(new class NetConnectionHandler {
 
         override void connectionOpened(Connection connection) {
@@ -37,6 +41,8 @@ void main() {
             tracef(str);
             if(count< 10) {
                 connection.encode(new String(str));
+            } else if(count == 10) {
+                connection.encode(new String("No data will be sent from now."));
             }
             count++;
         }
@@ -53,5 +59,7 @@ void main() {
         override void failedAcceptingConnection(int connectionId, Throwable t) {
             warning(t);
         }
-    }).connect("127.0.0.1", 8080);
+    }).connect(Host, Port);
+
+    // dfmt on
 }

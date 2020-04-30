@@ -17,6 +17,7 @@ import hunt.net.TcpSslOptions;
 
 import hunt.Exceptions;
 import hunt.io.TcpStreamOptions;
+import hunt.system.Memory;
 
 import core.time;
 
@@ -59,6 +60,8 @@ class NetServerOptions : TcpSslOptions {
     private int acceptBacklog;
     private ClientAuth clientAuth;
     private bool sni;
+    private size_t _workerThreadSize = 0;
+    private size_t _ioThreadSize = 2;
 
     /**
      * Default constructor
@@ -80,6 +83,26 @@ class NetServerOptions : TcpSslOptions {
         this.acceptBacklog = other.getAcceptBacklog();
         this.clientAuth = other.getClientAuth();
         this.sni = other.isSni();
+        _workerThreadSize = other._workerThreadSize;
+        _ioThreadSize = other._ioThreadSize;
+    }
+
+    size_t ioThreadSize() {
+        return _ioThreadSize;
+    }
+
+    NetServerOptions ioThreadSize(size_t value) {
+        _ioThreadSize = value;
+        return this;
+    }
+
+    size_t workerThreadSize() {
+        return _workerThreadSize;
+    }
+
+    NetServerOptions workerThreadSize(size_t value) {
+        _workerThreadSize = value;
+        return this;
     }
 
     override
@@ -402,5 +425,6 @@ class NetServerOptions : TcpSslOptions {
         this.acceptBacklog = DEFAULT_ACCEPT_BACKLOG;
         this.clientAuth = DEFAULT_CLIENT_AUTH;
         this.sni = DEFAULT_SNI;
+        _ioThreadSize = totalCPUs - 1;
     } 
 }

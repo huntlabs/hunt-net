@@ -7,18 +7,18 @@ import hunt.net.NetClientOptions;
 import hunt.net.NetServerImpl;
 import hunt.net.NetServerOptions;
 
-import hunt.event;
+// import hunt.event;
 
 /**
  * 
  */
 class NetUtil {
     static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)() {
-        return new NetServerImpl!(threadModel)(_loopGroup);
+        return new NetServerImpl!(threadModel)();
     }
 
     static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)(NetServerOptions options) {
-        return new NetServerImpl!(threadModel)(_loopGroup, options);
+        return new NetServerImpl!(threadModel)(options);
     }
 
     static NetClient createNetClient() {
@@ -28,28 +28,4 @@ class NetUtil {
     static NetClient createNetClient(NetClientOptions options) {
         return new NetClientImpl(options);
     }
-
-    static void startEventLoop(long timeout = -1) {
-        _loopGroup.start(timeout);
-    }
-
-    static void stopEventLoop() {
-        _loopGroup.stop();
-    }
-
-    static EventLoopGroup defaultEventLoopGroup() {
-        return _loopGroup;
-    }
-
-    static void eventLoopGroup(EventLoopGroup g) {
-        this._loopGroup = g;
-    }    
-
-    shared static this() {
-        _loopGroup = new EventLoopGroup();
-        // _loopGroup.start();  // 
-    }
-
-private:
-    __gshared EventLoopGroup _loopGroup = null;
 }

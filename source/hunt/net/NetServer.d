@@ -3,11 +3,10 @@ module hunt.net.NetServer;
 import hunt.net.Connection;
 import hunt.net.codec;
 import hunt.net.NetServerOptions;
+import hunt.event.EventLoopGroup;
 import hunt.util.Lifecycle;
+
 import std.socket;
-
-
-// alias ListenHandler = NetEventHandler!(AsyncResult!NetServer);
 
 
 /**
@@ -17,9 +16,11 @@ import std.socket;
  */
 interface NetServer {
 
+    EventLoopGroup eventLoopGroup();
+
     NetServerOptions getOptions();
 
-    NetServer setOptions(NetServerOptions options);
+    // NetServer setOptions(NetServerOptions options);
 
     Codec getCodec();
 
