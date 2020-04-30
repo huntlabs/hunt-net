@@ -57,6 +57,6 @@ void main()
 ```
 
 ## TODO
-- [ ] Improve support for SSL
-- [ ] Improve APIs
+- [ ] Improvements for SSL
+- [ ] Improvements for API
 

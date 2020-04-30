@@ -2,7 +2,7 @@
 	"name": "codec-demo",
 	"targetType":"executable",
     "description": "Custom codec demo for hunt-net.",
-    "copyright": "Copyright (C) 2018-2019, HuntLabs",
+    "copyright": "Copyright (C) 2018-2020, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "versions": ["HUNT_DEBUG", "HUNT_IO_DEBUG", "HUNT_NET_DEBUG"],

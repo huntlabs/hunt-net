@@ -105,50 +105,42 @@ class NetServerOptions : TcpSslOptions {
         return this;
     }
 
-    override
-    NetServerOptions setSendBufferSize(int sendBufferSize) {
+    override NetServerOptions setSendBufferSize(int sendBufferSize) {
         super.setSendBufferSize(sendBufferSize);
         return this;
     }
 
-    override
-    NetServerOptions setReceiveBufferSize(int receiveBufferSize) {
+    override NetServerOptions setReceiveBufferSize(int receiveBufferSize) {
         super.setReceiveBufferSize(receiveBufferSize);
         return this;
     }
 
-    override
-    NetServerOptions setReuseAddress(bool reuseAddress) {
+    override NetServerOptions setReuseAddress(bool reuseAddress) {
         super.setReuseAddress(reuseAddress);
         return this;
     }
 
-    override
-    NetServerOptions setReusePort(bool reusePort) {
+    override NetServerOptions setReusePort(bool reusePort) {
         super.setReusePort(reusePort);
         return this;
     }
 
-    override
-    NetServerOptions setTrafficClass(int trafficClass) {
+    override NetServerOptions setTrafficClass(int trafficClass) {
         super.setTrafficClass(trafficClass);
         return this;
     }
 
-    override
-    NetServerOptions setTcpNoDelay(bool tcpNoDelay) {
+    override NetServerOptions setTcpNoDelay(bool tcpNoDelay) {
         super.setTcpNoDelay(tcpNoDelay);
         return this;
     }
 
-    override
-    NetServerOptions setTcpKeepAlive(bool tcpKeepAlive) {
+    override NetServerOptions setTcpKeepAlive(bool tcpKeepAlive) {
         super.setTcpKeepAlive(tcpKeepAlive);
         return this;
     }
 
-    override
-    NetServerOptions setSoLinger(int soLinger) {
+    override NetServerOptions setSoLinger(int soLinger) {
         super.setSoLinger(soLinger);
         return this;
     }
@@ -159,21 +151,17 @@ class NetServerOptions : TcpSslOptions {
     //     return this;
     // }
 
-    override
-    NetServerOptions setIdleTimeout(Duration idleTimeout) {
+    override NetServerOptions setIdleTimeout(Duration idleTimeout) {
         super.setIdleTimeout(idleTimeout);
         return this;
     }
 
-
-    override
-    NetServerOptions setSsl(bool ssl) {
+    override NetServerOptions setSsl(bool ssl) {
         super.setSsl(ssl);
         return this;
     }
 
-    override
-    NetServerOptions setUseAlpn(bool useAlpn) {
+    override NetServerOptions setUseAlpn(bool useAlpn) {
         super.setUseAlpn(useAlpn);
         return this;
     }
@@ -189,8 +177,7 @@ class NetServerOptions : TcpSslOptions {
     //     return cast(NetServerOptions) super.setSslEngineOptions(sslEngineOptions);
     // }
 
-    override
-    NetServerOptions setOpenSslEngineOptions(OpenSSLEngineOptions sslEngineOptions) {
+    override NetServerOptions setOpenSslEngineOptions(OpenSSLEngineOptions sslEngineOptions) {
         return cast(NetServerOptions) super.setOpenSslEngineOptions(sslEngineOptions);
     }
 
@@ -255,18 +242,15 @@ class NetServerOptions : TcpSslOptions {
     //     return cast(NetServerOptions) super.removeEnabledSecureTransportProtocol(protocol);
     // }
 
-    override
-    NetServerOptions setTcpFastOpen(bool tcpFastOpen) {
+    override NetServerOptions setTcpFastOpen(bool tcpFastOpen) {
         return cast(NetServerOptions) super.setTcpFastOpen(tcpFastOpen);
     }
 
-    override
-    NetServerOptions setTcpCork(bool tcpCork) {
+    override NetServerOptions setTcpCork(bool tcpCork) {
         return cast(NetServerOptions) super.setTcpCork(tcpCork);
     }
 
-    override
-    NetServerOptions setTcpQuickAck(bool tcpQuickAck) {
+    override NetServerOptions setTcpQuickAck(bool tcpQuickAck) {
         return cast(NetServerOptions) super.setTcpQuickAck(tcpQuickAck);
     }
 
@@ -285,8 +269,7 @@ class NetServerOptions : TcpSslOptions {
     //     return cast(NetServerOptions) super.setEnabledSecureTransportProtocols(enabledSecureTransportProtocols);
     // }
 
-    override
-    NetServerOptions setSslHandshakeTimeout(Duration sslHandshakeTimeout) {
+    override NetServerOptions setSslHandshakeTimeout(Duration sslHandshakeTimeout) {
         return cast(NetServerOptions) super.setSslHandshakeTimeout(sslHandshakeTimeout);
     }
 
@@ -350,7 +333,6 @@ class NetServerOptions : TcpSslOptions {
         return this;
     }
 
-
     ClientAuth getClientAuth() {
         return clientAuth;
     }
@@ -368,8 +350,7 @@ class NetServerOptions : TcpSslOptions {
         return this;
     }
 
-    override
-    NetServerOptions setLogActivity(bool logEnabled) {
+    override NetServerOptions setLogActivity(bool logEnabled) {
         return cast(NetServerOptions) super.setLogActivity(logEnabled);
     }
 
@@ -390,26 +371,31 @@ class NetServerOptions : TcpSslOptions {
         return this;
     }
 
-    override
-    bool opEquals(Object o) {
-        if (this is o) return true;
-        if (!super.opEquals(o)) return false;
-
-        NetServerOptions that = cast(NetServerOptions) o;
-        if(that is null)
+    override bool opEquals(Object o) {
+        if (this is o)
+            return true;
+        if (!super.opEquals(o))
             return false;
 
-        if (acceptBacklog != that.acceptBacklog) return false;
-        if (clientAuth != that.clientAuth) return false;
-        if (port != that.port) return false;
-        if (host != that.host) return false;
-        if (sni != that.sni) return false;
+        NetServerOptions that = cast(NetServerOptions) o;
+        if (that is null)
+            return false;
+
+        if (acceptBacklog != that.acceptBacklog)
+            return false;
+        if (clientAuth != that.clientAuth)
+            return false;
+        if (port != that.port)
+            return false;
+        if (host != that.host)
+            return false;
+        if (sni != that.sni)
+            return false;
 
         return true;
     }
 
-    override
-    size_t toHash() @trusted nothrow {
+    override size_t toHash() @trusted nothrow {
         size_t result = super.toHash();
         result = 31 * result + port;
         result = 31 * result + (host !is null ? host.hashOf() : 0);
@@ -426,5 +412,5 @@ class NetServerOptions : TcpSslOptions {
         this.clientAuth = DEFAULT_CLIENT_AUTH;
         this.sni = DEFAULT_SNI;
         _ioThreadSize = totalCPUs - 1;
-    } 
+    }
 }

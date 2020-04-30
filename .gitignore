@@ -16,6 +16,7 @@
 
 # Executables
 *.exe
+*-test-*
 
 # DUB
 .dub
