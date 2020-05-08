@@ -44,19 +44,19 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     //     return provideName;
     // }
 
-    // SSLContext getSSLContextWithManager() { // KeyManager[] km, TrustManager[] tm
-    //     version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
+    SSLContext getSSLContextWithManager() { // KeyManager[] km, TrustManager[] tm
+        version(HUNT_NET_DEBUG) long start = Clock.currStdTime;
 
-    //     SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
-    //     // sslContext.init(km, tm); // TODO:
+        SSLContext sslContext = SSLContext.getInstance(null, "TLSv1.2");
+        // sslContext.init(km, tm); // TODO:
 
-    //     version(HUNT_NET_DEBUG) {
-    //         long end = Clock.currStdTime;
-    //         long d = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(end - start);
-    //         tracef("creating Conscrypt SSL context spends %d ms", d);
-    //     }
-    //     return sslContext;
-    // }
+        version(HUNT_NET_DEBUG) {
+            long end = Clock.currStdTime;
+            long d = convert!(TimeUnit.HectoNanosecond, TimeUnit.Millisecond)(end - start);
+            tracef("creating Conscrypt SSL context spends %d ms", d);
+        }
+        return sslContext;
+    }
 
     // SSLContext getSSLContext(InputStream inputStream, string keystorePassword, string keyPassword) {
     //     return getSSLContext(inputStream, keystorePassword, keyPassword, null, null, null);
@@ -148,6 +148,23 @@ abstract class AbstractConscryptSSLContextFactory : SSLContextFactory {
     }
 }
 
+/**
+ * 
+ */
+class NoCheckConscryptSSLContextFactory : AbstractConscryptSSLContextFactory {
+
+    override SSLContext getSSLContext() {
+        try {
+            return getSSLContextWithManager();
+        } catch (Exception e) {
+            errorf("get SSL context error: %s", e.msg);
+            version(HUNT_DEBUG) error(e);
+            return null;
+        }
+    }
+    
+    alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
+}
 
 /**
  * 
@@ -164,11 +181,11 @@ class FileCredentialConscryptSSLContextFactory : AbstractConscryptSSLContextFact
         try {
             return getSSLContext(_options, "TLSv1.2");
         } catch (Exception e) {
-            errorf("get SSL context error", e);
+            errorf("get SSL context error: %s", e.msg);
+            version(HUNT_DEBUG) error(e);
             return null;
         }
     }
-
 
     alias getSSLContext = AbstractConscryptSSLContextFactory.getSSLContext;
 }

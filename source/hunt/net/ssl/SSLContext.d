@@ -132,7 +132,6 @@ class SSLContext {
      *          specified protocol.
      * @exception NullPointerException if protocol is null.
      *
-     * @see java.security.Provider
      */
     // static SSLContext getInstance(string protocol) {
     //     return getInstance(protocol, "");
@@ -175,7 +174,6 @@ class SSLContext {
      * @throws IllegalArgumentException if the provider name is null or empty.
      * @throws NullPointerException if protocol is null.
      *
-     * @see java.security.Provider
      */
     static SSLContext getInstance(KeyCertOptions options, string protocol) {
         SSLContextSpi impl = new DefaultSSLContextImpl(options);
@@ -214,7 +212,6 @@ class SSLContext {
      * @throws IllegalArgumentException if the provider is null.
      * @throws NullPointerException if protocol is null.
      *
-     * @see java.security.Provider
      */
     // static SSLContext getInstance(string protocol, Provider provider) {
 

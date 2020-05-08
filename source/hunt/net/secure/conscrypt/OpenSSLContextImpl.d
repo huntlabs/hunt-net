@@ -64,14 +64,16 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
 
             version(HUNT_NET_DEBUG) warning("Initializing OpenSSL Context...");
 
-            string caFile = options.getCaFile();
-            if(!caFile.empty()) {
-                // serverSessionContext.setVerify();
-                serverSessionContext.useCaCertificate(caFile, options.getCaPassword());
-            }
+            if(options !is null) {
+                string caFile = options.getCaFile();
+                if(!caFile.empty()) {
+                    // serverSessionContext.setVerify();
+                    serverSessionContext.useCaCertificate(caFile, options.getCaPassword());
+                }
 
-            serverSessionContext.useCertificate(options.getCertFile(), options.getKeyFile(),
-                options.getCertPassword(), options.getKeyPassword());
+                serverSessionContext.useCertificate(options.getCertFile(), options.getKeyFile(),
+                    options.getCertPassword(), options.getKeyPassword());
+            }
             
             defaultSslContextImpl = cast(DefaultSSLContextImpl) this;
         } else {
@@ -79,8 +81,8 @@ abstract class OpenSSLContextImpl : SSLContextSpi {
             clientSessionContext = defaultSslContextImpl.engineGetClientSessionContext();
             serverSessionContext = defaultSslContextImpl.engineGetServerSessionContext();
         }
-        // sslParameters = new SSLParametersImpl(null, clientSessionContext,
-        //         serverSessionContext, algorithms);
+        sslParameters = new SSLParametersImpl(options, clientSessionContext,
+                serverSessionContext, algorithms);
     }
 
     // this(string[] algorithms, string certificate, string privatekey) {

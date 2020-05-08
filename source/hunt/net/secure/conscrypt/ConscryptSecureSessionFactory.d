@@ -28,29 +28,29 @@ import std.typecons;
  */
 class ConscryptSecureSessionFactory : SecureSessionFactory {
 
-    private SSLContextFactory clientSSLContextFactory; 
-    private SSLContextFactory serverSSLContextFactory; 
+    private SSLContextFactory _clientSSLContextFactory; 
+    private SSLContextFactory _serverSSLContextFactory; 
     private string[] supportedProtocols;
 
     this() {
-        // clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
-        // serverSSLContextFactory = new DefaultCredentialConscryptSSLContextFactory();
+        // _clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
+        // _serverSSLContextFactory = new DefaultCredentialConscryptSSLContextFactory();
     }
 
     SSLContextFactory getClientSSLContextFactory() {
-        return clientSSLContextFactory;
+        return _clientSSLContextFactory;
     }
 
     void setClientSSLContextFactory(SSLContextFactory clientSSLContextFactory) {
-        this.clientSSLContextFactory = clientSSLContextFactory;
+        this._clientSSLContextFactory = clientSSLContextFactory;
     }
 
     SSLContextFactory getServerSSLContextFactory() {
-        return serverSSLContextFactory;
+        return _serverSSLContextFactory;
     }
 
     void setServerSSLContextFactory(SSLContextFactory serverSSLContextFactory) {
-        this.serverSSLContextFactory = serverSSLContextFactory;
+        this._serverSSLContextFactory = serverSSLContextFactory;
     }
 
     SecureSession create(Connection session, bool clientMode, 
@@ -77,7 +77,12 @@ class ConscryptSecureSessionFactory : SecureSessionFactory {
 
     protected SSLContextFactory from(bool clientMode) {
         version(HUNT_NET_DEBUG) warning("clientMode: ", clientMode);
-        return clientMode ? clientSSLContextFactory : serverSSLContextFactory;
+        if(clientMode) {
+            if(_clientSSLContextFactory is null) _clientSSLContextFactory = new NoCheckConscryptSSLContextFactory();
+            return _clientSSLContextFactory;
+        } else {
+            return _serverSSLContextFactory;
+        }
     }
 
     string[] getSupportedProtocols() {

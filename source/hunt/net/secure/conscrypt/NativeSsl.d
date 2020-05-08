@@ -513,24 +513,25 @@ return 0;
         version(HUNT_NET_DEBUG) warningf("Setup peer certificate verification: isClient=%s", isClient());
 
         if (isClient()) {
-
             KeyCertOptions certOptions = parameters.getKeyCertOptions();
-            string caFile = certOptions.getCaFile();
-            if(!caFile.empty()) {
-                NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
-                AbstractSessionContext ctx = parameters.getSessionContext();
-                ctx.useCaCertificate(caFile, certOptions.getCaPassword());
-            }
+            if(certOptions !is null) {
+                string caFile = certOptions.getCaFile();
+                if(!caFile.empty()) {
+                    NativeCrypto.SSL_set_verify(ssl, SSL_VERIFY_PEER);
+                    AbstractSessionContext ctx = parameters.getSessionContext();
+                    ctx.useCaCertificate(caFile, certOptions.getCaPassword());
+                }
 
-            string certFile = certOptions.getCertFile();
-            string keyFile = certOptions.getKeyFile();
-            if(!certFile.empty() && !keyFile.empty()) {
-                NativeCrypto.SSL_use_certificate_file(ssl, certFile);
-                NativeCrypto.SSL_use_PrivateKey_file(ssl, keyFile);
-                // TODO: enable password
+                string certFile = certOptions.getCertFile();
+                string keyFile = certOptions.getKeyFile();
+                if(!certFile.empty() && !keyFile.empty()) {
+                    NativeCrypto.SSL_use_certificate_file(ssl, certFile);
+                    NativeCrypto.SSL_use_PrivateKey_file(ssl, keyFile);
+                    // TODO: enable password
 
-                if(!NativeCrypto.SSL_check_private_key(ssl)) {
-                    warningf("Private key (%s) does not match the certificate public key: %s", keyFile, certFile);
+                    if(!NativeCrypto.SSL_check_private_key(ssl)) {
+                        warningf("Private key (%s) does not match the certificate public key: %s", keyFile, certFile);
+                    }
                 }
             }
 
