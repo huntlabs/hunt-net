@@ -306,7 +306,7 @@ final class ActiveSession : ConscryptSession {
     void onPeerCertificateAvailable(string peerHost, int peerPort) {
         version(HUNT_NET_DEBUG) {
             implementationMissing(false);
-            infof("peerHost: %s, peerPort: %d", peerHost, peerPort);
+            version(HUNT_NET_DEBUG) infof("peerHost: %s, peerPort: %d", peerHost, peerPort);
         }
         // synchronized (ssl) {
         //     id = null;

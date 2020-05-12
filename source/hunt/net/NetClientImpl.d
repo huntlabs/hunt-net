@@ -187,7 +187,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         _tcpStream.connected((bool suc) {
             if (suc) {
-			    version (HUNT_DEBUG) trace("connected to: ", _tcpStream.remoteAddress.toString());
+			    version (HUNT_DEBUG) trace("Connected with ", _tcpStream.remoteAddress.toString());
                 // _tcpConnection.setState(ConnectionState.Opened);
                 _isConnected = true;
                 if (_eventHandler !is null) {

@@ -208,9 +208,10 @@ class SSLEngineResult {
      * Returns a string representation of this object.
      */
     override string toString() {
-        return "Status = " ~ status.to!string() ~
-            " HandshakeStatus = " ~ handshakeStatus.to!string() ~
-            "\nbytesConsumed = " ~ _bytesConsumed.to!string() ~
-            " bytesProduced = " ~ _bytesProduced.to!string();
+        return "{Status = " ~ status.to!string() ~
+            ", HandshakeStatus = " ~ handshakeStatus.to!string() ~
+            ", bytesConsumed = " ~ _bytesConsumed.to!string() ~
+            ", bytesProduced = " ~ _bytesProduced.to!string() ~
+            "}";
     }
 }

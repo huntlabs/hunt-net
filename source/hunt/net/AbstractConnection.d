@@ -141,7 +141,7 @@ abstract class AbstractConnection : Connection {
             tracef("data received (%d bytes): ", data.length);
             version(HUNT_NET_DEBUG_MORE) {
                 infof("%(%02X %)", data[0 .. $]);
-            } else version(HUNT_NET_DEBUG) {
+            } else {
                 if(data.length<=64)
                     infof("%(%02X %)", data[0 .. $]);
                 else
@@ -154,12 +154,13 @@ abstract class AbstractConnection : Connection {
         }
 
         if(_decoder !is null) {
-            version(HUNT_NET_DEBUG) {
-                trace("running decoder...");
+            version(HUNT_NET_DEBUG_MORE) {
+                trace("Running decoder...");
             }
             
             try {
                 _decoder.decode(buffer, this);
+                version(HUNT_NET_DEBUG_MORE) info("Decoding done.");
             } catch(Throwable ex) {
                 warning(ex.msg);
                 version(HUNT_DEBUG) warning(ex);

@@ -1304,7 +1304,7 @@ static if (OPENSSL_VERSION_BEFORE(1, 1, 1)) {
 
         int result = SSL_write(ssl, sourcePtr, len);
         // appData.clearCallbackState();
-        version(HUNT_NET_DEBUG) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
+        version(HUNT_NET_DEBUG_MORE) tracef("ssl=%s ENGINE_SSL_write_direct address=%s length=%d shc=%s => ret=%d",
                 ssl, sourcePtr, len, shc, result);
         return result;
     }
