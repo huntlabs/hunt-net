@@ -247,7 +247,7 @@ static if(threadModel == ThreadMode.Multi){
 
         TcpStreamOptions streamOptions = _options.toStreamOptions();
 
-		EventLoop loop = _group.nextLoop();
+		EventLoop loop = _group.nextLoop(cast(size_t)socket.handle());
 		TcpStream stream = new TcpStream(loop, socket, streamOptions);
 
         auto currentId = atomicOp!("+=")(_connectionId, 1);
