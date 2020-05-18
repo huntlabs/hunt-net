@@ -133,7 +133,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         }
 
         if(isRunning()) {
-            warning("Connecting repeatedly!");
+            warning("Busy with connecting...");
             return;
         }
 
@@ -156,7 +156,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         _tcpStream.closed(() {
             version(HUNT_NET_DEBUG) {
-                infof("connection %d closed", _tcpConnection.getId());
+                infof("Connection %d closed", _tcpConnection.getId());
             }
             if(_tcpConnection is null) {
                 warning("_tcpConnection is null");
