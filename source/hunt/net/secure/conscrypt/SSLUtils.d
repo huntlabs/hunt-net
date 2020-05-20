@@ -13,7 +13,7 @@ import hunt.net.Exceptions;
 
 
 import hunt.collection;
-import hunt.io.ByteArrayInputStream;
+import hunt.stream.ByteArrayInputStream;
 import hunt.logging;
 import hunt.Exceptions;
 import hunt.text.Common;

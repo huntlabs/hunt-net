@@ -23,28 +23,16 @@ import hunt.net.buffer.ByteBufUtil;
 import hunt.net.buffer.HeapByteBufUtil;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
-import hunt.collection.BufferUtils;
+import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.Exceptions;
 import hunt.net.Exceptions;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.text.StringBuilder;
+import hunt.util.ByteOrder;
 
 import std.conv;
 import std.format;
-
-// import io.netty.util.internal.EmptyArrays;
-// import io.netty.util.internal.PlatformDependent;
-
-// import java.io.IOException;
-// import java.io.InputStream;
-// import java.io.OutputStream;
-// import java.nio.ByteBuffer;
-// import java.nio.ByteOrder;
-// import java.nio.channels.ClosedChannelException;
-// import java.nio.channels.FileChannel;
-// import java.nio.channels.GatheringByteChannel;
-// import java.nio.channels.ScatteringByteChannel;
 
 
 /**

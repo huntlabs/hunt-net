@@ -22,7 +22,7 @@ import hunt.util.Common;
 import hunt.util.UnitTest;
 
 import hunt.collection;
-import hunt.io.Common;
+import hunt.stream.Common;
 
 import hunt.net.buffer;
 

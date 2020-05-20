@@ -27,8 +27,8 @@ import hunt.net.buffer.ReferenceCountUtil;
 import hunt.net.buffer.Unpooled;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
-import hunt.collection.BufferUtils;
+import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.collection.Collections;
 import hunt.collection.ArrayList;
 import hunt.collection.List;
@@ -37,8 +37,9 @@ import hunt.Exceptions;
 import hunt.Float;
 import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.text.StringBuilder;
+import hunt.util.ByteOrder;
 import hunt.util.Common;
 
 import std.algorithm;

@@ -7,7 +7,7 @@ version(WITH_HUNT_SECURITY):
 import hunt.net.ssl.SSLEngineResult;
 import hunt.net.ssl.SSLSession;
 
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 
 import hunt.Exceptions;
 

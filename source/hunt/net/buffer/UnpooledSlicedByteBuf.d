@@ -23,10 +23,10 @@ import hunt.net.buffer.ByteBufUtil;
 import hunt.net.buffer.ByteProcessor;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Exceptions;
 import hunt.net.Exceptions;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.text.StringBuilder;
 
 import std.conv;

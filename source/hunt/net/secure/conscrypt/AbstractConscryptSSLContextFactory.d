@@ -10,8 +10,8 @@ import hunt.net.secure.SSLContextFactory;
 import hunt.net.ssl;
 
 import hunt.Exceptions;
-import hunt.io.ByteArrayInputStream;
-import hunt.io.Common;
+import hunt.stream.ByteArrayInputStream;
+import hunt.stream.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.net.KeyCertOptions;
 // import hunt.security.cert.X509Certificate;

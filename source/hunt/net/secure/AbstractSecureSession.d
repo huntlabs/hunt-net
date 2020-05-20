@@ -14,7 +14,7 @@ import hunt.net.ssl;
 import hunt.collection;
 import hunt.concurrency.CountingCallback;
 import hunt.Exceptions;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.text.Common;
 import hunt.util.Common;
 

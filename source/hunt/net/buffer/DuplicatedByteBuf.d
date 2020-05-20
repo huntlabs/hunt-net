@@ -21,9 +21,10 @@ import hunt.net.buffer.ByteBuf;
 import hunt.net.buffer.ByteBufAllocator;
 import hunt.net.buffer.ByteProcessor;
 
-import hunt.collection.ByteBuffer;
-import hunt.io.Common;
 import hunt.Byte;
+import hunt.io.ByteBuffer;
+import hunt.stream.Common;
+import hunt.util.ByteOrder;
 
 /**
  * A derived buffer which simply forwards all data access requests to its

@@ -24,15 +24,16 @@ import hunt.net.buffer.EmptyByteBuf;
 import hunt.net.buffer.UnpooledByteBufAllocator;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Exceptions;
 import hunt.Integer;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.Long;
 import hunt.net.Exceptions;
 import hunt.Short;
 import hunt.text.StringBuilder;
 import hunt.text.Charset;
+import hunt.util.ByteOrder;
 
 import std.algorithm;
 import std.ascii;

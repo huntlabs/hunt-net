@@ -10,7 +10,7 @@
  */
 
 import hunt.net;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 
 import core.time;
 import core.thread;

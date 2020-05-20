@@ -9,6 +9,7 @@ import hunt.net.TcpConnection;
 import hunt.event; 
 import hunt.io;
 import hunt.logging;
+import hunt.util.AbstractLifecycle;
 import hunt.util.Lifecycle;
 
 import core.atomic;

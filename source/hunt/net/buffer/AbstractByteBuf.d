@@ -23,11 +23,11 @@ import hunt.net.buffer.UnpooledDuplicatedByteBuf;
 import hunt.net.buffer.UnpooledSlicedByteBuf;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Double;
 import hunt.Exceptions;
 import hunt.Float;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
 import hunt.text.StringBuilder;

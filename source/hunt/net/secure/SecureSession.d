@@ -1,6 +1,6 @@
 module hunt.net.secure.SecureSession;
 
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.util.Common;
 
 import hunt.net.secure.ProtocolSelector;

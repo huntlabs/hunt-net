@@ -24,8 +24,8 @@ import hunt.net.codec.Decoder;
 import hunt.net.Connection;
 import hunt.net.Exceptions;
 
-import hunt.collection.ByteBuffer;
-import hunt.collection.BufferUtils;
+import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
 import hunt.String;

@@ -23,8 +23,8 @@ import hunt.net.codec.textline.LineDelimiter;
 import hunt.net.codec.Encoder;
 import hunt.net.Connection;
 
-import hunt.collection.ByteBuffer;
-import hunt.collection.BufferUtils;
+import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.Exceptions;
 
 import std.conv;

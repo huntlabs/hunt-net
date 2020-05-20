@@ -19,7 +19,7 @@ module hunt.net.buffer.AbstractDerivedByteBuf;
 import hunt.net.buffer.AbstractByteBuf;
 import hunt.net.buffer.ByteBuf;
 
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 
 /**
  * Abstract base class for {@link ByteBuf} implementations that wrap another

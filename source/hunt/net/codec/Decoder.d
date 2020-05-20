@@ -1,7 +1,7 @@
 module hunt.net.codec.Decoder;
 
 import hunt.net.Connection;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 
 import hunt.Exceptions;
 

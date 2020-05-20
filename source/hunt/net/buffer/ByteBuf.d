@@ -21,13 +21,14 @@ import hunt.net.buffer.ByteProcessor;
 import hunt.net.buffer.ReferenceCounted;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Double;
 import hunt.Exceptions;
 import hunt.Float;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.text.Charset;
+import hunt.util.ByteOrder;
 
 import std.conv;
 

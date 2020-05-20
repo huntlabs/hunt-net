@@ -17,6 +17,7 @@ module hunt.net.buffer.UnpooledDuplicatedByteBuf;
 
 import hunt.net.buffer.AbstractByteBuf;
 import hunt.net.buffer.DuplicatedByteBuf;
+import hunt.util.ByteOrder;
 
 /**
  * {@link DuplicatedByteBuf} implementation that can do optimizations because it knows the duplicated buffer

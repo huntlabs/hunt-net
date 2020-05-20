@@ -5,7 +5,7 @@ import hunt.net.TcpSslOptions;
 import hunt.net.codec;
 
 import hunt.Boolean;
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Exceptions;
 import hunt.Functions;
 import hunt.io.channel;
@@ -129,7 +129,7 @@ abstract class AbstractConnection : Connection {
 
     protected void onDataReceived(ByteBuffer buffer) {
         synchronized (this) {
-            import hunt.collection.BufferUtils;
+            import hunt.io.BufferUtils;
             // Make usre data and thread safe
             handleReceivedData(BufferUtils.clone(buffer));
         }

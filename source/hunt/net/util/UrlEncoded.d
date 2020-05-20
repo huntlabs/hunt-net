@@ -233,26 +233,26 @@ class UrlEncoded  : MultiMap!string {
      * @return the decoded string
      */
     static string decodeString(string encoded, int offset, int length, string charset = ENCODING) {
-        StringBuffer buffer = null;
+        StringBuilder buffer = null;
 
         for (int i = 0; i < length; i++) {
             char c = encoded.charAt(offset + i);
             if (c < 0 || c > 0xff) {
                 if (buffer is null) {
-                    buffer = new StringBuffer(length);
+                    buffer = new StringBuilder(length);
                     buffer.append(encoded, offset, offset + i + 1);
                 } else
                     buffer.append(c);
             } else if (c == '+') {
                 if (buffer is null) {
-                    buffer = new StringBuffer(length);
+                    buffer = new StringBuilder(length);
                     buffer.append(encoded, offset, offset + i);
                 }
 
                 buffer.append(' ');
             } else if (c == '%') {
                 if (buffer is null) {
-                    buffer = new StringBuffer(length);
+                    buffer = new StringBuilder(length);
                     buffer.append(encoded, offset, offset + i);
                 }
 

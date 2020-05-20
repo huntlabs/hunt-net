@@ -2,7 +2,7 @@ module hunt.net.Connection;
 
 import hunt.net.AsyncResult;
 
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.collection.Collection;
 import hunt.io.TcpStream;
 import hunt.util.Common;

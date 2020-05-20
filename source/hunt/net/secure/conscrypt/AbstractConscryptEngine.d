@@ -8,7 +8,7 @@ import hunt.net.secure.conscrypt.AllocatedBuffer;
 import hunt.net.secure.conscrypt.ApplicationProtocolSelector;
 import hunt.net.ssl;
 
-import hunt.collection.ByteBuffer;
+import hunt.io.ByteBuffer;
 import hunt.Functions;
 // import hunt.security.Key;
 

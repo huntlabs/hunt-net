@@ -23,13 +23,14 @@ import hunt.net.buffer.ByteProcessor;
 import hunt.net.buffer.Unpooled;
 
 import hunt.Byte;
-import hunt.collection.ByteBuffer;
-import hunt.collection.BufferUtils;
+import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.Exceptions;
-import hunt.io.Common;
+import hunt.stream.Common;
 import hunt.net.Exceptions;
 import hunt.text.StringBuilder;
 import hunt.text.Charset;
+import hunt.util.ByteOrder;
 
 import std.conv;
 import std.format;
