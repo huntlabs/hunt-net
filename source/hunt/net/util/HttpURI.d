@@ -5,7 +5,7 @@ import hunt.collection.MultiMap;
 import hunt.Exceptions;
 import hunt.text.Charset;
 import hunt.text.Common;
-import hunt.text.StringBuilder;
+import hunt.util.StringBuilder;
 import hunt.util.ConverterUtils;
 import hunt.net.util.UrlEncoded;
 

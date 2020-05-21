@@ -30,7 +30,7 @@ import hunt.Float;
 import hunt.stream.Common;
 import hunt.logging.ConsoleLogger;
 import hunt.net.Exceptions;
-import hunt.text.StringBuilder;
+import hunt.util.StringBuilder;
 import hunt.text.Charset;
 import hunt.util.TypeUtils;
 

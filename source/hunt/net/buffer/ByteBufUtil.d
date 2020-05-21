@@ -31,7 +31,7 @@ import hunt.stream.Common;
 import hunt.Long;
 import hunt.net.Exceptions;
 import hunt.Short;
-import hunt.text.StringBuilder;
+import hunt.util.StringBuilder;
 import hunt.text.Charset;
 import hunt.util.ByteOrder;
 

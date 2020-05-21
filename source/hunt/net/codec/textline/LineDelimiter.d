@@ -20,7 +20,7 @@
 module hunt.net.codec.textline.LineDelimiter;
 
 import hunt.Exceptions;
-import hunt.text.StringBuilder;
+import hunt.util.StringBuilder;
 
 
 import std.array;
