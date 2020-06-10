@@ -182,7 +182,9 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         });
 
         _tcpStream.error((IoError error) {
-            _tcpConnection.setState(ConnectionState.Error);
+            if(_tcpConnection !is null)
+                _tcpConnection.setState(ConnectionState.Error);
+                
             if (_eventHandler !is null)
                 _eventHandler.exceptionCaught(_tcpConnection, new Exception(error.errorMsg()));
         });
