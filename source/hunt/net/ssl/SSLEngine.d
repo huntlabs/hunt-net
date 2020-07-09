@@ -344,7 +344,6 @@ import hunt.Exceptions;
  * @see SSLSocket
  * @see SSLServerSocket
  * @see SSLSession
- * @see java.net.Socket
  *
  * @author Brad R. Wetmore
  */

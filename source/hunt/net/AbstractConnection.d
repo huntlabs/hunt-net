@@ -163,7 +163,7 @@ abstract class AbstractConnection : Connection {
                 version(HUNT_NET_DEBUG_MORE) info("Decoding done.");
             } catch(Throwable ex) {
                 warning(ex.msg);
-                version(HUNT_DEBUG) warning(ex);
+                warning(ex);
             }
         } else {
             if(_netHandler !is null) {

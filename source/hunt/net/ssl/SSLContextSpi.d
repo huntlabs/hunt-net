@@ -45,7 +45,6 @@ abstract class SSLContextSpi {
      * @throws IllegalStateException if the SSLContextImpl requires
      *         initialization and the <code>engineInit()</code>
      *         has not been called
-     * @see javax.net.ssl.SSLContext#getSocketFactory()
      */
     // abstract SSLSocketFactory engineGetSocketFactory();
 
@@ -57,7 +56,6 @@ abstract class SSLContextSpi {
      * @throws IllegalStateException if the SSLContextImpl requires
      *         initialization and the <code>engineInit()</code>
      *         has not been called
-     * @see javax.net.ssl.SSLContext#getServerSocketFactory()
      */
     // abstract SSLServerSocketFactory engineGetServerSocketFactory();
 
@@ -110,7 +108,6 @@ abstract class SSLContextSpi {
      * this context.
      *
      * @return the <code>SSLSessionContext</code> object
-     * @see javax.net.ssl.SSLContext#getServerSessionContext()
      */
     abstract SSLSessionContext engineGetServerSessionContext();
 
@@ -119,7 +116,6 @@ abstract class SSLContextSpi {
      * this context.
      *
      * @return the <code>SSLSessionContext</code> object
-     * @see javax.net.ssl.SSLContext#getClientSessionContext()
      */
     abstract SSLSessionContext engineGetClientSessionContext();
 

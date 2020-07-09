@@ -35,7 +35,6 @@ import std.array;
  * operations are not protected from concurrent updates.
  * </p>
  *
- * @see java.net.URLEncoder
  */
 class UrlEncoded  : MultiMap!string { 
     
