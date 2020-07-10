@@ -62,7 +62,11 @@ class UrlEncoded  : MultiMap!string {
      * @return the MultiMap as a string with % encoding
      */
     string encode() {
-        return encode(ENCODING, false);
+        return encode(ENCODING, true);
+    }
+
+    string encode(bool equalsForNullValue) {
+        return encode(ENCODING, equalsForNullValue);
     }
 
     /**
@@ -105,7 +109,9 @@ class UrlEncoded  : MultiMap!string {
         bool delim = false;
         foreach(string key, List!string list; map)
         {
-            int s = list.size();
+            int s = 0;
+            if(list !is null)
+                s = list.size();
 
             if (delim) {
                 result.append('&');
