@@ -1,7 +1,7 @@
 module hunt.net;
 
 public import hunt.net.AbstractConnection;
-// public import hunt.net.AsyncResult;
+public import hunt.net.AsyncResult;
 public import hunt.net.Connection;
 public import hunt.net.KeyCertOptions;
 public import hunt.net.NetUtil;

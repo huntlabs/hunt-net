@@ -3527,15 +3527,15 @@ abstract class AbstractByteBufTest {
     //     }
     // }
 
-    @Test
-    void testWriteUsAsciiCharSequenceExpand() {
-        testWriteCharSequenceExpand(StandardCharsets.US_ASCII);
-    }
+    // @Test
+    // void testWriteUsAsciiCharSequenceExpand() {
+    //     testWriteCharSequenceExpand(StandardCharsets.US_ASCII);
+    // }
 
-    @Test
-    void testWriteUtf8CharSequenceExpand() {
-        testWriteCharSequenceExpand(StandardCharsets.UTF_8);
-    }
+    // @Test
+    // void testWriteUtf8CharSequenceExpand() {
+    //     testWriteCharSequenceExpand(StandardCharsets.UTF_8);
+    // }
 
     // @Test
     // void testWriteIso88591CharSequenceExpand() {
@@ -4849,13 +4849,13 @@ abstract class AbstractByteBufTest {
     //     buffer.release();
     // }
 
-    @Test
-    void testCapacityExpand() {
-        auto outBuffer = newBuffer(2);
-        int pos = outBuffer.writerIndex();
-        outBuffer.writeByte('Q');
-        assert(ByteBufUtil.hexDump(outBuffer) == "51");
-        outBuffer.writeInt(4);
-        assert(ByteBufUtil.hexDump(outBuffer) == "5100000004");
-    }    
+    // @Test
+    // void testCapacityExpand() {
+    //     auto outBuffer = newBuffer(2);
+    //     int pos = outBuffer.writerIndex();
+    //     outBuffer.writeByte('Q');
+    //     assert(ByteBufUtil.hexDump(outBuffer) == "51");
+    //     outBuffer.writeInt(4);
+    //     assert(ByteBufUtil.hexDump(outBuffer) == "5100000004");
+    // }    
 }

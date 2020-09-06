@@ -715,7 +715,7 @@ class CompositeByteBuf : AbstractReferenceCountedByteBuf, Iterable!(ByteBuf) {
             if(buffer is null)
                 result = s.forEachByte(localStart, localLength, processor);
             else
-                buffer.forEachByteAsc0(localStart, localStart + localLength, processor);
+                result = buffer.forEachByteAsc0(localStart, localStart + localLength, processor);
 
             if (result != -1) {
                 return result - c.adjustment;
