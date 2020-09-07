@@ -2313,7 +2313,8 @@ class CompositeByteBuf : AbstractReferenceCountedByteBuf, Iterable!(ByteBuf) {
             int newArrSize = max(size + (size >> 1), newSize);
             Component[] newArr;
             if (i == size) {
-                newArr = components.dup; // Arrays.copyOf(components, newArrSize, Component[].class);
+                // Arrays.copyOf(components, newArrSize, Component[].class);
+                newArr = components ~ cast(Component)null ; 
             } else {
                 newArr = new Component[newArrSize];
                 if (i > 0) {

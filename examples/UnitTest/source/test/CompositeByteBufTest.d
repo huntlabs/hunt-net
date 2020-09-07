@@ -70,19 +70,20 @@ class CompositeByteBufTest : AbstractByteBufTest {
         return buffer;
     }
 
-    @Test
-    void testBytesBefore() {
-        // byte[] data = [0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69, 0x6E, 0x67, 0x00, 0x55, 0x54, 0x46, 0x38, 0x00];
-        byte[] data1 = [0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69];
-        byte[] data2 = [0x6E, 0x67, 0x00, 0x55, 0x54, 0x46, 0x38, 0x00];
+    // @Test
+    // void testBytesBefore() {
+    //     // byte[] data = [0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69, 0x6E, 0x67, 0x00, 0x55, 0x54, 0x46, 0x38, 0x00];
+    //     byte[] data1 = [0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74, 0x5F, 0x65, 0x6E, 0x63, 0x6F, 0x64, 0x69];
+    //     byte[] data2 = [0x6E, 0x67, 0x00, 0x55, 0x54, 0x46, 0x38, 0x00];
 
-        CompositeByteBuf buf = cast(CompositeByteBuf) wrappedBuffer(data1, data2);
-        int len = buf.bytesBefore(0);
+    //     CompositeByteBuf buf = cast(CompositeByteBuf) wrappedBuffer(data1, data2);
+    //     int len = buf.bytesBefore(0);
 
-        warningf("len: %d", len);
-        assert(len == 15);
+    //     warningf("len: %d", len);
+    //     assert(len == 15);
 
-    }
+    // }
+
 
     // Composite buffer does not waste bandwidth on discardReadBytes, but
     // the test will fail in strict mode.
@@ -194,25 +195,25 @@ class CompositeByteBufTest : AbstractByteBufTest {
     //     b.release();
     // }
 
-    // @Test
-    // void testAutoConsolidation() {
-    //     CompositeByteBuf buf = compositeBuffer(2);
+    @Test
+    void testAutoConsolidation() {
+        CompositeByteBuf buf = Unpooled.compositeBuffer(2);
 
-    //     buf.addComponent(wrappedBuffer(cast(byte[])[ 1 ]));
-    //     assertEquals(1, buf.numComponents());
+        buf.addComponent(wrappedBuffer(cast(byte[])[ 1 ]));
+        assertEquals(1, buf.numComponents());
 
-    //     buf.addComponent(wrappedBuffer(cast(byte[])[ 2, 3 ]));
-    //     assertEquals(2, buf.numComponents());
+        buf.addComponent(wrappedBuffer(cast(byte[])[ 2, 3 ]));
+        assertEquals(2, buf.numComponents());
 
-    //     buf.addComponent(wrappedBuffer(cast(byte[])[ 4, 5, 6 ]));
+        buf.addComponent(wrappedBuffer(cast(byte[])[ 4, 5, 6 ]));
 
-    //     assertEquals(1, buf.numComponents());
-    //     assertTrue(buf.hasArray());
-    //     assertNotNull(buf.array());
-    //     assertEquals(0, buf.arrayOffset());
+        assertEquals(1, buf.numComponents());
+        assertTrue(buf.hasArray());
+        assertNotNull(buf.array());
+        assertEquals(0, buf.arrayOffset());
 
-    //     buf.release();
-    // }
+        buf.release();
+    }
 
     // @Test
     // void testCompositeToSingleBuffer() {
