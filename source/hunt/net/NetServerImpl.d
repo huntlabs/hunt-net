@@ -59,6 +59,19 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
     this(EventLoopGroup loopGroup, NetServerOptions options) {
         _group = loopGroup;
         _options = options;
+
+        version(Posix) {
+            // https://stackoverflow.com/questions/6824265/sigpipe-broken-pipe
+            // https://github.com/huntlabs/hunt-framework/issues/161
+            import core.sys.posix.signal;
+            sigset_t sigset;
+            sigemptyset(&sigset);
+            sigaction_t siginfo;
+            siginfo.sa_mask = sigset;
+            siginfo.sa_flags = SA_RESTART;
+            siginfo.sa_handler = SIG_IGN;
+            sigaction(SIGPIPE, &siginfo, null);
+        }        
     }
 
     EventLoopGroup eventLoopGroup() {
