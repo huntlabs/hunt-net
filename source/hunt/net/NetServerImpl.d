@@ -150,6 +150,8 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
                     bool flag = this._options.isReuseAddress() || this._options.isReusePort();
                     tcpListener.setOption(SocketOptionLevel.SOCKET, cast(SocketOption) SO_EXCLUSIVEADDRUSE, !flag);
                 } else {
+                    import core.sys.posix.sys.socket : SO_REUSEPORT;
+
                     tcpListener.setOption(SocketOptionLevel.SOCKET, 
                         SocketOption.REUSEADDR, _options.isReuseAddress());
 
