@@ -157,13 +157,14 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 _eventHandler, _codec, _tcpStream);
 
         _tcpStream.closed(() {
-            version(HUNT_NET_DEBUG) {
-                infof("Connection %d closed", _tcpConnection.getId());
-            }
-            if(_tcpConnection is null) {
+            TcpConnection conn = _tcpConnection;
+            if(conn is null) {
                 warning("_tcpConnection is null");
             } else {
-                _tcpConnection.setState(ConnectionState.Closed);
+                version(HUNT_NET_DEBUG) {
+                    infof("Connection %d closed", _tcpConnection.getId());
+                }
+                conn.setState(ConnectionState.Closed);
             }
 
             this.close();
@@ -230,26 +231,28 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void destroy() {
-        if (_tcpConnection !is null) {
+        TcpConnection conn = _tcpConnection;
+        _tcpConnection = null;
+
+        if (conn !is null) {
             version(HUNT_NET_DEBUG) {
                 tracef("connection state: %s, isConnected: %s, isClosing: %s",
-                    _tcpConnection.getState(),
-                    _tcpConnection.isConnected(), _tcpConnection.isClosing());
+                    conn.getState(),
+                    conn.isConnected(), conn.isClosing());
             }
 
-            if(!_tcpConnection.isClosing()) {
-                _tcpConnection.close();
+            if(!conn.isClosing()) {
+                conn.close();
             }
 
             if (_eventHandler !is null) {
                 version(HUNT_NET_DEBUG) {
                     infof("Notifying connection %d with %s closed.",
-                    _tcpConnection.getId(), _tcpConnection.remoteAddress());
+                    conn.getId(), conn.remoteAddress());
                 }
-                _eventHandler.connectionClosed(_tcpConnection);
+                _eventHandler.connectionClosed(conn);
             }
 
-            _tcpConnection = null;
             _loop.stop();
         }
         _isConnected = false;
