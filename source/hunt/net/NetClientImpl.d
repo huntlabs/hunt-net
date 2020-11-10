@@ -159,7 +159,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         _tcpStream.closed(() {
             TcpConnection conn = _tcpConnection;
             if(conn is null) {
-                warning("_tcpConnection is null");
+                version(HUNT_DEBUG) warning("_tcpConnection is null");
             } else {
                 version(HUNT_NET_DEBUG) {
                     infof("Connection %d closed", _tcpConnection.getId());
