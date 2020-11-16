@@ -34,3 +34,4 @@ examples/client/client
 examples/CustomCodecDemo/codec-client
 examples/CustomCodecDemo/codec-server
 examples/UnitTest/unittest
+core
