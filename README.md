@@ -16,7 +16,7 @@ void main()
     NetServer server = NetUtil.createNetServer!(ThreadMode.Single)(options);
 
     server.setCodec(new TextLineCodec);
-    server.setHandler(new class NetConnectionHandler
+    server.setHandler(new class AbstractNetConnectionHandler
     {
         override void messageReceived(Connection connection, Object message)
         {
@@ -41,7 +41,7 @@ void main()
     NetClient client = NetUtil.createNetClient();
 
     client.setCodec(new TextLineCodec);
-    client.setHandler(new class NetConnectionHandler
+    client.setHandler(new class AbstractNetConnectionHandler
     {
         override void messageReceived(Connection connection, Object message)
         {

@@ -366,10 +366,12 @@ abstract class NetConnectionHandler {
 	void failedAcceptingConnection(int connectionId, Throwable t) { }
 }
 
+alias NetConnectionHandlerAdapter = AbstractNetConnectionHandler;
+
 /**
  * 
  */
-class NetConnectionHandlerAdapter : NetConnectionHandler {
+class AbstractNetConnectionHandler : NetConnectionHandler {
 
     private NetConnectHandler _openedHandler;
     private NetConnectHandler _closedHandler;
