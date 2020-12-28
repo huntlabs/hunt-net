@@ -437,7 +437,12 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected SSLEngineResult unwrap() {
-        int packetBufferSize = sslEngine.getSession().getPacketBufferSize();
+        SSLSession sslSession = sslEngine.getSession();
+        if(sslSession is null) {
+            throw new SecureNetException("The SSL Session is invalid now.");
+        }
+
+        int packetBufferSize = sslSession.getPacketBufferSize();
         //split net buffer when the net buffer remaining great than the net size
         ByteBuffer buf = splitBuffer(packetBufferSize);
         version(HUNT_NET_DEBUG_MORE) {
