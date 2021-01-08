@@ -437,6 +437,9 @@ abstract class AbstractSecureSession : SecureSession {
     }
 
     protected SSLEngineResult unwrap() {
+        if(sslEngine is null)
+            throw new SecureNetException("The SSL Engine is invalid!");
+
         SSLSession sslSession = sslEngine.getSession();
         if(sslSession is null) {
             throw new SecureNetException("The SSL Session is invalid now.");
