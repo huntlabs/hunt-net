@@ -2,11 +2,11 @@
     "name": "hunt-net",
     "targetType": "staticLibrary",
     "description": "A network library for hunt.",
-    "copyright": "Copyright (C) 2018-2020, HuntLabs",
+    "copyright": "Copyright (C) 2018-2021, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
     "dependencies": {
-        "hunt-extra": "~>1.0.0"
+        "hunt-extra": "~>1.0.7"
     },
     "configurations": [
         {
