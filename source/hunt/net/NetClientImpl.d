@@ -147,7 +147,8 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void initialize() { // doConnect
-        _loop.runAsync(_loopIdleTime, &initializeClient);
+        // _loop.runAsync(_loopIdleTime, &initializeClient);
+        initializeClient();
     }
 
     private void initializeClient(){
@@ -252,9 +253,8 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 }
                 _eventHandler.connectionClosed(conn);
             }
-
-            _loop.stop();
         }
+        // _loop.stop();
         _isConnected = false;
     }
 

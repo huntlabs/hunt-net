@@ -9,10 +9,27 @@ import hunt.net.NetServerOptions;
 
 // import hunt.event;
 
+import hunt.event.EventLoop;
+import std.concurrency : initOnce;
+
+import hunt.logging.ConsoleLogger;
+
 /**
  * 
  */
-class NetUtil {
+struct NetUtil {
+
+    static EventLoop eventLoop() {
+        __gshared EventLoop inst;
+        return initOnce!inst(buildEventLoog());
+    }
+
+    static private EventLoop buildEventLoog() {
+        EventLoop el = new EventLoop();
+        el.runAsync(-1);
+        return el;
+    }
+
     static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)() {
         return new NetServerImpl!(threadModel)();
     }
@@ -22,10 +39,10 @@ class NetUtil {
     }
 
     static NetClient createNetClient() {
-        return new NetClientImpl();
+        return new NetClientImpl(eventLoop());
     }
 
     static NetClient createNetClient(NetClientOptions options) {
-        return new NetClientImpl(options);
+        return new NetClientImpl(eventLoop(), options);
     }
 }
