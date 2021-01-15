@@ -10,30 +10,52 @@ import std.format;
 enum Host = "0.0.0.0";
 enum Port = 8080;
 
+enum string ResponseContent = `HTTP/1.1 200 OK
+Server: Example
+Content-Length: 13
+Date: Wed, 02 May 2018 14:31:50 
+Content-Type: text/plain
+
+Hello, World!
+`;
+
+
 void main() {
 
     NetServerOptions options = new NetServerOptions();
-    // options.workerThreadSize = 8;
+    options.workerThreadSize = 3;
 
     NetServer server = NetUtil.createNetServer(options);
 
-    server.setCodec(new TextLineCodec);
+    // server.setCodec(new TextLineCodec);
+
     // dfmt off
     server.setHandler(new class NetConnectionHandler {
 
         override void connectionOpened(Connection connection) {
-            infof("Connection created: %s", connection.getRemoteAddress());
+            debug infof("Connection created: %s", connection.getRemoteAddress());
         }
 
         override void connectionClosed(Connection connection) {
-            infof("Connection closed: %s", connection.getRemoteAddress());
+            debug infof("Connection closed: %s", connection.getRemoteAddress());
         }
 
-        override void messageReceived(Connection connection, Object message) {
-            tracef("message type: %s", typeid(message).name);
-            string str = format("data received: %s", message.toString());
-            tracef(str);
-            connection.write(str);
+        override DataHandleStatus messageReceived(Connection connection, Object message) {
+            version(HUNT_IO_DEBUG) {
+                tracef("message type: %s", typeid(message).name);
+                string str = format("data received: %s", message.toString());
+                tracef(str);
+            }
+
+            import hunt.io.ByteBuffer;
+            ByteBuffer buffer = cast(ByteBuffer)message;
+            debug warning(cast(string)buffer.peekRemaining());
+            buffer.clear();
+            buffer.flip();
+
+            connection.write(ResponseContent);
+
+            return DataHandleStatus.Done;
         }
 
         override void exceptionCaught(Connection connection, Throwable t) {

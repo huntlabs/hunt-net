@@ -109,7 +109,6 @@ class NetServerImpl(ThreadMode threadModel = ThreadMode.Single) : AbstractLifecy
 		return _address;
 	}
 
-
     void listen() {
         listen("0.0.0.0", 0);
     }

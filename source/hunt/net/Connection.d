@@ -6,6 +6,8 @@ import hunt.io.ByteBuffer;
 import hunt.collection.Collection;
 import hunt.io.TcpStream;
 import hunt.util.Common;
+import hunt.io.channel.Common;
+
 
 import core.time;
 import std.socket;
@@ -23,7 +25,7 @@ template NetEventHandler(T...) if(T.length > 0)  {
 }
 
 alias NetConnectHandler = NetEventHandler!Connection;
-alias NetMessageHandler = NetEventHandler!(Connection, Object);
+alias NetMessageHandler = DataHandleStatus delegate(Connection, Object);
 alias NetExceptionHandler = NetEventHandler!(Connection, Throwable);
 alias NetErrorHandler = NetEventHandler!(int, Throwable);
 // alias AsyncConnectHandler = NetEventHandler!(AsyncResult!Connection);
@@ -357,7 +359,7 @@ abstract class NetConnectionHandler {
 
 	void connectionClosed(Connection connection) ;
 
-	void messageReceived(Connection connection, Object message) ;
+	DataHandleStatus messageReceived(Connection connection, Object message) ;
 
 	void exceptionCaught(Connection connection, Throwable t) ;
 
@@ -420,9 +422,11 @@ class AbstractNetConnectionHandler : NetConnectionHandler {
             _closedHandler(connection);
     }
 
-	override void messageReceived(Connection connection, Object message) {
+	override DataHandleStatus messageReceived(Connection connection, Object message) {
         if(_messageHandler !is null)
-            _messageHandler(connection, message);
+            return _messageHandler(connection, message);
+
+        return DataHandleStatus.Done;
     }
 
 	override void exceptionCaught(Connection connection, Throwable e) {
