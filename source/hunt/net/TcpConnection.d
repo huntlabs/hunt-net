@@ -42,7 +42,7 @@ version(HUNT_METRIC) {
         version(HUNT_METRIC) this.openTime = DateTime.currentTimeMillis();
         version(HUNT_DEBUG) {
             import core.thread;
-            tracef("Initializing a TCP connection...(Threads: %d)", Thread.getAll().length);
+            tracef("Initializing TCP connection %d...", connectionId);
         }
     }  
 
@@ -139,9 +139,9 @@ version(HUNT_METRIC) {
         version(HUNT_METRIC) {
             closeTime = DateTime.currentTimeMillis();
             // version(HUNT_DEBUG) 
-            tracef("The connection %d closed: %s", _connectionId, this.toString());
+            tracef("The connection %d closed.", _connectionId);
         } else {
-            version(HUNT_DEBUG) tracef("The connection %d closed: %s", _connectionId, toString());
+            version(HUNT_DEBUG) tracef("The connection %d closed.", _connectionId);
         }
         super.notifyClose();
     }

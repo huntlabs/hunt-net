@@ -1,0 +1,26 @@
+{
+	"name": "simple",
+	"targetType":"executable",
+    "description": "Custom codec demo for hunt-net.",
+    "copyright": "Copyright (C) 2018-2021, HuntLabs",
+    "homepage": "https://www.huntlabs.net",
+    "license": "Apache-2.0",
+	"dependencies":{
+		"hunt-net":{
+			"path" :"../../"
+		}
+	},
+	"subConfigurations": {
+		"hunt-net" : "ssl"
+	},
+    "configurations": [
+		{
+			"name": "server",
+			"targetName": "simple-server",
+			"targetType": "executable",
+			"excludedSourceFiles": [
+				"source/client.d"
+			]
+		}
+	]
+}
