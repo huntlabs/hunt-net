@@ -7,7 +7,6 @@ import hunt.net.NetClientOptions;
 import hunt.net.NetServerImpl;
 import hunt.net.NetServerOptions;
 
-// import hunt.event;
 
 import hunt.event.EventLoop;
 import std.concurrency : initOnce;
@@ -27,6 +26,11 @@ struct NetUtil {
     static private EventLoop buildEventLoog() {
         EventLoop el = new EventLoop();
         el.runAsync(-1);
+        import core.thread;
+        import core.time;
+        while(!el.isReady()) {
+            // warning("Waiting for the eventloop got ready...");
+        }
         return el;
     }
 
