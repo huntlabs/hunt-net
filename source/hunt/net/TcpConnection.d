@@ -7,6 +7,7 @@ import hunt.net.TcpSslOptions;
 
 import hunt.collection;
 import hunt.io.TcpStream;
+import hunt.io.channel;
 import hunt.Exceptions;
 import hunt.Functions;
 import hunt.logging;
@@ -48,9 +49,9 @@ version(HUNT_METRIC) {
 
 version(HUNT_METRIC) {
 
-    override protected void onDataReceived(ByteBuffer buffer) {
+    override DataHandleStatus onDataReceived(ByteBuffer buffer) {
         readBytes += buffer.limit();
-        super.onDataReceived(buffer);
+        return super.onDataReceived(buffer);
     }
 
     override void write(const ubyte[] data) {
@@ -139,7 +140,7 @@ version(HUNT_METRIC) {
         version(HUNT_METRIC) {
             closeTime = DateTime.currentTimeMillis();
             // version(HUNT_DEBUG) 
-            tracef("The connection %d closed.", _connectionId);
+            // tracef("The connection %d closed.", _connectionId);
         } else {
             version(HUNT_DEBUG) tracef("The connection %d closed.", _connectionId);
         }

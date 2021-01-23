@@ -2,9 +2,10 @@
 	"name": "simple",
 	"targetType":"executable",
     "description": "Custom codec demo for hunt-net.",
-    "copyright": "Copyright (C) 2018-2021, HuntLabs",
+    "copyright": "Copyright (C) 2018-2020, HuntLabs",
     "homepage": "https://www.huntlabs.net",
     "license": "Apache-2.0",
+	"versions": ["HUNT_DEBUG",  "HUNT_METRIC"],
 	"dependencies":{
 		"hunt-net":{
 			"path" :"../../"

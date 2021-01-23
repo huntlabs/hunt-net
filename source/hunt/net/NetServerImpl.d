@@ -249,7 +249,7 @@ static if(threadModel == ThreadMode.Multi){
     }
     
 	private void processClient(Socket socket) {
-        version(HUNT_METRIC) {
+        version(HUNT_METRIC_DEBUG) {
             import core.time;
             import hunt.util.DateTime;
             debug trace("processing client...");
@@ -274,7 +274,7 @@ static if(threadModel == ThreadMode.Multi){
         }
 		stream.start();
 
-        version(HUNT_METRIC) { 
+        version(HUNT_METRIC_DEBUG) { 
             Duration timeElapsed = MonoTime.currTime - startTime;
             warningf("peer connection processing done in: %d microseconds",
                 timeElapsed.total!(TimeUnit.Microsecond)());
