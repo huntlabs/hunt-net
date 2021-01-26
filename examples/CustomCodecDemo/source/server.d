@@ -27,7 +27,7 @@ void main() {
 
     NetServer server = NetUtil.createNetServer(options);
 
-    // server.setCodec(new TextLineCodec);
+    server.setCodec(new TextLineCodec);
 
     // dfmt off
     server.setHandler(new class NetConnectionHandler {
@@ -41,17 +41,10 @@ void main() {
         }
 
         override DataHandleStatus messageReceived(Connection connection, Object message) {
-            version(HUNT_IO_DEBUG) {
-                tracef("message type: %s", typeid(message).name);
-                string str = format("data received: %s", message.toString());
-                tracef(str);
-            }
 
-            import hunt.io.ByteBuffer;
-            ByteBuffer buffer = cast(ByteBuffer)message;
-            debug warning(cast(string)buffer.peekRemaining());
-            buffer.clear();
-            buffer.flip();
+            tracef("message type: %s", typeid(message).name);
+            string str = format("data received: %s", message.toString());
+            tracef(str);
 
             connection.write(ResponseContent);
 

@@ -8,6 +8,7 @@ import hunt.Boolean;
 import hunt.Exceptions;
 import hunt.Functions;
 import hunt.io.ByteBuffer;
+import hunt.io.BufferUtils;
 import hunt.io.channel;
 import hunt.io.TcpStream;
 import hunt.logging.ConsoleLogger;
@@ -157,32 +158,33 @@ abstract class AbstractConnection : Connection {
         } catch(Throwable ex) {
             warning(ex.msg);
             warning(ex);
+            
+            BufferUtils.clear(buffer);
         }
 
         return status;
     }
 
     private DataHandleStatus handleReceivedData(ByteBuffer buffer) {
+        DataHandleStatus result = DataHandleStatus.Done;
 
-        // if(_decoder !is null) {
-        //     version(HUNT_NET_DEBUG_MORE) {
-        //         trace("Running decoder...");
-        //     }
+        if(_decoder !is null) {
+            version(HUNT_NET_DEBUG_MORE) {
+                trace("Running decoder...");
+            }
             
-        //     _decoder.decode(buffer, this);
-        //     version(HUNT_NET_DEBUG_MORE) info("Decoding done.");
+            result = _decoder.decode(buffer, this);
+            version(HUNT_NET_DEBUG_MORE) info("Decoding done.");
 
-        // } else {
-        //     if(_netHandler !is null) {
-        //         _netHandler.messageReceived(this, cast(Object)buffer);
-        //     }
-        // }
-
-        if(_netHandler !is null) {
-            return _netHandler.messageReceived(this, cast(Object)buffer);
+        } else if(_netHandler !is null) {
+            result = _netHandler.messageReceived(this, cast(Object)buffer);
         } else {
-            return DataHandleStatus.Done;
+            // do nothing
+            buffer.clear();
+            buffer.flip();            
         }
+
+        return result;
     }
 
     ///

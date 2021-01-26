@@ -26,6 +26,7 @@ import hunt.net.Exceptions;
 
 import hunt.io.ByteBuffer;
 import hunt.io.BufferUtils;
+import hunt.io.channel;
 import hunt.Exceptions;
 import hunt.logging.ConsoleLogger;
 import hunt.String;
@@ -159,13 +160,13 @@ class TextLineDecoder : DecoderChain {
      * {@inheritDoc}
      */
     override
-    void decode(ByteBuffer buf, Connection connection) { 
+    DataHandleStatus decode(ByteBuffer buf, Connection connection) { 
         Context ctx = getContext(connection);
 
         if (LineDelimiter.AUTO == delimiter) {
-            decodeAuto(ctx, connection, buf);
+            return decodeAuto(ctx, connection, buf);
         } else {
-            decodeNormal(ctx, connection, buf);
+            return decodeNormal(ctx, connection, buf);
         }
     }
 
@@ -201,7 +202,9 @@ class TextLineDecoder : DecoderChain {
     /**
      * Decode a line using the default delimiter on the current system
      */
-    private void decodeAuto(Context ctx, Connection connection, ByteBuffer inBuffer) { 
+    private DataHandleStatus decodeAuto(Context ctx, Connection connection, ByteBuffer inBuffer) { 
+        DataHandleStatus resultStatus = DataHandleStatus.Done;
+
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match
@@ -253,7 +256,7 @@ class TextLineDecoder : DecoderChain {
                         // call connection handler
                         NetConnectionHandler handler = connection.getHandler();
                         if(handler !is null) {
-                            handler.messageReceived(connection, new String(str));
+                            resultStatus = handler.messageReceived(connection, new String(str));
                         }
                     } finally {
                         buf.clear();
@@ -274,12 +277,16 @@ class TextLineDecoder : DecoderChain {
         ctx.append(inBuffer);
 
         ctx.setMatchCount(matchCount);
+        
+        BufferUtils.clear(inBuffer);
+        return resultStatus;
     }
 
     /**
      * Decode a line using the delimiter defined by the caller
      */
-    private void decodeNormal(Context ctx, Connection connection, ByteBuffer inBuffer) { 
+    private DataHandleStatus decodeNormal(Context ctx, Connection connection, ByteBuffer inBuffer) { 
+        DataHandleStatus resultStatus = DataHandleStatus.Done;
         int matchCount = ctx.getMatchCount();
 
         // Try to find a match
@@ -318,7 +325,7 @@ class TextLineDecoder : DecoderChain {
                             // call connection handler
                             NetConnectionHandler handler = connection.getHandler();
                             if(handler !is null) {
-                                handler.messageReceived(connection, new String(str));
+                                resultStatus = handler.messageReceived(connection, new String(str));
                             }                            
                         } finally {
                             buf.clear();
@@ -344,6 +351,9 @@ class TextLineDecoder : DecoderChain {
         ctx.append(inBuffer);
 
         ctx.setMatchCount(matchCount);
+
+        BufferUtils.clear(inBuffer);
+        return resultStatus;
     }
 
 

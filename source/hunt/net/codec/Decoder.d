@@ -2,11 +2,12 @@ module hunt.net.codec.Decoder;
 
 import hunt.net.Connection;
 import hunt.io.ByteBuffer;
+import hunt.io.channel;
 
 import hunt.Exceptions;
 
 interface Decoder {
-    void decode(ByteBuffer buf, Connection connection);
+    DataHandleStatus decode(ByteBuffer buf, Connection connection);
 }
 
 /**
@@ -23,8 +24,10 @@ class DecoderChain : Decoder {
         return _nextDecoder;
     }
 
-    void decode(ByteBuffer buf, Connection connection) {
+    DataHandleStatus decode(ByteBuffer buf, Connection connection) {
         implementationMissing();
+
+        return DataHandleStatus.Done;
     }
 
 }

@@ -27,8 +27,6 @@ void main() {
 
     NetServer server = NetUtil.createNetServer(options);
 
-    // server.setCodec(new TextLineCodec);
-
     // dfmt off
     server.setHandler(new class NetConnectionHandler {
 
@@ -64,8 +62,11 @@ void main() {
                 taskWorker.inspect();
             }
 
-            buffer.clear();
-            buffer.flip();
+            import hunt.io.BufferUtils;
+            BufferUtils.clear(buffer);
+
+            // buffer.clear();
+            // buffer.flip();
 
             import core.thread;
             // Thread.sleep(2.seconds);
