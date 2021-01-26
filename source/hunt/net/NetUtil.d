@@ -7,7 +7,6 @@ import hunt.net.NetClientOptions;
 import hunt.net.NetServerImpl;
 import hunt.net.NetServerOptions;
 
-
 import hunt.event.EventLoop;
 import std.concurrency : initOnce;
 
@@ -43,10 +42,10 @@ struct NetUtil {
     }
 
     static NetClient createNetClient() {
-        return new NetClientImpl(eventLoop());
+        return new NetClientImpl();
     }
 
     static NetClient createNetClient(NetClientOptions options) {
-        return new NetClientImpl(eventLoop(), options);
+        return new NetClientImpl(options);
     }
 }
