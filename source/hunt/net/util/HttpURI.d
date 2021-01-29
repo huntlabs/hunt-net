@@ -45,7 +45,6 @@ import hunt.logging.ConsoleLogger;
  * 
  * See_Also:
  *	 https://stackoverflow.com/questions/1634271/url-encoding-the-space-character-or-20
- *   https://web.archive.org/web/20151218094722/http://blog.lunatech.com/2009/02/03/what-every-web-developer-must-know-about-url-encoding
  */
 class HttpURI {
 	private enum State {
@@ -62,6 +61,7 @@ class HttpURI {
 	private string _param;
 	private string _query;
 	private string _fragment;
+	private MultiMap!string _parameters;
 
 	string _uri;
 	string _decodedPath;
@@ -116,29 +116,6 @@ class HttpURI {
 		_port = -1;
 		parse(State.START, uri);
 	}
-
-	// this(URI uri) {
-	// 	_uri = null;
-
-	// 	_scheme = uri.getScheme();
-	// 	_host = uri.getHost();
-	// 	if (_host is null && uri.getRawSchemeSpecificPart().startsWith("//"))
-	// 		_host = "";
-	// 	_port = uri.getPort();
-	// 	_user = uri.getUserInfo();
-	// 	_path = uri.getRawPath();
-
-	// 	_decodedPath = uri.getPath();
-	// 	if (_decodedPath !is null) {
-	// 		int p = _decodedPath.lastIndexOf(';');
-	// 		if (p >= 0)
-	// 			_param = _decodedPath.substring(p + 1);
-	// 	}
-	// 	_query = uri.getRawQuery();
-	// 	_fragment = uri.getFragment();
-
-	// 	_decodedPath = null;
-	// }
 
 	this(string scheme, string host, int port, string pathQuery) {
 		_uri = null;
@@ -577,11 +554,24 @@ class HttpURI {
 		return _fragment;
 	}
 
-	void decodeQueryTo(MultiMap!string parameters, string encoding = StandardCharsets.UTF_8) {
-		if (_query == _fragment)
-			return;
+	// void decodeQueryTo(MultiMap!string parameters, string encoding = StandardCharsets.UTF_8) {
+	// 	if (_query == _fragment)
+	// 		return;
 
-		UrlEncoded.decodeTo(_query, parameters, encoding);
+	// 	decodeTo(_query, parameters, encoding);
+	// }
+
+	MultiMap!string decodeQuery() {
+		
+		if(_parameters is null) {
+			UrlEncoded urlEncoded = new UrlEncoded();
+			if (_query != _fragment) {
+				urlEncoded.decode(_query);
+			}
+			_parameters = urlEncoded;
+		}
+
+		return _parameters;
 	}
 
 	void clear() {
@@ -688,7 +678,7 @@ class HttpURI {
 		_decodedPath = null;
 		_param = null;
 		_fragment = null;
-		if (path !is null)
+		if (!path.empty)
 			parse(State.PATH, path);
 	}
 

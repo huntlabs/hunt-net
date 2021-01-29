@@ -47,17 +47,18 @@ void main() {
             }
             
             int c = atomicOp!("+=")(counter, 1);
-            if(c % 100 == 0)
-                warningf("Response: %d", c);
+            // if(c % 100 == 0)
+            //     warningf("Response: %d", c);
 
             import hunt.io.ByteBuffer;
             ByteBuffer buffer = cast(ByteBuffer)message;
-            // debug warning(cast(string)buffer.peekRemaining());
-
-            str = cast(string)buffer.peekRemaining();
+            // str = cast(string)buffer.peekRemaining();
             // warning(str);
+
             if(str == "peek") {
-                warningf("Response: %d, requests: %d", c, dataCounter);
+                version(HUNT_METRIC) {
+                    warningf("Response: %d, requests: %d", c, dataCounter);
+                }
                 Worker taskWorker = connection.getStream().taskWorker;
                 taskWorker.inspect();
             }
@@ -68,12 +69,17 @@ void main() {
             // buffer.clear();
             // buffer.flip();
 
-            import core.thread;
-            // Thread.sleep(2.seconds);
-            Thread.sleep(200.msecs);
+            // import core.thread;
+            // Thread.sleep(200.msecs);
 
             connection.write(ResponseContent);
 
+            // if(c < 5) {
+            //     return DataHandleStatus.Pending;
+            // } else {
+
+            //     return DataHandleStatus.Done;
+            // }
             return DataHandleStatus.Done;
         }
 
