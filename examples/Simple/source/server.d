@@ -10,6 +10,7 @@ import std.format;
 import core.atomic;
 
 import hunt.io.channel.posix.AbstractStream;
+import hunt.util.queue.SimpleQueue;
 
 enum Host = "0.0.0.0";
 enum Port = 8080;
@@ -22,7 +23,7 @@ enum string ResponseContent = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\nConnecti
 void main() {
 
     NetServerOptions options = new NetServerOptions();
-    options.workerThreadSize = 5;
+    options.workerThreadSize = 32;
     shared int counter = 0;
 
     NetServer server = NetUtil.createNetServer(options);
@@ -52,12 +53,17 @@ void main() {
 
             import hunt.io.ByteBuffer;
             ByteBuffer buffer = cast(ByteBuffer)message;
-            // str = cast(string)buffer.peekRemaining();
+            str = cast(string)buffer.peekRemaining();
             // warning(str);
+
+            if(str.length != 176) {
+                warning(str);
+            }
 
             if(str == "peek") {
                 version(HUNT_METRIC) {
-                    warningf("Response: %d, requests: %d", c, dataCounter);
+                    warningf("Response: %d, requests: %d, incomingCounter: %d, notifyCounter: %d, outgoingCounter2: %d, remainer: %d", 
+                        c, dataCounter, incomingCounter, notifyCounter,  outgoingCounter2, remainer);
                 }
                 Worker taskWorker = connection.getStream().taskWorker;
                 taskWorker.inspect();
@@ -66,11 +72,8 @@ void main() {
             import hunt.io.BufferUtils;
             BufferUtils.clear(buffer);
 
-            // buffer.clear();
-            // buffer.flip();
-
-            // import core.thread;
-            // Thread.sleep(200.msecs);
+            import core.thread;
+            // Thread.sleep(10.msecs);
 
             connection.write(ResponseContent);
 
