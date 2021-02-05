@@ -4,7 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "examples/CustomCodecDemo"
+			"path": "examples/Simple"
+		},
+		{
+			"path": "examples/UnitTest"
 		}
 	],
 	"settings": {}

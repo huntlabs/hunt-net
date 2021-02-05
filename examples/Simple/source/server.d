@@ -23,7 +23,7 @@ enum string ResponseContent = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\nConnecti
 void main() {
 
     NetServerOptions options = new NetServerOptions();
-    options.workerThreadSize = 32;
+    options.workerThreadSize = 8;
     shared int counter = 0;
 
     NetServer server = NetUtil.createNetServer(options);
@@ -56,15 +56,12 @@ void main() {
             str = cast(string)buffer.peekRemaining();
             // warning(str);
 
-            if(str.length != 176) {
-                warning(str);
-            }
+            // if(str.length != 176) {
+            //     warning(str);
+            // }
 
             if(str == "peek") {
-                version(HUNT_METRIC) {
-                    warningf("Response: %d, requests: %d, incomingCounter: %d, notifyCounter: %d, outgoingCounter2: %d, remainer: %d", 
-                        c, dataCounter, incomingCounter, notifyCounter,  outgoingCounter2, remainer);
-                }
+
                 Worker taskWorker = connection.getStream().taskWorker;
                 taskWorker.inspect();
             }
