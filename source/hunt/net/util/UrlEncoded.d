@@ -229,10 +229,12 @@ class UrlEncoded  : MultiMap!string {
                 case '&':
                     int l = i - mark - 1;
                     value = l == 0 ? "" :
-                            (encoded ? decodeString(content, mark + 1, l) : content.substring(mark + 1, i));
+                            (encoded ? decodeString(content, mark + 1, l) : content[mark + 1 .. i]);
                     mark = i;
+
                     encoded = false;
                     if (key !is null) {
+                        version(HUNT_HTTP_DEBUG) tracef("key=%s, value=%s", key, value);
                         this.add(key, value);
                     } else if (value !is null && value.length > 0) {
                         this.add(value, "");
@@ -243,7 +245,7 @@ class UrlEncoded  : MultiMap!string {
                 case '=':
                     if (key !is null)
                         break;
-                    key = encoded ? decodeString(content, mark + 1, i - mark - 1) : content.substring(mark + 1, i);
+                    key = encoded ? decodeString(content, mark + 1, i - mark - 1) : content[mark + 1 .. i];
                     mark = i;
                     encoded = false;
                     break;
@@ -255,27 +257,28 @@ class UrlEncoded  : MultiMap!string {
                     break;
                 default: break;
             }
+        }
 
             int contentLen = cast(int)content.length;
 
             if (key !is null) {
                 int l =  contentLen - mark - 1;
-                value = l == 0 ? "" : (encoded ? decodeString(content, mark + 1, l) : content.substring(mark + 1));
+            value = l == 0 ? "" : (encoded ? decodeString(content, mark + 1, l) : content[mark + 1 .. $]);
                 version(HUNT_HTTP_DEBUG) tracef("key=%s, value=%s", key, value);
                 this.add(key, value);
             } else if (mark < contentLen) {
                 version(HUNT_HTTP_DEBUG) tracef("empty value: content=%s, key=%s", content, key);
                 key = encoded
                         ? decodeString(content, mark + 1, contentLen - mark - 1)
-                        : content.substring(mark + 1);
+                    : content[mark + 1 .. $];
                 if (!key.empty) {
+                version(HUNT_HTTP_DEBUG) tracef("key=%s, value=", key);
                     this.add(key, "");
                 }
             } else {
                 warningf("No key found.");
             }
         }
-    }
 
     /**
      * Decode string with % encoding.
@@ -286,7 +289,7 @@ class UrlEncoded  : MultiMap!string {
      * @return the decoded string
      */
     static string decodeString(string encoded) {
-        return decodeString(encoded, 0, cast(int)encoded.length);
+        return urlDecode(encoded);
     }
 
     /**
@@ -300,7 +303,7 @@ class UrlEncoded  : MultiMap!string {
      * @param charset the charset to use for decoding
      * @return the decoded string
      */
-    static string decodeString(string encoded, int offset, int length) {
+    static string decodeString(string encoded, size_t offset, size_t length) {
         return urlDecode(encoded[offset .. offset+length]);
     }
 

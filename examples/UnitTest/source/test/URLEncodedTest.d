@@ -9,11 +9,11 @@ import hunt.logging.ConsoleLogger;
 
 import std.uri;
 import std.stdio;
+import std.string;
 
 class URLEncodedTest {
 
-    void testUrlEncoded() {
-        UrlEncoded url_encoded = new UrlEncoded();
+    void testEncoder() {
         // https://dotblogs.com.tw/apprenticeworkshop/2018/12/09/About-URL-Encoding
 
         string str = "Hello +%-_.!~*'()@";
@@ -46,5 +46,23 @@ class URLEncodedTest {
 
         trace(encode(str));
         // abcd%201234567890ABCD1234~!@#$%25%5E&*()_+%7B%7D%3C%3E?:%5B%5D%5C%7C;/.,
+    }
+
+    void testDecoder() {
+        
+        string playload = `email=&password=abc&file=`;
+        UrlEncoded url_encoded = new UrlEncoded(UrlEncodeStyle.HtmlForm);
+        url_encoded.decode(playload);
+        
+        string[][string] dataMap;
+        foreach (string key; url_encoded.byKey()) {
+            foreach(string v; url_encoded.getValues(key)) {
+                key = key.strip();
+                dataMap[key] ~= v.strip();
+            }
+        }
+
+        // trace(dataMap);
+        assert(dataMap["password"] == ["abc"]);
     }
 }
