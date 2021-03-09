@@ -154,7 +154,9 @@ abstract class AbstractConnection : Connection {
         DataHandleStatus status = DataHandleStatus.Done;
 
         try {
-            status = handleReceivedData(buffer);
+            // Make usre data and thread safe
+            status = handleReceivedData(BufferUtils.clone(buffer));
+            // status = handleReceivedData(buffer);
         } catch(Throwable ex) {
             warning(ex.msg);
             warning(ex);
@@ -169,12 +171,12 @@ abstract class AbstractConnection : Connection {
         DataHandleStatus result = DataHandleStatus.Done;
 
         if(_decoder !is null) {
-            version(HUNT_NET_DEBUG_MORE) {
+            version(HUNT_NET_DEBUG) {
                 trace("Running decoder...");
             }
             
             result = _decoder.decode(buffer, this);
-            version(HUNT_NET_DEBUG_MORE) info("Decoding done.");
+            version(HUNT_NET_DEBUG_) info("Decoding done.");
 
         } else if(_netHandler !is null) {
             result = _netHandler.messageReceived(this, cast(Object)buffer);
