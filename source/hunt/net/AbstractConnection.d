@@ -155,8 +155,8 @@ abstract class AbstractConnection : Connection {
 
         try {
             // Make usre data and thread safe
-            status = handleReceivedData(BufferUtils.clone(buffer));
-            // status = handleReceivedData(buffer);
+            // status = handleReceivedData(BufferUtils.clone(buffer));
+            status = handleReceivedData(buffer);
         } catch(Throwable ex) {
             warning(ex.msg);
             warning(ex);
