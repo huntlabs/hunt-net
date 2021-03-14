@@ -412,5 +412,6 @@ class NetServerOptions : TcpSslOptions {
         this.clientAuth = DEFAULT_CLIENT_AUTH;
         this.sni = DEFAULT_SNI;
         _ioThreadSize = totalCPUs - 1;
+        this.setTcpKeepAlive(true);
     }
 }
