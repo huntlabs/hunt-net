@@ -869,7 +869,14 @@ return null;
         version(Have_hunt_openssl)
         SSL_CTX* sslCtx = deimos.openssl.ssl.SSL_CTX_new(TLSv1_2_method());
 
+        scope(exit) {
+            deimos.openssl.ssl.SSL_CTX_free(sslCtx);
+        }
+
         SSL* ssl = deimos.openssl.ssl.SSL_new(sslCtx);
+        scope(exit) {
+            deimos.openssl.ssl.SSL_free(ssl);
+        }
         if (!SSL_set_cipher_list(ssl, selector.toStringz())) {
             warning("Unable to set SSL cipher list");
             return null;
