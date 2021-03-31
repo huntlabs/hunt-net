@@ -155,9 +155,6 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void initialize() { // doConnect
-
-warningf("xxxx=>%s", _loop.isReady());
-
         if(_loop.isReady()) {
             initializeClient();
         } else {
@@ -269,7 +266,7 @@ warningf("xxxx=>%s", _loop.isReady());
                 _eventHandler.connectionClosed(conn);
             }
         }
-        
+
         assert(_loop !is null);
 
         if(_pool is null) {
