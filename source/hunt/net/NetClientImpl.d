@@ -3,6 +3,7 @@ module hunt.net.NetClientImpl;
 import hunt.net.TcpConnection;
 import hunt.net.Connection;
 import hunt.net.codec.Codec;
+import hunt.net.EventLoopPool;
 import hunt.net.NetClient;
 import hunt.net.NetClientOptions;
 
@@ -16,6 +17,7 @@ import hunt.logging;
 import hunt.util.ByteOrder;
 import hunt.util.AbstractLifecycle;
 import hunt.util.Lifecycle;
+import hunt.util.pool;
 
 import core.atomic;
 import core.thread;
@@ -41,25 +43,30 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private NetConnectionHandler _eventHandler;
     private TcpConnection _tcpConnection;
     // private TcpStream _tcpStream;
+    private EventLoopPool _pool;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
     private Action _onClosed = null;
     private shared bool _isConnected = false;
 
-    this() {
-        this(new EventLoop());
-    }
-
-    this(NetClientOptions options) {
-        this(new EventLoop(), options);
-    }
-
-    this(EventLoop loop) {
-        this(loop, new NetClientOptions());
-    }
-
     this(EventLoop loop, NetClientOptions options) {
         _loop = loop;
+        
+        this._options = options;
+
+        _currentId = atomicOp!("+=")(_connectionId, 1);
+        version (HUNT_NET_DEBUG)
+            tracef("Client ID: %d", _currentId);
+    }
+
+    this(EventLoopPool pool) {
+        this(pool, new NetClientOptions());
+    }
+
+    this(EventLoopPool pool, NetClientOptions options) {
+        _pool = pool;
+        _loop = pool.borrow(options.getConnectTimeout, false);
+
         this._options = options;
 
         _currentId = atomicOp!("+=")(_connectionId, 1);
@@ -130,6 +137,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     void connect(string host, int port, string serverName) {
+        
         if(isConnected()) {
             throw new IOException("The connection has been created.");
         }
@@ -147,11 +155,15 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     }
 
     override protected void initialize() { // doConnect
-        _loop.runAsync(_loopIdleTime, &initializeClient);
+        if(_loop.isReady()) {
+            initializeClient();
+        } else {
+            _loop.runAsync(_loopIdleTime, &initializeClient);
+        }
         // initializeClient();
     }
 
-    private void initializeClient(){
+    private void initializeClient() {
         TcpStreamOptions options = _options.toStreamOptions();
         TcpStream _tcpStream = new TcpStream(_loop, options);
         _tcpConnection = new TcpConnection(_currentId, _options,
@@ -254,7 +266,15 @@ class NetClientImpl : AbstractLifecycle, NetClient {
                 _eventHandler.connectionClosed(conn);
             }
         }
-        _loop.stop();
+        
+        assert(_loop !is null);
+
+        if(_pool is null) {
+            _loop.stop();
+        } else {
+            _pool.returnObject(_loop);
+        }
+        
         _isConnected = false;
     }
 
