@@ -8,14 +8,14 @@ import std.concurrency : initOnce;
 
 alias EventLoopPool = ObjectPool!EventLoop;
 
-private __gshared EventLoopPool inst;
+private __gshared EventLoopPool _pool;
 
 EventLoopPool eventLoopPool() {
-    return initOnce!inst(buildEventLoopPool());
+    return initOnce!_pool(buildEventLoopPool());
 }    
 
 void buildEventLoopPool(PoolOptions options) {
-    initOnce!inst(new EventLoopPool(new EventLoopObjectFactory(), options));
+    initOnce!_pool(new EventLoopPool(new EventLoopObjectFactory(), options));
 }
 
 private EventLoopPool buildEventLoopPool() {
@@ -24,6 +24,18 @@ private EventLoopPool buildEventLoopPool() {
     EventLoopPool objPool = new EventLoopPool(new EventLoopObjectFactory(), options);
     return objPool;
 }
+
+void shutdownEventLoopPool() {
+    if(_pool !is null) {
+        _pool.close();
+    }
+}
+
+// shared static ~this() {
+//     if(_pool !is null) {
+//         _pool.close();
+//     }
+// }
 
 
 /**
