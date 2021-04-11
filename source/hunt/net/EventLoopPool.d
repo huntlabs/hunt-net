@@ -31,13 +31,6 @@ void shutdownEventLoopPool() {
     }
 }
 
-// shared static ~this() {
-//     if(_pool !is null) {
-//         _pool.close();
-//     }
-// }
-
-
 /**
  * 
  */
@@ -58,4 +51,7 @@ class EventLoopObjectFactory : ObjectFactory!(EventLoop) {
         p.stop();
     }
 
+    override bool isValid(EventLoop p) {
+        return p.isRuning();
+    }
 }
