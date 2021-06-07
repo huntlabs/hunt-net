@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/huntlabs/hunt-net.svg?branch=master)](https://travis-ci.org/huntlabs/hunt-net)
+[![Build Status](https://travis-ci.com/huntlabs/hunt-net.svg?branch=master)](https://travis-ci.com/huntlabs/hunt-net)
 
 # hunt-net
 A net library for DLang, hunt library based. hunt-net have codec to encoding and decoding tcp streaming frames.
