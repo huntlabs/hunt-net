@@ -20,7 +20,7 @@ void buildEventLoopPool(PoolOptions options) {
 
 private EventLoopPool buildEventLoopPool() {
     PoolOptions options = new PoolOptions();
-    options.size = 64;
+    options.size = 128;
     EventLoopPool objPool = new EventLoopPool(new EventLoopObjectFactory(), options);
     return objPool;
 }

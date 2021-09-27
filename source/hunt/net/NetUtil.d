@@ -25,14 +25,18 @@ struct NetUtil {
         return initOnce!inst(buildEventLoop());
     }
 
-    static private EventLoop buildEventLoop() {
+    static EventLoop buildEventLoop() {
         EventLoop el = new EventLoop();
+        version(HUNT_IO_DEBUG) warningf("Waiting for the eventloop[%d] got ready...", el.getId());
+        
         el.runAsync(-1);
         import core.thread;
         import core.time;
+        
         while(!el.isReady()) {
-            version(HUNT_IO_DEBUG) warning("Waiting for the eventloop got ready...");
+            version(HUNT_IO_DEBUG_MORE) warning("Waiting for the eventloop got ready...");
         }
+        version(HUNT_IO_DEBUG) warningf("eventloop[%d] is ready", el.getId());
         return el;
     }
 

@@ -13,7 +13,7 @@ import hunt.Functions;
 import hunt.io.TcpStream;
 import hunt.io.TcpStreamOptions;
 import hunt.io.IoError;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 import hunt.util.ByteOrder;
 import hunt.util.AbstractLifecycle;
 import hunt.util.Lifecycle;
@@ -270,6 +270,9 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         assert(_loop !is null);
 
         if(_pool is null) {
+            version(HUNT_NET_DEBUG) {
+                tracef("Stopping the event loop %d", _loop.getId());
+            }
             _loop.stop();
         } else {
             _pool.returnObject(_loop);

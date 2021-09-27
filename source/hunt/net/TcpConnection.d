@@ -10,7 +10,7 @@ import hunt.io.TcpStream;
 import hunt.io.channel;
 import hunt.Exceptions;
 import hunt.Functions;
-import hunt.logging;
+import hunt.logging.ConsoleLogger;
 import hunt.util.Common;
 import hunt.util.DateTime;
 
@@ -42,7 +42,6 @@ version(HUNT_METRIC) {
         super(connectionId, options, tcp, codec, handler);
         version(HUNT_METRIC) this.openTime = DateTime.currentTimeMillis();
         version(HUNT_DEBUG) {
-            import core.thread;
             tracef("Initializing TCP connection %d...", connectionId);
         }
     }  
