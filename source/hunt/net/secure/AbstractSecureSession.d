@@ -632,25 +632,25 @@ abstract class AbstractSecureSession : SecureSession {
         return ret;
     }
 
-    protected class FileBufferReaderHandler : BufferReaderHandler {
+    // protected class FileBufferReaderHandler : BufferReaderHandler {
 
-        private long len;
+    //     private long len;
 
-        private this(long len) {
-            this.len = len;
-        }
+    //     private this(long len) {
+    //         this.len = len;
+    //     }
 
-        override
-        void readBuffer(ByteBuffer buf, CountingCallback countingCallback, long count) {
-            tracef("write file,  count: %d , length: %d", count, len);
-            try {
-                write(buf, countingCallback);
-            } catch (Exception e) {
-                errorf("ssl session writing error: ", e.msg);
-            }
-        }
+    //     override
+    //     void readBuffer(ByteBuffer buf, CountingCallback countingCallback, long count) {
+    //         tracef("write file,  count: %d , length: %d", count, len);
+    //         try {
+    //             write(buf, countingCallback);
+    //         } catch (Exception e) {
+    //             errorf("ssl session writing error: ", e.msg);
+    //         }
+    //     }
 
-    }
+    // }
 
     // override
     // long transferFileRegion(FileRegion file, Callback callback) {

@@ -21,6 +21,7 @@ void buildEventLoopPool(PoolOptions options) {
 private EventLoopPool buildEventLoopPool() {
     PoolOptions options = new PoolOptions();
     options.size = 128;
+    options.name = "EventLoopPool";
     EventLoopPool objPool = new EventLoopPool(new EventLoopObjectFactory(), options);
     return objPool;
 }
@@ -37,14 +38,30 @@ void shutdownEventLoopPool() {
 class EventLoopObjectFactory : ObjectFactory!(EventLoop) {
 
     override EventLoop makeObject() {
-        EventLoop r = new EventLoop();
-        r.runAsync();
+        // EventLoop r = new EventLoop();
+        // r.runAsync();
 
-        while(!r.isReady()) {
-            version(HUNT_IO_DEBUG) warning("Waiting for the eventloop got ready...");
+        // while(!r.isReady()) {
+        //     version(HUNT_IO_DEBUG) warning("Waiting for the eventloop got ready...");
+        // }
+
+        // return r;
+        return buildEventLoop();
+    }
+    
+    static EventLoop buildEventLoop() {
+        EventLoop el = new EventLoop();
+        version(HUNT_NET_DEBUG) warningf("Waiting for the eventloop[%d] got ready...", el.getId());
+        
+        el.runAsync(-1);
+        import core.thread;
+        import core.time;
+        
+        while(!el.isReady()) {
+            version(HUNT_IO_DEBUG_MORE) warning("Waiting for the eventloop got ready...");
         }
-
-        return r;
+        version(HUNT_NET_DEBUG) warningf("eventloop[%d] is ready", el.getId());
+        return el;
     }    
 
     override void destroyObject(EventLoop p) {

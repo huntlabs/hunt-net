@@ -42,7 +42,6 @@ class NetClientImpl : AbstractLifecycle, NetClient {
     private Codec _codec;
     private NetConnectionHandler _eventHandler;
     private TcpConnection _tcpConnection;
-    // private TcpStream _tcpStream;
     private EventLoopPool _pool;
     private EventLoop _loop;
     private int _loopIdleTime = -1;
@@ -65,7 +64,9 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     this(EventLoopPool pool, NetClientOptions options) {
         _pool = pool;
-        _loop = pool.borrow(options.getConnectTimeout, false);
+        Duration timeout = options.getConnectTimeout;
+        version(HUNT_NET_DEBUG) tracef("Try to get a eventloop in %s", timeout);
+        _loop = pool.borrow(timeout, false);
 
         this._options = options;
 
@@ -171,7 +172,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
         _tcpStream.closed(() {
             TcpConnection conn = _tcpConnection;
-            if(conn is null) {
+            if(_isConnected || conn is null) {
                 version(HUNT_DEBUG) trace("The connection has already been closed.");
             } else {
                 version(HUNT_NET_DEBUG) {
@@ -245,14 +246,16 @@ class NetClientImpl : AbstractLifecycle, NetClient {
 
     override protected void destroy() {
         TcpConnection conn = _tcpConnection;
-        _tcpConnection = null;
-
+        
         if (conn !is null) {
-            version(HUNT_NET_DEBUG) {
+            version(HUNT_DEBUG) {
                 tracef("connection state: %s, isConnected: %s, isClosing: %s",
                     conn.getState(),
                     conn.isConnected(), conn.isClosing());
             }
+
+            _tcpConnection = null;
+            _isConnected = false;
 
             if(!conn.isClosing()) {
                 conn.close();
@@ -278,7 +281,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
             _pool.returnObject(_loop);
         }
         
-        _isConnected = false;
+        // _isConnected = false;
     }
 
     bool isConnected() {

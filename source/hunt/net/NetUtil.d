@@ -26,18 +26,19 @@ struct NetUtil {
     }
 
     static EventLoop buildEventLoop() {
-        EventLoop el = new EventLoop();
-        version(HUNT_IO_DEBUG) warningf("Waiting for the eventloop[%d] got ready...", el.getId());
+        return EventLoopObjectFactory.buildEventLoop();
+        // EventLoop el = new EventLoop();
+        // version(HUNT_IO_DEBUG) warningf("Waiting for the eventloop[%d] got ready...", el.getId());
         
-        el.runAsync(-1);
-        import core.thread;
-        import core.time;
+        // el.runAsync(-1);
+        // import core.thread;
+        // import core.time;
         
-        while(!el.isReady()) {
-            version(HUNT_IO_DEBUG_MORE) warning("Waiting for the eventloop got ready...");
-        }
-        version(HUNT_IO_DEBUG) warningf("eventloop[%d] is ready", el.getId());
-        return el;
+        // while(!el.isReady()) {
+        //     version(HUNT_IO_DEBUG_MORE) warning("Waiting for the eventloop got ready...");
+        // }
+        // version(HUNT_IO_DEBUG) warningf("eventloop[%d] is ready", el.getId());
+        // return el;
     }
 
     static NetServer createNetServer(ThreadMode threadModel = ThreadMode.Single)() {
