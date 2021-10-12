@@ -173,7 +173,7 @@ class NetClientImpl : AbstractLifecycle, NetClient {
         _tcpStream.closed(() {
             TcpConnection conn = _tcpConnection;
             if(_isConnected || conn is null) {
-                version(HUNT_DEBUG) trace("The connection has already been closed.");
+                version(HUNT_NET_DEBUG) trace("The connection has already been closed.");
             } else {
                 version(HUNT_NET_DEBUG) {
                     infof("Connection %d closed", _tcpConnection.getId());
