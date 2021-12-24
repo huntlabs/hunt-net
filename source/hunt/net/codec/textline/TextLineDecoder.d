@@ -28,7 +28,7 @@ import hunt.io.ByteBuffer;
 import hunt.io.BufferUtils;
 import hunt.io.channel;
 import hunt.Exceptions;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.String;
 
 import std.algorithm;

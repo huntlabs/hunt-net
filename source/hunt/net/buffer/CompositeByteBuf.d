@@ -35,7 +35,7 @@ import hunt.collection.List;
 import hunt.Double;
 import hunt.Exceptions;
 import hunt.Float;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.net.Exceptions;
 import hunt.stream.Common;
 import hunt.util.StringBuilder;

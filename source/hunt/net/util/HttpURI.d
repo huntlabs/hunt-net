@@ -13,7 +13,7 @@ import std.array;
 import std.conv;
 import std.string;
 
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 
 /**

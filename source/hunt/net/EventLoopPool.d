@@ -1,6 +1,6 @@
 module hunt.net.EventLoopPool;
 
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.event.EventLoop;
 import hunt.util.pool;
 

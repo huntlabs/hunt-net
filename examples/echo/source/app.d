@@ -16,7 +16,7 @@ import core.time;
 import core.thread;
 import hunt.net.codec.textline.TextLineCodec;
 import hunt.String;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 void main() {
     import std.stdio;
 

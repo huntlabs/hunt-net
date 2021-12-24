@@ -1,7 +1,7 @@
 module server;
 
 import hunt.net;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import hunt.net.codec.textline;
 
@@ -19,6 +19,7 @@ Content-Type: text/plain
 Hello, World!
 `;
 
+import hunt.io.IoError;
 
 void main() {
 
@@ -42,11 +43,17 @@ void main() {
 
         override DataHandleStatus messageReceived(Connection connection, Object message) {
 
-            tracef("message type: %s", typeid(message).name);
-            string str = format("data received: %s", message.toString());
-            tracef(str);
+            // tracef("message type: %s", typeid(message).name);
+            // string str = format("data received: %s", message.toString());
+            // tracef(str);
 
-            connection.write(ResponseContent);
+            try {
+                connection.write(ResponseContent);
+            // } catch (IoError err) {
+            //     warningf("Code: %d, Message: %s", err.errorCode(). err.errorMsg);
+            } catch(Exception ex) {
+                error(ex.msg);
+            }
 
             return DataHandleStatus.Done;
         }

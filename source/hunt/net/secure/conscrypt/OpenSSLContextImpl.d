@@ -18,7 +18,7 @@ import hunt.net.ssl.SSLEngine;
 import hunt.net.KeyCertOptions;
 
 import hunt.Exceptions;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 // import hunt.security.Key;
 
 import std.array;

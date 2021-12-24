@@ -2,7 +2,7 @@ module test.ObjectPoolTest;
 
 import hunt.net;
 import hunt.net.codec.textline;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.String;
 import hunt.event.EventLoop;
 import hunt.util.UnitTest;

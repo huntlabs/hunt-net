@@ -28,7 +28,7 @@ import hunt.Double;
 import hunt.Exceptions;
 import hunt.Float;
 import hunt.stream.Common;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.net.Exceptions;
 import hunt.util.StringBuilder;
 import hunt.text.Charset;

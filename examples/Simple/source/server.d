@@ -1,7 +1,7 @@
 module server;
 
 import hunt.net;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import hunt.net.codec.textline;
 import hunt.util.worker;
@@ -23,7 +23,7 @@ enum string ResponseContent = "HTTP/1.1 200 OK\r\nContent-Length: 13\r\nConnecti
 void main() {
 
     NetServerOptions options = new NetServerOptions();
-    options.workerThreadSize = 8;
+    options.workerThreadSize = 32;
     shared int counter = 0;
 
     NetServer server = NetUtil.createNetServer(options);

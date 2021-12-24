@@ -20,7 +20,7 @@ import hunt.net.secure.conscrypt.SSLUtils;
 // import hunt.security.x500.X500Principal;
 
 import hunt.collection;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.Exceptions;
 
 import std.array;

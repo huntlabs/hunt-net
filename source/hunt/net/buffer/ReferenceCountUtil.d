@@ -16,7 +16,7 @@
 module hunt.net.buffer.ReferenceCountUtil;
 
 import hunt.net.buffer.ReferenceCounted;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 
 /**

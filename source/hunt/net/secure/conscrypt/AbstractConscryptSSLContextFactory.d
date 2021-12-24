@@ -12,7 +12,7 @@ import hunt.net.ssl;
 import hunt.Exceptions;
 import hunt.stream.ByteArrayInputStream;
 import hunt.stream.Common;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.net.KeyCertOptions;
 // import hunt.security.cert.X509Certificate;
 import hunt.util.DateTime;

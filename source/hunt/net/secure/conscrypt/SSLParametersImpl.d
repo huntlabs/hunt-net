@@ -22,7 +22,7 @@ import hunt.net.KeyCertOptions;
 // import hunt.security.x500.X500Principal;
 
 import hunt.Exceptions;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.util.Common;
 import hunt.util.ObjectUtils;
 

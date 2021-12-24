@@ -10,7 +10,7 @@ import hunt.net.NetServerOptions;
 
 import hunt.event.EventLoop;
 import hunt.util.pool;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import std.concurrency : initOnce;
 

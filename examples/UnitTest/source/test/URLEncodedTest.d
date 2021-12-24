@@ -5,7 +5,7 @@ import hunt.net.util.UrlEncoded;
 import hunt.Assert;
 import hunt.Exceptions;
 
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import std.uri;
 import std.stdio;

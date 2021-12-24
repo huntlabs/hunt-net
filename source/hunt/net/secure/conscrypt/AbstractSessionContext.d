@@ -14,7 +14,7 @@ import hunt.net.secure.conscrypt.NativeSslSession;
 
 import hunt.collection;
 import hunt.Exceptions;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import deimos.openssl.ssl;
 

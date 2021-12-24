@@ -11,7 +11,7 @@ import hunt.io.ByteBuffer;
 import hunt.io.BufferUtils;
 import hunt.io.channel;
 import hunt.io.TcpStream;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.util.Common;
 
 import std.format;

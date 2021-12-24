@@ -13,7 +13,7 @@ import hunt.Functions;
 import hunt.io.TcpStream;
 import hunt.io.TcpStreamOptions;
 import hunt.io.IoError;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.util.ByteOrder;
 import hunt.util.AbstractLifecycle;
 import hunt.util.Lifecycle;

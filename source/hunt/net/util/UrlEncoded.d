@@ -8,7 +8,7 @@ import hunt.text.Common;
 import hunt.util.StringBuilder;
 import hunt.util.ConverterUtils;
 
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 
 import std.ascii;
 import std.conv;

@@ -22,7 +22,7 @@ import hunt.Byte;
 import hunt.collection;
 import hunt.Exceptions;
 import hunt.stream.Common;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.net.buffer;
 import hunt.text.Charset;
 import hunt.util.Common;

@@ -28,7 +28,7 @@ import hunt.net.buffer.UnpooledHeapByteBuf;
 import hunt.Byte;
 import hunt.io.ByteBuffer;
 import hunt.Exceptions;
-import hunt.logging.ConsoleLogger;
+import hunt.logging;
 import hunt.net.Exceptions;
 import hunt.stream.Common;
 import hunt.util.StringBuilder;
